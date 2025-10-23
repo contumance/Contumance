@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Scales Book — Contumance</title>
+  <meta name="description" content="The Scales Book — diapasón interactivo minimal con estética tipo e‑ink." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+  <style>
+    /* Paleta base (modo claro) alineada con index */
+    :root {
+      --paper: #f5f1e8;      /* fondo papel */
+      --ink: #2f2a1e;        /* texto principal */
+      --muted: #6b6253;      /* texto secundario */
+      --link: #2d5842;       /* enlaces */
+      --link-visited: #514f7a;
+      --accent: #a08a63;     /* bordes y separadores */
+      --rule: #d8d2c2;       /* líneas internas del diapasón */
+      --accent-soft:#999;    /* marcadores secundarios */
+      --maxw: 42rem;         /* ancho de lectura */
+      --radius: 14px;
+      --lh: 1.6;             /* interlineado */
+      --fs-base: 18px;       /* tamaño base */
+    }
+    /* Modo oscuro controlado por clase en <html> (igual que index) */
+    html.theme-dark {
+      --paper: #10110f;
+      --ink: #dbd6c9;
+      --muted: #a39c8c;
+      --link: #a9d0b8;
+      --link-visited: #c0b8e0;
+      --accent: #2a2b27;
+      --rule: #2a2b27;
+      --accent-soft:#7f7a6b;
+    }
+
+    html { font-size: var(--fs-base); }
+    body {
+      margin: 0; padding: 0; color: var(--ink); background: var(--paper);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      line-height: var(--lh); text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+    }
+    /* textura sutil tipo papel */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size: 3px 3px, 3px 3px; mix-blend-mode: multiply;
+    }
+
+    main { max-width: var(--maxw); margin: 0 auto; padding: 7vh 1.25rem 4rem; }
+
+    /* Header con miga y switch de tema a la derecha */
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    nav.breadcrumb { font-size:.95rem; }
+    nav.breadcrumb a { color: var(--link); text-decoration: none; text-underline-offset: 2px; }
+
+    h1 { margin:.2rem 0 .3rem 0; font-weight:600; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+    .subtitle { color: var(--muted); font-size:.95rem; margin-bottom: .8rem; }
+
+    .theme-toggle { border: 1px solid var(--accent); background: transparent; color: var(--ink);
+      border-radius: .45rem; padding: .35rem .55rem; cursor: pointer; font-size: 1.15rem; line-height: 1; }
+    .theme-toggle:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+    hr { border: none; border-top: 1px solid var(--accent); margin: 1.25rem 0; opacity:.5; }
+
+    /* Panel colapsable estilizado para encajar con el sitio */
+    details.panel { border:1px solid var(--accent); border-radius: .6rem; background: rgba(255,255,255,0.6); }
+    html.theme-dark details.panel { background: rgba(0,0,0,0.1); }
+    details.panel > summary { cursor:pointer; list-style:none; padding: .6rem .8rem; font-size: .95rem; font-weight:600; color: var(--ink); }
+    details.panel > summary::-webkit-details-marker { display:none; }
+    details.panel .panel-body { padding: .6rem .8rem .9rem; }
+
+    /* Controles compactos */
+    .controls { display:grid; gap:8px; align-items:center; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); margin-bottom:8px; }
+    .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    label { font-size:12px; opacity:.9; }
+    select, button, input[type="number"]{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
+    }
+    button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+    /* Editor de afinación en tarjetas */
+    .tuning { display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); }
+    .tuning .string-card { border:1px solid var(--accent); border-radius:.6rem; background: transparent; padding:8px; }
+
+    /* Fretboard */
+    .fretboard-wrap { margin: 10px 0 40px; }
+    .fretboard { overflow:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--accent); border-radius:.6rem; background: transparent; }
+    .board { display:grid; grid-auto-rows:minmax(30px, 5.4vh); grid-template-columns: 40px repeat(24, minmax(34px, 1fr)); position:relative; }
+    .string { display:contents; }
+    .nut, .fret { border-right:1px solid var(--rule); position:relative; }
+    .nut { display:flex; align-items:center; justify-content:center; font-size:12px; background: rgba(0,0,0,0.04); }
+    html.theme-dark .nut { background: rgba(255,255,255,0.06); }
+    .open-note { display:flex; align-items:center; justify-content:center; font-size:12px; }
+
+    .cell { position:relative; display:flex; align-items:center; justify-content:center; }
+    .fret-number { position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35; }
+
+    /* Marcas de notas */
+    .marker { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+    .dot { width:24px; height:24px; border-radius:999px; border:1.5px solid var(--accent-soft); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px; }
+    .dot.root { background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; }
+
+    /* Marcadores de posición (3,5,7,9,12,...) */
+    .pos-marker { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:6px; height:6px; border-radius:999px; background:#bbb; opacity:.5; }
+    .pos-marker.double { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:auto; height:auto; background:transparent; }
+    .pos-marker.double i { width:6px; height:6px; background:#bbb; opacity:.5; border-radius:999px; display:block; }
+
+    .footer { margin:30px 0 60px; font-size:12px; color: var(--muted); }
+
+    /* Animación sutil coherente con index */
+    @media (prefers-reduced-motion: no-preference) {
+      a { position: relative; background-image: linear-gradient(currentColor, currentColor); background-position: 0 100%; background-repeat: no-repeat; background-size: 0% 1px; transition: background-size .25s ease, color .2s ease; }
+      a:hover, a:focus-visible { background-size: 100% 1px; outline: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Miga de pan">
+        <a href="index.html">← Volver al índice</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌓</button>
+    </div>
+
+    <header>
+      <h1>The Scales Book</h1>
+      <div class="subtitle">Diapasón interactivo minimal para aprender escalas (3–10 cuerdas, hasta 24 trastes).</div>
+    </header>
+
+    <details class="panel" id="panel" open>
+      <summary>Setup</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Controles">
+          <div class="row">
+            <label for="stringCount">Cuerdas</label>
+            <input id="stringCount" type="number" min="3" max="10" value="6" style="width:86px" />
+            <button id="applyStrings">Aplicar</button>
+          </div>
+
+          <div class="row">
+            <label for="root">Tónica</label>
+            <select id="root"></select>
+          </div>
+
+          <div class="row">
+            <label for="scale">Escala</label>
+            <select id="scale"></select>
+          </div>
+
+          <div class="row">
+            <label for="labels">Etiquetas</label>
+            <select id="labels">
+              <option value="notes">Notas</option>
+              <option value="degrees">Grados</option>
+              <option value="off">Ocultas</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="tuningPanel" class="tuning" aria-label="Editor de afinación">
+          <!-- tarjetas por cuerda -->
+        </div>
+      </div>
+    </details>
+
+    <section class="fretboard-wrap">
+      <div id="fretboard" class="fretboard">
+        <div id="board" class="board" role="grid" aria-label="Fretboard"></div>
+      </div>
+    </section>
+
+    <p class="footer">Tip: usá ± para mover semitonos en cada cuerda. Todo se guarda en este dispositivo (sin backend).</p>
+
+    <footer>
+      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">Invitame un cafecito</a>
+    </footer>
+  </main>
+
+  <script>
+    // --- Theme toggle (igual al index) ---
+    (function(){
+      const KEY = 'theme-preference';
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      function setIcon(mode){ btn.textContent = mode === 'dark' ? '☀️' : '🌙'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let current = getPreferred();
+      apply(current);
+      btn.addEventListener('click', () => { current = current === 'dark' ? 'light' : 'dark'; localStorage.setItem(KEY, current); apply(current); });
+    })();
+  </script>
+
+  <script>
+  (function(){
+    // ------- Datos musicales -------
+    var NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    var SCALES = {
+      "Major (Ionian)":           [0,2,4,5,7,9,11],
+      "Natural minor (Aeolian)":  [0,2,3,5,7,8,10],
+      "Harmonic minor":           [0,2,3,5,7,8,11],
+      "Melodic minor (asc)":      [0,2,3,5,7,9,11],
+      "Pentatonic major":         [0,2,4,7,9],
+      "Pentatonic minor":         [0,3,5,7,10],
+      "Blues minor":              [0,3,5,6,7,10],
+      "Dorian":                   [0,2,3,5,7,9,10],
+      "Phrygian":                 [0,1,3,5,7,8,10],
+      "Lydian":                   [0,2,4,6,7,9,11],
+      "Mixolydian":               [0,2,4,5,7,9,10],
+      "Locrian":                  [0,1,3,5,6,8,10],
+      "Whole tone":               [0,2,4,6,8,10],
+      "Chromatic":                [0,1,2,3,4,5,6,7,8,9,10,11]
+    };
+    var DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1ª (aguda) arriba
+
+    // ------- Estado & persistencia -------
+    var state = {
+      strings: 6,
+      tuning: DEFAULT_TUNING_6.slice(),
+      root: "C",
+      scaleName: "Major (Ionian)",
+      labelMode: "notes" // notes | degrees | off
+    };
+    var LS_KEY = "the_scales_book_state_v1";
+    try{
+      var saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (saved && typeof saved === "object") Object.assign(state, saved);
+    }catch(e){}
+    function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+    // ------- Refs DOM -------
+    var board = document.getElementById("board");
+    var rootSel = document.getElementById("root");
+    var scaleSel = document.getElementById("scale");
+    var labelsSel = document.getElementById("labels");
+    var tuningPanel = document.getElementById("tuningPanel");
+    var stringCountInput = document.getElementById("stringCount");
+    var applyStringsBtn = document.getElementById("applyStrings");
+
+    // ------- Helpers -------
+    function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
+    function cycleNote(note, step){ var i = noteIndex(note); if (i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
+    function ensureTuningLen(n){
+      if (state.tuning.length < n){
+        var last = state.tuning[state.tuning.length-1] || "E";
+        while(state.tuning.length < n) state.tuning.push(last);
+      } else if (state.tuning.length > n){
+        state.tuning = state.tuning.slice(0, n);
+      }
+    }
+    function inScale(semitone, rootIdx, scale){ var rel = (semitone - rootIdx + 12) % 12; return scale.indexOf(rel) !== -1; }
+    function isRoot(semitone, rootIdx){ return ((semitone - rootIdx + 12) % 12) === 0; }
+
+    // ------- Poblar selects -------
+    function fillSelect(el, arr){ el.innerHTML = arr.map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join(''); }
+    fillSelect(rootSel, NOTES_SHARP);
+    fillSelect(scaleSel, Object.keys(SCALES));
+    rootSel.value = state.root;
+    scaleSel.value = state.scaleName;
+    stringCountInput.value = state.strings;
+    labelsSel.value = state.labelMode;
+
+    // ------- Editor de afinación -------
+    function renderTuningEditor(){
+      ensureTuningLen(state.strings);
+      var html = "";
+      for (var idx = 0; idx < state.tuning.length; idx++){
+        var note = state.tuning[idx];
+        var stringNum = idx + 1;
+        var opts = NOTES_SHARP.map(function(n){ return '<option value="'+n+'"' + (n===note?' selected':'') + '>'+n+'</option>'; }).join('');
+        html += ''
+          + '<div class="string-card">'
+          +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String '+stringNum+'</div>'
+          +   '<div class="row" style="gap:6px;">'
+          +     '<button data-act="down" data-idx="'+idx+'" title="Lower">−</button>'
+          +     '<div class="open-note" style="min-width:40px; text-align:center">'+note+'</div>'
+          +     '<button data-act="up" data-idx="'+idx+'" title="Raise">+</button>'
+          +     '<select data-act="set" data-idx="'+idx+'" style="flex:1; min-width:0;">'+opts+'</select>'
+          +   '</div>'
+          + '</div>';
+      }
+      tuningPanel.innerHTML = html;
+      tuningPanel.querySelectorAll('button').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var i = +btn.dataset.idx; var act = btn.dataset.act;
+          state.tuning[i] = cycleNote(state.tuning[i], act==='up' ? +1 : -1);
+          save(); renderTuningEditor(); renderBoard();
+        });
+      });
+      tuningPanel.querySelectorAll('select').forEach(function(sel){
+        sel.addEventListener('change', function(){ var i = +sel.dataset.idx; state.tuning[i] = sel.value; save(); renderBoard(); });
+      });
+    }
+
+    // ------- Render del diapasón -------
+    var FRETS = 24;
+    function renderBoard(){
+      board.innerHTML = "";
+      var markerCols = new Set([3,5,7,9,12,15,17,19,21,24]);
+      var scale = SCALES[state.scaleName];
+      var rootIdx = noteIndex(state.root);
+      var degreeBySemitone = new Map();
+      scale.forEach(function(offset, i){ degreeBySemitone.set(offset % 12, String(i+1)); });
+
+      for (var s = 0; s < state.strings; s++){
+        var openIdx = noteIndex(state.tuning[s]);
+        var stringRow = document.createElement('div');
+        stringRow.className = 'string';
+        var nut = document.createElement('div');
+        nut.className = 'nut open-note';
+        if (s>0) nut.style.borderTop = '1px solid var(--rule)';
+        var labelSpan = document.createElement('span'); labelSpan.textContent = state.tuning[s]; nut.appendChild(labelSpan);
+        var openSemitone = openIdx % 12;
+        if (inScale(openSemitone, rootIdx, scale)){
+          var m0 = document.createElement('div'); m0.className = 'marker';
+          var d0 = document.createElement('div'); d0.className = 'dot';
+          if (isRoot(openSemitone, rootIdx)) d0.classList.add('root');
+          var label0 = "";
+          if (state.labelMode === 'notes') label0 = NOTES_SHARP[openSemitone];
+          else if (state.labelMode === 'degrees'){
+            var rel0 = (openSemitone - rootIdx + 12) % 12; label0 = degreeBySemitone.get(rel0) || "";
+          }
+          d0.textContent = label0; m0.appendChild(d0); nut.appendChild(m0);
+        }
+        stringRow.appendChild(nut);
+        for (var f=1; f<=FRETS; f++){
+          var cell = document.createElement('div'); cell.className = 'fret cell';
+          if (s>0) cell.style.borderTop = '1px solid var(--rule)';
+          var semitone = (openIdx + f) % 12;
+          if (inScale(semitone, rootIdx, scale)){
+            var m = document.createElement('div'); m.className = 'marker';
+            var dot = document.createElement('div'); dot.className = 'dot';
+            if (isRoot(semitone, rootIdx)) dot.classList.add('root');
+            var label = "";
+            if (state.labelMode === 'notes') label = NOTES_SHARP[semitone];
+            else if (state.labelMode === 'degrees'){
+              var rel = (semitone - rootIdx + 12) % 12; label = degreeBySemitone.get(rel) || "";
+            }
+            dot.textContent = label; m.appendChild(dot); cell.appendChild(m);
+          }
+          if (s === state.strings-1){
+            var num = document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
+            if (markerCols.has(f)){
+              var pm = document.createElement('div');
+              if (f===12 || f===24){ pm.className='pos-marker double'; var i1=document.createElement('i'); var i2=document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
+              else { pm.className='pos-marker'; }
+              cell.appendChild(pm);
+            }
+          }
+          stringRow.appendChild(cell);
+        }
+        board.appendChild(stringRow);
+      }
+    }
+
+    // ------- Eventos -------
+    rootSel.addEventListener('change', function(){ state.root = rootSel.value; save(); renderBoard(); });
+    scaleSel.addEventListener('change', function(){ state.scaleName = scaleSel.value; save(); renderBoard(); });
+    labelsSel.addEventListener('change', function(){ state.labelMode = labelsSel.value; save(); renderBoard(); });
+    applyStringsBtn.addEventListener('click', function(){
+      var n = Math.max(3, Math.min(10, parseInt(stringCountInput.value||6, 10)));
+      state.strings = n; ensureTuningLen(n); save(); renderTuningEditor(); renderBoard();
+    });
+
+    // ------- Init -------
+    renderTuningEditor();
+    renderBoard();
+  })();
+  </script>
+</body>
+</html>
