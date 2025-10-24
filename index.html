@@ -88,23 +88,23 @@
   <main>
     <header class="header">
       <div>
-        <h1>Contumance</h1>
-        <p class="desc">Artista y creador de ideas. Experimentos sonoros y proyectos digitales minimalistas.</p>
+        <h1>Contumance library</h1>
+        <p class="desc">my libraries</p>
       </div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌓</button>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">◑</button>
     </header>
 
     <hr>
 
-    <nav aria-label="Índice de proyectos">
-      <h2>Índice</h2>
+    <nav aria-label="Proyectos">
+      <h2>Proyectos</h2>
       <ul class="index">
         <li><a href="the-scales-book.html">The scales book</a></li>
       </ul>
     </nav>
 
     <footer>
-      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">☕ Invitame un cafecito</a>
+      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">♨︎ Invitame un cafecito</a>
       <span>© <span id="y"></span> Contumance</span>
     </footer>
   </main>
@@ -117,7 +117,8 @@
 
       function setIcon(mode){
         // Claro → mostrar luna (ofrece pasar a oscuro). Oscuro → mostrar sol.
-        btn.textContent = mode === 'dark' ? '☀️' : '🌙';
+        btn.textContent = mode === 'dark' ? '◐' : '◑';
+
         btn.setAttribute('aria-label', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
         btn.setAttribute('title', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
       }
