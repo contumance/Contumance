@@ -1,310 +1,446 @@
 <!doctype html>
 <html lang="es">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Daily Chord — The Harmony Oracle</title>
-  <meta name="description" content="Un acorde por día como inspiración creativa, con la estética y estructura de The Scales Book." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
-  <style>
-    /* === Paleta y tipografía compartida con The Scales Book === */
-    :root{
-      --paper:#f5f1e8;      /* fondo papel */
-      --ink:#2f2a1e;        /* texto principal */
-      --muted:#6b6253;      /* texto secundario */
-      --link:#2d5842;       /* enlaces */
-      --link-visited:#514f7a;
-      --accent:#a08a63;     /* bordes y separadores */
-      --rule:#d8d2c2;       /* líneas internas */
-      --accent-soft:#7f7a6b;/* marcadores secundarios */
-      --maxw:42rem;         /* ancho de lectura */
-      --radius:14px;        /* radios */
-      --lh:1.6;             /* interlineado */
-      --fs-base:18px;       /* tamaño base */
-    }
-    html.theme-dark{
-      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c; --link:#a9d0b8; --link-visited:#c0b8e0;
-      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
-    }
-    html{font-size:var(--fs-base)}
-    body{margin:0;padding:0;color:var(--ink);background:var(--paper);
-      font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;}
-    /* Textura sutil tipo papel (igual al libro de escalas) */
-    body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
-      background-image:radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
-                       radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
-      background-size:3px 3px,3px 3px;mix-blend-mode:multiply}
-
-    main{max-width:var(--maxw);margin:0 auto;padding:7vh 1.25rem 4rem}
-
-    /* Topbar + breadcrumb + toggle tema */
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
-    nav.breadcrumb{font-size:.95rem}
-    nav.breadcrumb a{color:var(--link);text-decoration:none;text-underline-offset:2px}
-    .theme-toggle{border:1px solid var(--accent);background:transparent;color:var(--ink);
-      border-radius:.45rem;padding:.35rem .55rem;cursor:pointer;font-size:1.15rem;line-height:1}
-    .theme-toggle:focus-visible{outline:2px dashed var(--accent);outline-offset:2px}
-
-    h1{margin:.2rem 0 .3rem 0;font-weight:600;font-size:clamp(1.6rem,4vw,2.2rem)}
-    .subtitle{color:var(--muted);font-size:.95rem;margin-bottom:.8rem}
-
-    hr{border:none;border-top:1px solid var(--accent);margin:1.25rem 0;opacity:.5}
-
-    /* Panel colapsable reutilizado para los controles del oráculo */
-    details.panel{border:1px solid var(--accent);border-radius:.6rem;background:rgba(255,255,255,.6)}
-    html.theme-dark details.panel{background:rgba(0,0,0,.1)}
-    details.panel>summary{cursor:pointer;list-style:none;padding:.6rem .8rem;font-size:1.05rem;font-weight:700;color:var(--ink)}
-    details.panel>summary::-webkit-details-marker{display:none}
-    details.panel .panel-body{padding:.6rem .8rem .9rem}
-
-    .controls{display:grid;gap:8px;align-items:center;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:8px}
-    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    label{font-size:12px;opacity:.9}
-    select,button,input[type="date"]{appearance:none;border:1px solid var(--accent);background:transparent;color:var(--ink);
-      padding:10px 12px;border-radius:.5rem;font-family:inherit;font-size:14px;line-height:1;min-width:0}
-    button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-
-    /* Tarjeta resultado visual coherente con el libro */
-    .result{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem .9rem 1rem;background:transparent}
-    .kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-    .big{font-weight:700;letter-spacing:.02em;font-size:clamp(2.2rem,6vw,3rem);line-height:1.08;margin:.2rem 0 .1rem}
-    .meta{display:flex;gap:.5rem;flex-wrap:wrap;margin:.35rem 0}
-    .tag{border:1px solid var(--accent);border-radius:999px;padding:.2rem .55rem;font-size:.8rem;color:var(--muted)}
-    .mood{color:var(--muted);font-size:.95rem;margin-top:.2rem}
-
-    /* Diapasón compacto para referencia visual */
-    .fretcard{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem;background:transparent;margin-top:12px}
-    #fretboard{overflow:auto;text-align:center}
-    .fret svg{max-width:100%;height:auto;display:block}
-    .legend{color:var(--muted);font-size:.8rem;margin-top:.5rem;text-align:center}
-    .fb-grid line{stroke:var(--rule);stroke-width:1}
-    .fb-grid .nut{stroke:var(--ink);stroke-width:3}
-    .fb-note circle{fill:var(--ink)}
-    .fb-note text{font-size:10px;font-weight:700;fill:var(--paper)}
-
-    .foot{margin:30px 0 60px;font-size:12px;color:var(--muted)}
-
-    @media (prefers-reduced-motion:no-preference){
-      a{position:relative;background-image:linear-gradient(currentColor,currentColor);background-position:0 100%;background-repeat:no-repeat;background-size:0% 1px;transition:background-size .25s ease,color .2s ease}
-      a:hover,a:focus-visible{background-size:100% 1px;outline:none}
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <div class="topbar">
-      <nav class="breadcrumb" aria-label="Miga de pan">
-        <a href="index.html">← Volver al índice</a>
-      </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌓</button>
-    </div>
-
-    <header>
-      <h1>The Daily Chord — The Harmony Oracle</h1>
-      <div class="subtitle">Un acorde por día, con la misma estética y estructura que el libro de escalas.</div>
-    </header>
-
-    <details class="panel" open>
-      <summary>Controles</summary>
-      <div class="panel-body">
-        <div class="controls" role="group" aria-label="Controles del oráculo">
-          <div class="row">
-            <button id="btnToday" class="primary" type="button">Hoy</button>
-            <button id="btnRandom" type="button">Aleatorio</button>
-            <button id="btnShare" type="button">Compartir / Copiar</button>
-          </div>
-          <div class="row">
-            <label for="pickDate">Probar otra fecha:</label>
-            <input type="date" id="pickDate" />
-            <button id="btnGo" type="button">Ver</button>
-          </div>
-          <div class="row" style="gap:6px">
-            <span class="tag" id="notationTag" title="Notación usada">Notación: Do–Re–Mi</span>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <section class="fretcard" aria-label="Diapasón con el acorde">
-      <div class="kicker">Diapasón</div>
-      <div id="fretboard"></div>
-      <div class="legend">Cuerdas (6→1) a la izquierda · Trastes indicados arriba. R = raíz · 3/b3 · 5 · 7/b7.</div>
-    </section>
-
-    <section class="result" aria-live="polite">
-      <div class="kicker" id="dateLabel">Hoy</div>
-      <div class="big" id="chordText">—</div>
-      <div class="meta" id="metaTags"></div>
-      <p class="mood" id="moodLine">—</p>
-    </section>
-
-    <p class="foot">© HEXES — “Santuario del Colapso Industrial”. Minimal, oscuro, funcional. Este oráculo comparte estilos, rejillas, tipografías y controles con <em>The Scales Book</em> para una estética común.</p>
-  </main>
-
-  <!-- === Toggle de tema === -->
-  <script>
-    (function(){
-      var KEY='theme-preference';
-      var root=document.documentElement; var btn=document.getElementById('themeToggle');
-      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); btn.textContent='◑'; }
-      function preferred(){ var s=localStorage.getItem(KEY); if(s==='light'||s==='dark') return s; return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
-      var current = preferred(); apply(current);
-      btn.addEventListener('click', function(){ current = current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
-    })();
-  </script>
-
-  <!-- === Lógica del oráculo + diapasón integrado === -->
-  <script>
-    // Utilidades calendario y mapeos
-    var WEEKDAY_ES=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-    var WEEKDAY_ROOT={"Lunes":"C","Martes":"D","Miércoles":"E","Jueves":"F","Viernes":"G","Sábado":"A","Domingo":"B"};
-    function monthFamily(m){ if(m>=1&&m<=3) return 'mayor'; if(m>=4&&m<=6) return 'menor'; if(m>=7&&m<=9) return 'disminuido'; return 'dominante'; }
-    function dayOfYear(d){ var s=new Date(d.getFullYear(),0,1); return Math.floor((d-s)/86400000)+1; }
-    var TENSION_MAP=["triada","7","9","11","13","add9","maj7","sus4","mMaj7"]; // n%9
-    var ALTER_MAP=["♭9","♯9","♭5","♯11","♭13","add11","(sin alteraciones)"]; // n%7
-    var INVERSION_MAP=["posición raíz","1ª inversión","2ª inversión"]; // n%3
-    var FAMILY_MOODS={
-      mayor:"Claridad y expansión. Ideal para abrir progresiones.",
-      menor:"Introspección y movimiento interno. Textura emotiva.",
-      disminuido:"Misterio y tensión. Puente dramático / cromático.",
-      dominante:"Decisión y empuje. Tensión lista para resolver."
-    };
-
-    function buildChordSymbol(root,family,nDay){
-      var tSel=TENSION_MAP[nDay%9]; var aSel=ALTER_MAP[nDay%7]; var inv=INVERSION_MAP[nDay%3];
-      var quality=""; var extensions=[]; var alterations=[]; var symbol=root;
-      function pushExt(e){ if(e && e!=="triada" && e!=="sus4" && e!=="mMaj7") extensions.push(e); }
-      if(family==='mayor'){
-        if(tSel==='maj7') quality='maj7'; else if(tSel==='add9') quality='add9'; else if(tSel==='sus4') quality='sus4'; else quality='';
-        if(["9","11","13"].includes(tSel)) pushExt(tSel);
-      }else if(family==='menor'){
-        if(tSel==='mMaj7') quality='mMaj7';
-        else if(["7","9","11","13"].includes(tSel)){ quality='m7'; pushExt(tSel==='7'?"":tSel); }
-        else if(tSel==='add9') quality='madd9'; else quality='m';
-      }else if(family==='disminuido'){
-        if(tSel==='mMaj7') quality='mMaj7';
-        else if(["9","11","13","7"].includes(tSel)){ quality='m7♭5'; pushExt(tSel==='7'?"":tSel); }
-        else quality='dim7';
-      }else{
-        if(tSel==='sus4') quality='7sus4';
-        else if(["11","13","9","7"].includes(tSel)){ quality='7'; pushExt(tSel==='7'?"":tSel); }
-        else quality='7';
-      }
-      if(aSel && aSel!=="(sin alteraciones)") alterations.push(aSel);
-      symbol=root + (quality||"") + (extensions.filter(function(e){return e&&e!=="7"}).join("")) + (alterations.join(""));
-      return {root:root,family:family,quality:quality,extensions:extensions.filter(function(e){return e&&e!=="7"}),alterations:alterations,inversion:inv,symbol:symbol};
-    }
-    function rootFromWeekday(d){ return WEEKDAY_ROOT[ WEEKDAY_ES[d.getDay()] ]; }
-
-    // === UI refs ===
-    var $=function(s){return document.querySelector(s)};
-    var dateLabel=$('#dateLabel'); var chordText=$('#chordText'); var metaTags=$('#metaTags'); var moodLine=$('#moodLine'); var inputDate=$('#pickDate');
-
-    // ====== Notas y diapasón ======
-    var SOLFEGE_PC={"Do":0,"Re":2,"Mi":4,"Fa":5,"Sol":7,"La":9,"Si":11};
-    var STD_TUNING=[40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 en MIDI
-    var STRING_NAMES=['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
-    var DEG_LABELS={0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
-
-    function qualityToIntervals(family, quality){
-      if(family==='mayor'){
-        if(quality==='maj7') return [0,4,7,11];
-        if(quality==='sus4') return [0,5,7];
-        if(quality==='add9') return [0,4,7,14];
-        return [0,4,7];
-      }
-      if(family==='menor'){
-        if(quality==='mMaj7') return [0,3,7,11];
-        if(quality==='m7') return [0,3,7,10];
-        if(quality==='madd9') return [0,3,7,14];
-        return [0,3,7];
-      }
-      if(family==='disminuido'){
-        if(quality==='m7♭5') return [0,3,6,10];
-        return [0,3,6,9];
-      }
-      if(quality==='7sus4') return [0,5,7,10];
-      return [0,4,7,10];
-    }
-
-    function pickVoicing(pcRoot, intervals, windowStart){
-      var win=5; var out=[];
-      for(var s=0;s<STD_TUNING.length;s++){
-        var midiOpen=STD_TUNING[s];
-        var chosen=null, chosenDeg=null;
-        for(var f=windowStart; f<windowStart+win && f<=20; f++){
-          var pc=(midiOpen+f)%12;
-          for(var k=0;k<intervals.length;k++){
-            if(pc=== (pcRoot+ (intervals[k]%12)+12)%12){ chosen={string:s,fret:f}; chosenDeg=(intervals[k]%12); break; }
-          }
-          if(chosen) break;
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Daily Chord</title>
+    <meta name="description"
+        content="Un acorde por día como inspiración creativa" />
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+    <style>
+        /* Paleta/estilo compartido con Scales */
+        :root {
+            --paper: #f5f1e8;
+            --ink: #2f2a1e;
+            --muted: #6b6253;
+            --link: #2d5842;
+            --accent: #a08a63;
+            --rule: #d8d2c2;
+            --maxw: 42rem;
+            --lh: 1.6;
         }
-        out.push(chosen? {string:s,fret:chosen.fret,deg:chosenDeg} : null);
-      }
-      return out;
-    }
 
-    function renderFretboard(rootName, family, quality, nDay){
-      var pcRoot=SOLFEGE_PC[rootName]||0;
-      var intervals=qualityToIntervals(family,quality);
-      var start=( (nDay%12)+1 ); // ventana desplazada por día del año
-      var voicing=pickVoicing(pcRoot, intervals, start);
-      var frets=5; var startFret=start; var strings=6; var w=frets*44+100; var h=strings*26+70;
-      var svg=['<svg xmlns="http://www.w3.org/2000/svg" class="fret" viewBox="0 0 '+w+' '+h+'">'];
-      var x0=70, y0=40, dx=44, dy=26;
-      // Títulos e indicadores
-      svg.push('<text x="'+(x0+(frets*dx)/2)+'" y="'+(y0-18)+'" font-size="10">Trastes '+startFret+'–'+(startFret+frets-1)+'</text>');
-      svg.push('<text x="'+(x0-55)+'" y="'+(y0+(strings-1)*dy/2)+'" font-size="10" transform="rotate(-90 '+(x0-55)+','+(y0+(strings-1)*dy/2)+')">Cuerdas (6→1)</text>');
-      // Grid
-      svg.push('<g class="fb-grid">');
-      for(var s=0;s<strings;s++){
-        var y=y0+s*dy; svg.push('<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+frets*dx)+'" y2="'+y+'" />');
-        // nombre de cuerda
-        svg.push('<text x="'+(x0-15)+'" y="'+(y+4)+'" font-size="10" text-anchor="end">'+STRING_NAMES[s]+'</text>');
-      }
-      for(var f=0; f<=frets; f++){
-        var x=x0+f*dx; var cls=(startFret+f===0?'nut':'');
-        svg.push('<line x1="'+x+'" y1="'+(y0-dy/2)+'" x2="'+x+'" y2="'+(y0+(strings-1)*dy+dy/2)+'" class="'+cls+'" />');
-        if(f>0){ svg.push('<text x="'+(x-dx/2)+'" y="'+(y0-dy/1.3)+'" font-size="10">'+(startFret+f-1)+'</text>'); }
-      }
-      svg.push('</g>');
-      // Notas
-      svg.push('<g class="fb-note">');
-      voicing.forEach(function(v,idx){ if(!v) return; var cx=x0+(v.fret-startFret+.5)*dx; var cy=y0+idx*dy; var label=DEG_LABELS[(v.deg+12)%12]||'•';
-        svg.push('<circle cx="'+cx+'" cy="'+cy+'" r="11" />');
-        svg.push('<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle">'+label+'</text>');
-      });
-      svg.push('</g></svg>');
-      document.getElementById('fretboard').innerHTML=svg.join('');
-    }
+        html {
+            font-size: 18px
+        }
 
-    function tagsRender(items){ metaTags.innerHTML=''; items.forEach(function(t){ var el=document.createElement('span'); el.className='tag'; el.textContent=t; metaTags.appendChild(el); }); }
-    function formatDateLong(d){ return d.toLocaleDateString('es-UY',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); }
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: ui-serif, Georgia, serif;
+            line-height: var(--lh)
+        }
 
-    function computeForDate(d){
-      var n=dayOfYear(d); var root=rootFromWeekday(d); var fam=monthFamily(d.getMonth()+1); var built=buildChordSymbol(root,fam,n);
-      dateLabel.textContent=formatDateLong(d); chordText.textContent=built.symbol;
-      tagsRender([ 'Día '+n, 'Familia: '+fam, 'Inversión: '+built.inversion ]);
-      moodLine.textContent=FAMILY_MOODS[fam];
-      renderFretboard(built.root, built.family, built.quality, n);
-      window.dispatchEvent(new CustomEvent('oracle-chord',{detail:{
-        date:d.toISOString().slice(0,10), dayOfYear:n, root:built.root, family:built.family, quality:built.quality,
-        extensions:built.extensions, alterations:built.alterations, inversion:built.inversion, symbol:built.symbol
-      }}));
-    }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .06;
+            background-image: radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+                radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+            background-size: 3px 3px, 3px 3px;
+            mix-blend-mode: multiply
+        }
 
-    // Controles
-    document.getElementById('btnToday').addEventListener('click', function(){ computeForDate(new Date()); });
-    document.getElementById('btnRandom').addEventListener('click', function(){ var y=(new Date()).getFullYear(); var start=new Date(y,0,1); var rnd=Math.floor(Math.random()*365); var d=new Date(start.getTime()+rnd*86400000); inputDate.value=d.toISOString().slice(0,10); computeForDate(d); });
-    document.getElementById('btnGo').addEventListener('click', function(){ var v=inputDate.value; if(!v){ alert('Elegí una fecha.'); return;} var d=new Date(v+'T12:00:00'); computeForDate(d); });
-    document.getElementById('btnShare').addEventListener('click', function(){ var title='El Acorde del Día — The Harmony Oracle'; var text=chordText.textContent+' · '+dateLabel.textContent; if(navigator.share){ navigator.share({title:title,text:text}).catch(function(){}); } else { (navigator.clipboard? navigator.clipboard.writeText(title+'\n'+text): Promise.reject()).then(function(){ alert('Copiado al portapapeles.');}).catch(function(){ alert(text);}); }});
+        main {
+            max-width: var(--maxw);
+            margin: 0 auto;
+            padding: 7vh 1.25rem 4rem
+        }
 
-    // Init robusto
-    (function init(){
-      try{ var t=new Date(); inputDate.value=t.toISOString().slice(0,10); computeForDate(t); }
-      catch(err){ document.getElementById('chordText').textContent='⚠️ Error de inicialización'; console.error(err); }
-    })();
-  </script>
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem
+        }
+
+        nav.breadcrumb a {
+            color: var(--link);
+            text-decoration: none
+        }
+
+        .theme-toggle {
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--ink);
+            border-radius: .45rem;
+            padding: .35rem .55rem;
+            cursor: pointer
+        }
+
+        h1 {
+            margin: .2rem 0 .3rem 0;
+            font-weight: 600;
+            font-size: clamp(1.6rem, 4vw, 2.2rem)
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: .95rem;
+            margin-bottom: .8rem
+        }
+
+        details.panel {
+            border: 1px solid var(--accent);
+            border-radius: .6rem;
+            background: rgba(255, 255, 255, .6)
+        }
+
+        details.panel>summary {
+            cursor: pointer;
+            list-style: none;
+            padding: .6rem .8rem;
+            font-weight: 700
+        }
+
+        details.panel>summary::-webkit-details-marker {
+            display: none
+        }
+
+        .panel-body {
+            padding: .6rem .8rem .9rem
+        }
+
+        .controls {
+            display: grid;
+            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        button,
+        input[type="date"] {
+            appearance: none;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--ink);
+            padding: 10px 12px;
+            border-radius: .5rem;
+            font-size: 14px
+        }
+
+        button.primary {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink)
+        }
+
+        .result {
+            border: 1px solid var(--accent);
+            border-radius: .6rem;
+            padding: .9rem .9rem 1rem;
+            background: transparent;
+            margin-top: 12px
+        }
+
+        .kicker {
+            font-size: .78rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted)
+        }
+
+        .big {
+            font-weight: 700;
+            letter-spacing: .02em;
+            font-size: clamp(2.2rem, 6vw, 3rem);
+            line-height: 1.08;
+            margin: .2rem 0 .1rem
+        }
+
+        .meta {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin: .35rem 0
+        }
+
+        .tag {
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            padding: .2rem .55rem;
+            font-size: .8rem;
+            color: var(--muted)
+        }
+
+        .mood {
+            color: var(--muted);
+            font-size: .95rem;
+            margin-top: .2rem
+        }
+
+        /* Diapasón compacto */
+        .fretcard {
+            border: 1px solid var(--accent);
+            border-radius: .6rem;
+            padding: .9rem;
+            background: transparent;
+            margin-top: 12px
+        }
+
+        #fretboard {
+            overflow: auto;
+            text-align: center
+        }
+
+        .fret svg {
+            max-width: 100%;
+            height: auto;
+            display: block
+        }
+
+        .legend {
+            color: var(--muted);
+            font-size: .8rem;
+            margin-top: .5rem;
+            text-align: center
+        }
+
+        .fb-grid line {
+            stroke: var(--rule);
+            stroke-width: 1
+        }
+
+        .fb-grid .nut {
+            stroke: var(--ink);
+            stroke-width: 3
+        }
+
+        .fb-note circle {
+            fill: var(--ink)
+        }
+
+        .fb-note text {
+            font-size: 10px;
+            font-weight: 700;
+            fill: var(--paper)
+        }
+
+        .foot {
+            margin: 30px 0 60px;
+            font-size: 12px;
+            color: var(--muted)
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="topbar">
+            <nav class="breadcrumb" aria-label="Miga de pan"><a href="index.html">← Volver al índice</a></nav>
+            <button class="theme-toggle" id="themeToggle" type="button" title="Cambiar tema">🌓</button>
+        </div>
+
+        <header>
+            <h1>The Daily Chord</h1>
+            <div class="subtitle">Un acorde por día</div>
+        </header>
+
+        <details class="panel" open>
+            <summary>Controles</summary>
+            <div class="panel-body">
+                <div class="controls" role="group" aria-label="Controles del oráculo">
+                    <div class="row">
+                        <button id="btnToday" class="primary" type="button">Hoy</button>
+                        <button id="btnRandom" type="button">Aleatorio</button>
+                        <button id="btnShare" type="button">Compartir / Copiar</button>
+                    </div>
+                    <div class="row">
+                        <label for="pickDate">Otra fecha:</label>
+                        <input type="date" id="pickDate" />
+                        <button id="btnGo" type="button">Ver</button>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <section class="result" aria-live="polite">
+            <div class="kicker" id="dateLabel">Hoy</div>
+            <div class="big" id="chordText">—</div>
+            <div class="meta" id="metaTags"></div>
+            <p class="mood" id="moodLine">—</p>
+        </section>
+
+        <section class="fretcard" aria-label="Diapasón con el acorde">
+            <div class="kicker">Diapasón</div>
+            <div id="fretboard"></div>
+            <!--<div class="legend">Strings (6→1) a la izquierda · Frets indicados arriba. R = root · 3/b3 · 5 · 7/b7.</div>-->
+        </section>
+
+        <p class="foot">© Contumance</p>
+    </main>
+
+    <!-- Toggle de tema -->
+    <script>
+        (function () {
+            var KEY = 'theme-preference';
+            var root = document.documentElement; var btn = document.getElementById('themeToggle');
+            function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); btn.textContent = '◑'; }
+            function preferred() {
+                var s = localStorage.getItem(KEY); if (s === 'light' || s === 'dark') return s;
+                return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+            var current = preferred(); apply(current);
+            btn.addEventListener('click', function () {
+                current = current === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(KEY, current); apply(current);
+            });
+        })();
+    </script>
+
+    <!-- Lógica del oráculo + diapasón (cifrado americano y raíz robusta) -->
+    <script>
+        // Día del año
+        function dayOfYear(d) { var s = new Date(d.getFullYear(), 0, 1); return Math.floor((d - s) / 86400000) + 1; }
+
+        // Familia por mes
+        function monthFamily(m) {
+            if (m >= 1 && m <= 3) return 'major'; if (m >= 4 && m <= 6) return 'minor';
+            if (m >= 7 && m <= 9) return 'diminished'; return 'dominant';
+        }
+
+        // Raíz por día de semana (0=Domingo..6=Sábado) — evita problemas de locale
+        const ROOTS_BY_DAY = ["C", "D", "E", "F", "G", "A", "B"];
+
+        // Notas y grados
+        const NOTE_PC = { "C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11 };
+        const STD_TUNING = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4
+        const STRING_NAMES = ['6(E)', '5(A)', '4(D)', '3(G)', '2(B)', '1(e)'];
+        const DEG_LABELS = { 0: 'R', 1: '♭2', 2: '2', 3: '♭3', 4: '3', 5: '4', 6: '♭5', 7: '5', 8: '♯5', 9: '6', 10: '♭7', 11: '7' };
+
+        // Intervalos básicos según familia (simple y legible)
+        function qualityToIntervals(family) {
+            if (family === 'major') return [0, 4, 7];
+            if (family === 'minor') return [0, 3, 7];
+            if (family === 'diminished') return [0, 3, 6];
+            return [0, 4, 7, 10]; // dominant -> 7
+        }
+        function familyToSymbolSuffix(family) {
+            if (family === 'major') return '';         // triada mayor
+            if (family === 'minor') return 'm';        // triada menor
+            if (family === 'diminished') return 'dim'; // disminuido
+            return '7';                             // dominante
+        }
+
+        // Selección de voicing simple (1 nota por cuerda en ventana de 5 trastes)
+        function pickVoicing(pcRoot, intervals, windowStart) {
+            var win = 5, out = [];
+            for (var s = 0; s < STD_TUNING.length; s++) {
+                var midiOpen = STD_TUNING[s], chosen = null, deg = null;
+                for (var f = windowStart; f < windowStart + win && f <= 20; f++) {
+                    var pc = (midiOpen + f) % 12;
+                    for (var k = 0; k < intervals.length; k++) {
+                        if (pc === (pcRoot + (intervals[k] % 12) + 12) % 12) { chosen = { string: s, fret: f }; deg = (intervals[k] % 12); break; }
+                    }
+                    if (chosen) break;
+                }
+                out.push(chosen ? { string: s, fret: chosen.fret, deg: deg } : null);
+            }
+            return out;
+        }
+
+        // Render del diapasón
+        function renderFretboard(rootName, family, nDay) {
+            var pcRoot = NOTE_PC[rootName] || 0;
+            var intervals = qualityToIntervals(family);
+            var start = (nDay % 12) + 1; // desplaza la ventana por día
+            var voicing = pickVoicing(pcRoot, intervals, start);
+
+            var frets = 5, startFret = start, strings = 6, w = frets * 44 + 100, h = strings * 26 + 70;
+            var x0 = 70, y0 = 40, dx = 44, dy = 26;
+            var svg = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '">'];
+
+            // encabezados
+            //svg.push('<text x="' + (x0 + (frets * dx) / 2) + '" y="' + (y0 - 18) + '" font-size="10">Frets ' + startFret + '-' + (startFret + frets - 1) + '</text>');
+            //svg.push('<text x="' + (x0 - 55) + '" y="' + (y0 + (strings - 1) * dy / 2) + '" font-size="10" transform="rotate(-90 ' + (x0 - 55) + ',' + (y0 + (strings - 1) * dy / 2) + ')">Strings (6→1)</text>');
+
+            // grid
+            svg.push('<g class="fb-grid">');
+            for (var s = 0; s < strings; s++) {
+                var y = y0 + s * dy;
+                svg.push('<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + frets * dx) + '" y2="' + y + '"/>');
+                svg.push('<text x="' + (x0 - 15) + '" y="' + (y + 4) + '" font-size="10" text-anchor="end">' + STRING_NAMES[s] + '</text>');
+            }
+            for (var f = 0; f <= frets; f++) {
+                var x = x0 + f * dx; var cls = (startFret + f === 0 ? 'nut' : '');
+                svg.push('<line x1="' + x + '" y1="' + (y0 - dy / 2) + '" x2="' + x + '" y2="' + (y0 + (strings - 1) * dy + dy / 2) + '" class="' + cls + '"/>');
+                if (f > 0) svg.push('<text x="' + (x - dx / 2) + '" y="' + (y0 - dy / 1.3) + '" font-size="10">' + (startFret + f - 1) + '</text>');
+            }
+            svg.push('</g>');
+
+            // notas
+            svg.push('<g class="fb-note">');
+            voicing.forEach(function (v, idx) {
+                if (!v) return;
+                var cx = x0 + (v.fret - startFret + .5) * dx, cy = y0 + idx * dy, label = DEG_LABELS[(v.deg + 12) % 12] || '•';
+                svg.push('<circle cx="' + cx + '" cy="' + cy + '" r="11"/>');
+                svg.push('<text x="' + cx + '" y="' + (cy + 3) + '" text-anchor="middle">' + label + '</text>');
+            });
+            svg.push('</g></svg>');
+
+            document.getElementById('fretboard').innerHTML = svg.join('');
+        }
+
+        // UI refs y helpers
+        var $ = function (s) { return document.querySelector(s) };
+        var dateLabel = $('#dateLabel'), chordText = $('#chordText'), metaTags = $('#metaTags'), moodLine = $('#moodLine'), inputDate = $('#pickDate');
+        function tagsRender(items) { metaTags.innerHTML = ''; items.forEach(function (t) { var el = document.createElement('span'); el.className = 'tag'; el.textContent = t; metaTags.appendChild(el); }); }
+        function formatDateLong(d) { return d.toLocaleDateString('es-UY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
+
+        function computeForDate(d) {
+            var n = dayOfYear(d);
+            var root = ROOTS_BY_DAY[d.getDay()];         // ← robusto a locale
+            var fam = monthFamily(d.getMonth() + 1);     // major / minor / diminished / dominant
+            var symbol = root + familyToSymbolSuffix(fam);
+
+            // pintar UI
+            dateLabel.textContent = formatDateLong(d);
+            chordText.textContent = symbol;
+            tagsRender(['Día ' + n, 'Familia: ' + ({ major: 'mayor', minor: 'menor', diminished: 'disminuido', dominant: 'dominante' }[fam])]);
+            moodLine.textContent = ({ major: 'Claridad y expansión.', minor: 'Introspección y movimiento interno.', diminished: 'Misterio y tensión.', dominant: 'Decisión y empuje. Tensión lista para resolver.' }[fam]);
+
+            // diapasón
+            renderFretboard(root, fam, n);
+
+            // evento externo por si hay integración con otra vista
+            window.dispatchEvent(new CustomEvent('oracle-chord', { detail: { date: d.toISOString().slice(0, 10), dayOfYear: n, root: root, family: fam, symbol: symbol } }));
+        }
+
+        // Controles
+        document.getElementById('btnToday').addEventListener('click', function () { computeForDate(new Date()); });
+        document.getElementById('btnRandom').addEventListener('click', function () {
+            var y = (new Date()).getFullYear(); var start = new Date(y, 0, 1); var rnd = Math.floor(Math.random() * 365);
+            var d = new Date(start.getTime() + rnd * 86400000); inputDate.value = d.toISOString().slice(0, 10); computeForDate(d);
+        });
+        document.getElementById('btnGo').addEventListener('click', function () {
+            var v = inputDate.value; if (!v) { alert('Elegí una fecha.'); return; } var d = new Date(v + 'T12:00:00'); computeForDate(d);
+        });
+        document.getElementById('btnShare').addEventListener('click', function () {
+            var title = 'El Acorde del Día'; var text = chordText.textContent + ' · ' + dateLabel.textContent;
+            if (navigator.share) { navigator.share({ title: title, text: text }).catch(function () { }); }
+            else {
+                (navigator.clipboard ? navigator.clipboard.writeText(title + '\n' + text) : Promise.reject())
+                .then(function () { alert('Copiado al portapapeles.'); })
+                .catch(function () { alert(text); });
+            }
+        });
+
+        // Init
+        (function init() {
+            try { var t = new Date(); inputDate.value = t.toISOString().slice(0, 10); computeForDate(t); }
+            catch (err) { chordText.textContent = '⚠️ Error de inicialización'; console.error(err); }
+        })();
+    </script>
 </body>
 </html>
