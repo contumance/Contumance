@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Chords Book — Contumance</title>
-  <meta name="description" content="The Chords Book — visualiza en el diapasón únicamente las notas de un acorde, con estética e‑ink." />
+  <meta name="description" content="The Chords Book — visualiza en el diapasón las notas de un acorde y guías de inversión, estética e‑ink." />
   <style>
     /* ===== Estética Kindle ===== */
     :root { --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --accent:#a08a63; --rule:#d8d2c2; --link:#2d5842; --link-visited:#514f7a; --maxw:42rem; --lh:1.6; --fs:18px; --dot-border: rgba(0,0,0,.35); }
@@ -40,7 +40,7 @@
 
     /* ===== Diapasón (sin scroll, ancho completo) ===== */
     .fretboard-wrap{ margin:10px 0 40px; }
-    .fretboard{ width:100%; border:1px solid var(--accent); border-radius:.6rem; }
+    .fretboard{ width:100%; border:1px solid var(--accent); border-radius:.6rem; position:relative; }
     .board{ display:grid; width:100%; position:relative; grid-auto-rows:minmax(30px,5vh); grid-template-columns: 44px repeat(24, 1fr); }
     .string{ display:contents; }
     .nut,.fret{ border-right:1px solid var(--rule); position:relative; }
@@ -51,9 +51,18 @@
     .fret-number{ position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35; }
 
     /* Notas del acorde */
-    .marker{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+    .marker{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:2; }
     .dot{ width:26px; height:26px; border-radius:999px; border:1.5px solid var(--dot-border); background:transparent; display:flex; align-items:center; justify-content:center; font-size:12px; }
     .dot.root{ background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; }
+
+    /* ===== Guías de inversión: líneas verticales marcadas ===== */
+    .zone{ position:absolute; z-index:0; top:0; bottom:0; border-left:2px solid var(--accent); border-right:2px solid var(--accent); opacity:.55; border-radius:6px; pointer-events:none; }
+    .zone.solid{ border-style:solid; }
+    .zone.dashed{ border-style:dashed; }
+    .zone.dotted{ border-style:dotted; }
+    .zone.mix{ border-left-style:dashed; border-right-style:dotted; }
+    .zone .tag{ position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:10px; color:var(--muted); background:var(--paper); padding:0 4px; border-radius:4px; }
+
   </style>
 </head>
 <body>
@@ -65,7 +74,7 @@
 
     <header>
       <h1>The Chords Book</h1>
-      <div class="subtitle">Visualización limpia: se muestran únicamente las notas del acorde en el diapasón. Sin ayudas ni overlays.</div>
+      <div class="subtitle">Visual limpio: solo puntos del acorde y **líneas guía** que separan zonas de inversión.</div>
     </header>
 
     <details class="panel" open>
@@ -91,6 +100,29 @@
               <option value="notes">Notas</option>
               <option value="degrees">Grados</option>
               <option value="off">Ocultas</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="chordTones">Notas del acorde</label>
+            <select id="chordTones">
+              <option value="3" selected>3 (tríada)</option>
+              <option value="4">4 (7ª)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="stringsUsed">Notas por voicing</label>
+            <select id="stringsUsed">
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="span">Rango de trastes (máx)</label>
+            <select id="span">
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
             </select>
           </div>
         </div>
@@ -121,7 +153,7 @@
   </script>
 
   <script>
-  // ===== Lógica de acordes: solo puntos del acorde =====
+  // ===== Lógica: puntos del acorde + guías de inversión =====
   (function(){
     const NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
     const CHORDS={
@@ -141,15 +173,18 @@
     const DEFAULT_TUNING_6=["E","B","G","D","A","E"]; // 1ª aguda arriba
     const FRETS=24;
 
-    const state={ strings:6, tuning:DEFAULT_TUNING_6.slice(), root:'C', chordName:'Major (maj)', labels:'notes' };
-    try{ const s=JSON.parse(localStorage.getItem('the_chords_book_state_clean')||'null'); if(s) Object.assign(state,s);}catch(e){}
-    function save(){ localStorage.setItem('the_chords_book_state_clean', JSON.stringify(state)); }
+    const state={ strings:6, tuning:DEFAULT_TUNING_6.slice(), root:'C', chordName:'Major (maj)', labels:'notes', chordTones:3, stringsUsed:3, span:4 };
+    try{ const s=JSON.parse(localStorage.getItem('the_chords_book_state_guides')||'null'); if(s) Object.assign(state,s);}catch(e){}
+    function save(){ localStorage.setItem('the_chords_book_state_guides', JSON.stringify(state)); }
 
-    // DOM refs
+    // DOM
     const board=document.getElementById('board');
     const rootSel=document.getElementById('root');
     const chordSel=document.getElementById('chord');
     const labelsSel=document.getElementById('labels');
+    const tonesSel=document.getElementById('chordTones');
+    const stringsUsedSel=document.getElementById('stringsUsed');
+    const spanSel=document.getElementById('span');
     const stringCountInput=document.getElementById('stringCount');
     const applyBtn=document.getElementById('applyStrings');
     const tuningPanel=document.getElementById('tuningPanel');
@@ -162,7 +197,8 @@
     function fillSelect(el, arr){ el.innerHTML=arr.map(v=>`<option value="${v}">${v}</option>`).join(''); }
     fillSelect(rootSel, NOTES); rootSel.value=state.root;
     fillSelect(chordSel, Object.keys(CHORDS)); chordSel.value=state.chordName;
-    labelsSel.value=state.labels; stringCountInput.value=state.strings;
+    labelsSel.value=state.labels; tonesSel.value=String(state.chordTones); stringsUsedSel.value=String(state.stringsUsed); spanSel.value=String(state.span);
+    stringCountInput.value=state.strings;
 
     // Editor de afinación
     function cycle(note, step){ let i=idx(note); if(i<0) i=0; return NOTES[wrap(i+step)]; }
@@ -191,7 +227,7 @@
       }));
     }
 
-    // Render del diapasón vacío
+    // Render base del diapasón
     function renderBoardBase(){
       board.innerHTML='';
       for(let s=0;s<state.strings;s++){
@@ -207,9 +243,17 @@
       }
     }
 
+    // Devuelve grados del acorde recortados a N notas (p.ej. triada/7ª)
+    function chordDegrees(){
+      const full = CHORDS[state.chordName].map(wrap);
+      const uniq = [];
+      full.forEach(x=>{ if(!uniq.includes(x)) uniq.push(x); });
+      return uniq.slice(0, state.chordTones); // 3 o 4
+    }
+
     // Pinta solo las notas del acorde
     function renderChordDots(){
-      const chord=CHORDS[state.chordName]; const rootIdx=idx(state.root); const set=new Set(chord.map(wrap));
+      const chord=chordDegrees(); const rootIdx=idx(state.root); const set=new Set(chord);
       for(let s=0; s<state.strings; s++){
         const openIdx=idx(state.tuning[s]);
         for(let f=1; f<=FRETS; f++){
@@ -225,12 +269,58 @@
       }
     }
 
-    function renderAll(){ renderBoardBase(); renderChordDots(); save(); }
+    // Encuentra voicings y pinta SOLO líneas guía (sin relleno)
+    function renderGuideLines(){
+      const chord=chordDegrees(); const rootIdx=idx(state.root); const set=new Set(chord);
+      const used=state.stringsUsed|0; const span=state.span|0;
+      const seen=new Set();
+      for(let s0=0; s0<=state.strings-used; s0++){
+        const s1=s0+used-1;
+        for(let f0=1; f0<=FRETS-span; f0++){
+          const chosen=[]; let ok=true;
+          for(let s=s0; s<=s1; s++){
+            const openIdx=idx(state.tuning[s]); let found=null;
+            for(let f=f0; f<=f0+span; f++){
+              const pc=wrap(openIdx+f); const rel=wrap(pc-rootIdx);
+              if(set.has(rel)){ found={s,f,rel}; break; }
+            }
+            if(!found){ ok=false; break; }
+            chosen.push(found);
+          }
+          if(!ok) continue;
+          const uniq=new Set(chosen.map(c=>c.rel));
+          if(uniq.size < Math.min(3,set.size)) continue;
+          const bass=chosen.reduce((a,b)=> a.s>b.s?a:b);
+          const invIdx = (function(){
+            const order = chord; // 0=root,1=tercera,... dentro de chord recortado
+            const i = order.indexOf(bass.rel);
+            return Math.max(0, Math.min(i,3));
+          })();
+          const minF=Math.min(...chosen.map(c=>c.f));
+          const maxF=Math.max(...chosen.map(c=>c.f));
+          const key=`${minF}-${maxF}-${s0}-${s1}-${invIdx}`; if(seen.has(key)) continue; seen.add(key);
+          const el=document.createElement('div'); el.className='zone ' + (invIdx===0?'solid':invIdx===1?'dashed':invIdx===2?'dotted':'mix');
+          // posicionar en coordenadas del grid
+          const colStart=minF+1; const colEnd=maxF+2; // +1 por nuez, end exclusivo
+          const rowStart=s0+1; const rowEnd=s1+2;
+          el.style.gridColumn = colStart + ' / ' + colEnd;
+          el.style.gridRow = rowStart + ' / ' + rowEnd;
+          const tag=document.createElement('span'); tag.className='tag'; tag.textContent = invIdx===0?'Root':(invIdx===1?'1ª':(invIdx===2?'2ª':'3ª'));
+          el.appendChild(tag);
+          board.appendChild(el);
+        }
+      }
+    }
+
+    function renderAll(){ renderBoardBase(); renderGuideLines(); renderChordDots(); save(); }
 
     // Eventos
     rootSel.addEventListener('change',()=>{ state.root=rootSel.value; renderAll(); });
     chordSel.addEventListener('change',()=>{ state.chordName=chordSel.value; renderAll(); });
     labelsSel.addEventListener('change',()=>{ state.labels=labelsSel.value; renderAll(); });
+    tonesSel.addEventListener('change',()=>{ state.chordTones=+tonesSel.value; renderAll(); });
+    stringsUsedSel.addEventListener('change',()=>{ state.stringsUsed=+stringsUsedSel.value; renderAll(); });
+    spanSel.addEventListener('change',()=>{ state.span=+spanSel.value; renderAll(); });
     applyBtn.addEventListener('click',()=>{ const n=Math.max(3,Math.min(10,parseInt(stringCountInput.value||6,10))); state.strings=n; ensureTuningLen(n); renderTuningEditor(); renderAll(); });
 
     // Init
