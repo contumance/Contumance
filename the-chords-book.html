@@ -4,28 +4,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Chords Book — Contumance</title>
-  <meta name="description" content="The Chords Book — todas las inversiones posibles de un acorde en el diapasón." />
+  <meta name="description" content="The Chords Book — inversiones de acordes a lo largo del diapasón, con estética e‑ink." />
   <style>
-    /* ===== Estética Kindle (claro por defecto) ===== */
+    /* ===== Estética Kindle ===== */
     :root {
       --paper: #f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --accent:#a08a63; --rule:#d8d2c2;
       --link:#2d5842; --link-visited:#514f7a; --maxw:42rem; --lh:1.6; --fs:18px;
-      /* Grises para inversiones (modo claro) */
-      --g0: rgba(0,0,0,.12); /* root */
-      --g1: rgba(0,0,0,.18);
-      --g2: rgba(0,0,0,.26);
-      --g3: rgba(0,0,0,.34);
       --dot-border: rgba(0,0,0,.35);
+      /* capas por inversión (solo grises) */
+      --vx0: rgba(0,0,0,.12); /* root pos */
+      --vx1: rgba(0,0,0,.18);
+      --vx2: rgba(0,0,0,.26);
+      --vx3: rgba(0,0,0,.34);
     }
     html.theme-dark{
       --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c; --accent:#2a2b27; --rule:#2a2b27;
-      --link:#a9d0b8; --link-visited:#c0b8e0;
-      /* Grises para inversiones (modo oscuro) */
-      --g0: rgba(255,255,255,.08);
-      --g1: rgba(255,255,255,.12);
-      --g2: rgba(255,255,255,.16);
-      --g3: rgba(255,255,255,.20);
-      --dot-border: rgba(255,255,255,.35);
+      --link:#a9d0b8; --link-visited:#c0b8e0; --dot-border: rgba(255,255,255,.35);
+      --vx0: rgba(255,255,255,.10); --vx1: rgba(255,255,255,.14); --vx2: rgba(255,255,255,.18); --vx3: rgba(255,255,255,.22);
     }
 
     html{ font-size:var(--fs); }
@@ -66,9 +61,7 @@
     /* ===== Diapasón (sin scroll, ancho completo) ===== */
     .fretboard-wrap{ margin:10px 0 40px; }
     .fretboard{ width:100%; border:1px solid var(--accent); border-radius:.6rem; }
-    .board{ display:grid; width:100%; position:relative;
-      grid-auto-rows:minmax(30px,5vh);
-      grid-template-columns: 44px repeat(24, 1fr); /* 0=nuez + 24 trastes */ }
+    .board{ display:grid; width:100%; position:relative; grid-auto-rows:minmax(30px,5vh); grid-template-columns: 44px repeat(24, 1fr); }
     .string{ display:contents; }
     .nut,.fret{ border-right:1px solid var(--rule); position:relative; }
     .nut{ display:flex; align-items:center; justify-content:center; font-size:12px; background:rgba(0,0,0,.04); }
@@ -78,20 +71,31 @@
     .fret-number{ position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35; }
 
     /* Notas */
-    .marker{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-    .dot{ width:24px; height:24px; border-radius:999px; border:1.5px solid var(--dot-border); background:transparent;
-      display:flex; align-items:center; justify-content:center; font-size:11px; }
+    .marker{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:2; }
+    .dot{ width:24px; height:24px; border-radius:999px; border:1.5px solid var(--dot-border); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px; }
     .dot.root{ background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; }
 
-    /* Overlays de inversiones */
-    .voicing{ border-radius:.5rem; border:1px dashed var(--accent); position:relative; }
-    .inv0{ background:var(--g0);} .inv1{ background:var(--g1);} .inv2{ background:var(--g2);} .inv3{ background:var(--g3);} 
-    .voicing label{ position:absolute; top:4px; left:6px; font-size:10px; color:var(--muted); }
+    /* ===== Nueva estrategia de inversiones: marcar células específicas ===== */
+    .vx{ position:absolute; inset:2px; border-radius:6px; z-index:1; /* detrás del punto */ border:1px dashed var(--accent); mix-blend-mode:multiply; }
+    /* escala de grises por inversión */
+    .inv0{ background:var(--vx0); }
+    .inv1{ background:repeating-linear-gradient(45deg, var(--vx1) 0 6px, transparent 6px 12px); }
+    .inv2{ background:repeating-linear-gradient(135deg, var(--vx2) 0 6px, transparent 6px 12px); }
+    .inv3{ background:repeating-linear-gradient(45deg, var(--vx3) 0 6px, transparent 6px 9px),
+            repeating-linear-gradient(135deg, var(--vx3) 0 6px, transparent 6px 9px); }
+    /* insignia mini de inversión */
+    .vx-badge{ position:absolute; top:3px; left:4px; font-size:10px; color:var(--muted); z-index:3; pointer-events:none; }
 
-    .legend{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:8px 0 0; }
+    .legend{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:8px 0 0; }
     .chip{ display:inline-flex; align-items:center; gap:6px; }
-    .chip i{ width:14px; height:10px; border-radius:3px; display:inline-block; }
-    .chip.root i{ background:var(--g0);} .chip.inv1 i{ background:var(--g1);} .chip.inv2 i{ background:var(--g2);} .chip.inv3 i{ background:var(--g3);} 
+    .chip i{ width:18px; height:12px; border-radius:4px; display:inline-block; border:1px dashed var(--accent); }
+    .chip.root i{ background:var(--vx0);} 
+    .chip.inv1 i{ background:repeating-linear-gradient(45deg, var(--vx1) 0 6px, transparent 6px 12px); }
+    .chip.inv2 i{ background:repeating-linear-gradient(135deg, var(--vx2) 0 6px, transparent 6px 12px); }
+    .chip.inv3 i{ background:
+      repeating-linear-gradient(45deg, var(--vx3) 0 6px, transparent 6px 9px),
+      repeating-linear-gradient(135deg, var(--vx3) 0 6px, transparent 6px 9px);
+    }
 
     @media (prefers-reduced-motion:no-preference){
       a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; }
@@ -108,7 +112,7 @@
 
     <header>
       <h1>The Chords Book</h1>
-      <div class="subtitle">Seleccioná tónica y tipo de acorde y se muestran todas las inversiones posibles a lo largo del diapasón.</div>
+      <div class="subtitle">Elegí tónica y tipo de acorde. Se marcan todas las inversiones posibles en cada celda (sin overlays enormes).</div>
     </header>
 
     <details class="panel" open>
@@ -187,7 +191,7 @@
   </script>
 
   <script>
-  // ===== Lógica de acordes =====
+  // ===== Lógica de acordes con marcador por celda =====
   (function(){
     const NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
     const CHORDS={
@@ -208,8 +212,8 @@
     const FRETS=24;
 
     const state={ strings:6, tuning:DEFAULT_TUNING_6.slice(), root:'C', chordName:'Major (maj)', labels:'notes', stringsUsed:4, span:4 };
-    try{ const s=JSON.parse(localStorage.getItem('the_chords_book_state_v2')||'null'); if(s) Object.assign(state,s);}catch(e){}
-    function save(){ localStorage.setItem('the_chords_book_state_v2', JSON.stringify(state)); }
+    try{ const s=JSON.parse(localStorage.getItem('the_chords_book_state_v3')||'null'); if(s) Object.assign(state,s);}catch(e){}
+    function save(){ localStorage.setItem('the_chords_book_state_v3', JSON.stringify(state)); }
 
     // DOM refs
     const board=document.getElementById('board');
@@ -263,87 +267,78 @@
       }));
     }
 
-    // Render base del diapasón con notas del acorde
-    function renderBoardNotes(){
+    // Render del diapasón y puntos del acorde
+    function renderBoardBase(){
       board.innerHTML='';
-      const chord=CHORDS[state.chordName];
-      const rootIdx=idx(state.root);
-      const chordSet=new Set(chord.map(wrap));
-
       for(let s=0;s<state.strings;s++){
-        const openIdx=idx(state.tuning[s]);
         const row=document.createElement('div'); row.className='string';
         const nut=document.createElement('div'); nut.className='nut cell'; if(s>0) nut.style.borderTop='1px solid var(--rule)';
         nut.innerHTML=`<span>${state.tuning[s]}</span>`; row.appendChild(nut);
-        for(let f=1; f<=FRETS; f++){
+        for(let f=1; f<=24; f++){
           const cell=document.createElement('div'); cell.className='fret cell'; if(s>0) cell.style.borderTop='1px solid var(--rule)';
-          const pc=wrap(openIdx+f);
-          const rel=wrap(pc-rootIdx);
-          if(chordSet.has(rel)){
-            const m=document.createElement('div'); m.className='marker'; const d=document.createElement('div'); d.className='dot';
-            if(rel===0) d.classList.add('root');
-            let lbl='';
-            if(state.labels==='notes') lbl=NOTES[pc]; else if(state.labels==='degrees') lbl=DEG[rel]||'';
-            d.textContent=lbl; m.appendChild(d); cell.appendChild(m);
-          }
-          if(s===state.strings-1){ const num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num); }
           row.appendChild(cell);
+          if(s===state.strings-1){ const num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num); }
         }
         board.appendChild(row);
       }
     }
 
-    // Buscar voicings (grupos contiguos de cuerdas dentro de una ventana de trastes)
-    function findVoicings(){
-      const chord=CHORDS[state.chordName];
-      const rootIdx=idx(state.root);
-      const chordSet=new Set(chord.map(wrap));
-      const used=state.stringsUsed|0; const span=state.span|0;
-      const results=[];
+    // Pinta las notas del acorde (para referencia visual)
+    function renderChordDots(){
+      const chord=CHORDS[state.chordName]; const rootIdx=idx(state.root); const set=new Set(chord.map(wrap));
+      for(let s=0; s<state.strings; s++){
+        const openIdx=idx(state.tuning[s]);
+        for(let f=1; f<=FRETS; f++){
+          const pc=wrap(openIdx+f); const rel=wrap(pc-rootIdx);
+          if(set.has(rel)){
+            const cell = board.children[s].children[f]; // string row -> cell f (0 is nut)
+            const m=document.createElement('div'); m.className='marker'; const d=document.createElement('div'); d.className='dot';
+            if(rel===0) d.classList.add('root');
+            let lbl=''; if(state.labels==='notes') lbl=NOTES[pc]; else if(state.labels==='degrees') lbl=DEG[rel]||'';
+            d.textContent=lbl; m.appendChild(d); cell.appendChild(m);
+          }
+        }
+      }
+    }
 
+    // Encuentra voicings y marca CELDAS específicas con patrón gris por inversión
+    function markInversions(){
+      const chord=CHORDS[state.chordName]; const rootIdx=idx(state.root); const set=new Set(chord.map(wrap));
+      const used=state.stringsUsed|0; const span=state.span|0;
       for(let s0=0; s0<=state.strings-used; s0++){
-        const s1=s0+used-1; // inclusive
+        const s1=s0+used-1;
         for(let f0=1; f0<=FRETS-span; f0++){
           const chosen=[]; // {s,f,pc,rel}
           let ok=true;
           for(let s=s0; s<=s1; s++){
-            const openIdx=idx(state.tuning[s]);
-            let found=null;
+            const openIdx=idx(state.tuning[s]); let found=null;
             for(let f=f0; f<=f0+span; f++){
               const pc=wrap(openIdx+f); const rel=wrap(pc-rootIdx);
-              if(chordSet.has(rel)){ found={s,f,pc,rel}; break; }
+              if(set.has(rel)){ found={s,f,pc,rel}; break; }
             }
             if(!found){ ok=false; break; }
             chosen.push(found);
           }
           if(!ok) continue;
-          // Debe tener al menos 3 grados distintos
-          const uniq=new Set(chosen.map(c=>c.rel));
-          if(uniq.size < Math.min(3, chordSet.size)) continue;
-          // Inversión por bajo (cuerda más grave => índice mayor)
+          const uniq = new Set(chosen.map(c=>c.rel));
+          if(uniq.size < Math.min(3, set.size)) continue; // debe tener 3 grados diferentes mínimo
+          // Inversión por bajo (cuerda más grave = índice mayor)
           const bass = chosen.reduce((a,b)=> a.s>b.s?a:b);
-          const invIdx = chord.findIndex(iv => wrap(iv)===bass.rel); // 0 root pos, 1=1ª inv...
-          results.push({s0,s1,f0,f1:f0+span, inv:Math.max(0,Math.min(invIdx,3))});
+          const invIdx = Math.max(0, Math.min(chord.findIndex(iv=>wrap(iv)===bass.rel),3));
+          // Marcar celdas elegidas
+          chosen.forEach(c=>{
+            const cell = board.children[c.s].children[c.f];
+            const vx = document.createElement('div'); vx.className = 'vx inv'+invIdx; cell.appendChild(vx);
+            const badge = document.createElement('div'); badge.className='vx-badge'; badge.textContent = invIdx===0?'Root':(invIdx===1?'1ª':(invIdx===2?'2ª':'3ª')); cell.appendChild(badge);
+          });
         }
       }
-      return results;
-    }
-
-    function renderVoicings(vxs){
-      vxs.forEach(v=>{
-        const el=document.createElement('div'); el.className='voicing inv'+v.inv;
-        // grid lines: column 1 es la nuez; filas comienzan en 1 también
-        el.style.gridColumn = (v.f0) + 1 + ' / ' + (v.f1 + 2); // +1 por nuez, +1 porque CSS grid end es exclusivo
-        el.style.gridRow = (v.s0+1) + ' / ' + (v.s1+2);
-        const label=document.createElement('label'); label.textContent = v.inv===0?'Root': (v.inv===1?'1ª inv.': (v.inv===2?'2ª inv.':'3ª inv.'));
-        el.appendChild(label);
-        board.appendChild(el);
-      });
     }
 
     function renderAll(){
-      renderBoardNotes();
-      renderVoicings(findVoicings());
+      renderBoardBase();
+      renderChordDots();
+      markInversions();
       save();
     }
 
@@ -356,8 +351,16 @@
     applyBtn.addEventListener('click',()=>{ const n=Math.max(3,Math.min(10,parseInt(stringCountInput.value||6,10))); state.strings=n; ensureTuningLen(n); renderTuningEditor(); renderAll(); });
 
     // Init
-    renderTuningEditor();
-    renderAll();
+    ;(function init(){
+      // llenar selects
+      function fill(el, arr){ el.innerHTML = arr.map(v=>`<option value="${v}">${v}</option>`).join(''); }
+      fill(rootSel, NOTES); rootSel.value=state.root;
+      fill(chordSel, Object.keys(CHORDS)); chordSel.value=state.chordName;
+      labelsSel.value=state.labels; stringsUsedSel.value=String(state.stringsUsed); spanSel.value=String(state.span);
+      stringCountInput.value=state.strings;
+      renderTuningEditor();
+      renderAll();
+    })();
   })();
   </script>
 </body>
