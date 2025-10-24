@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The daily chord</title>
+  <meta name="description" content="un acorde por día como inspiración creativa" />
+  <style>
+    :root{
+      --bg:#0b0b0c;
+      --panel:#121214;
+      --ink:#e7e7e9;
+      --muted:#a9a9ad;
+      --accent:#b4f0ff;
+      --ink-soft:#d2d2d6;
+      --border:#1e1e22;
+      --ok:#9be4b1;
+      --warn:#ffd27d;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#0e0e11 60%,#0b0b0c);
+      color:var(--ink);
+      font:400 16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial;
+      letter-spacing:0.2px;
+    }
+    .wrap{
+      max-width:960px;
+      margin:0 auto;
+      padding:24px clamp(16px,3vw,32px) 80px;
+    }
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;margin-bottom:18px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;
+    }
+    .logo{
+      width:38px;height:38px;border-radius:12px;
+      background:radial-gradient(60% 60% at 40% 35%, #1f1f26, #0c0c10);
+      border:1px solid var(--border);
+      box-shadow:inset 0 0 0 1px #1a1a1f, 0 8px 24px rgba(0,0,0,.45);
+      position:relative;
+    }
+    .logo:after{
+      content:"";position:absolute;inset:8px;border-radius:10px;
+      background:
+        conic-gradient(from 0deg, #2b2b33, #2d2d37 25%, #202028 50%, #2d2d37 75%, #2b2b33 100%);
+      mask:
+        radial-gradient(80% 80% at 50% 50%, #0000 40%, #000 41%);
+    }
+    h1{
+      margin:0;font-weight:600;letter-spacing:0.4px;
+      font-size:clamp(18px,3.2vw,24px);color:var(--ink);
+    }
+    .subtitle{color:var(--muted);font-size:14px;margin-top:2px}
+    .card{
+      background:linear-gradient(180deg, var(--panel), #0f0f12 60%, #0e0e11);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:18px clamp(16px,3vw,24px);
+      box-shadow:0 8px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    .grid{
+      display:grid;gap:14px;
+      grid-template-columns:1fr;
+    }
+    @media (min-width:860px){
+      .grid{
+        grid-template-columns:1.2fr .8fr;
+        align-items:start;
+      }
+    }
+    .big{
+      font-size:clamp(36px,7vw,56px);
+      font-weight:700;letter-spacing:0.6px;
+      line-height:1.05;margin:8px 0 0;
+    }
+    .meta{
+      display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;color:var(--muted);font-size:14px;
+    }
+    .meta .tag{
+      border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#0c0c10;
+    }
+    .controls{
+      display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;
+    }
+    button,.ghost{
+      appearance:none;border:1px solid var(--border);
+      background:#121215;color:var(--ink);
+      border-radius:12px;padding:10px 14px;font-weight:600;
+      cursor:pointer;transition:.18s transform ease, .18s background ease, .18s border-color ease;
+    }
+    button:hover{transform:translateY(-1px);border-color:#2a2a31;background:#141419}
+    .ghost{background:transparent}
+    .accent{border-color:#1f2a39;background:#0e131b}
+    .accent:hover{border-color:#2a3a51;background:#111722}
+    .ok{border-color:#1c2a22;background:#0e1512}
+    .ok:hover{border-color:#284433;background:#111a16}
+    .warn{border-color:#2a2620;background:#14110e}
+    .warn:hover{border-color:#3f372d;background:#17130f}
+    .muted{color:var(--muted)}
+    hr.sep{
+      border:0;border-top:1px solid var(--border);margin:18px 0;
+    }
+    .info p{margin:.25rem 0}
+    .kicker{color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;font-size:12px;font-weight:700}
+    .mood{
+      margin-top:8px;color:var(--ink-soft);font-size:15px
+    }
+    .foot{
+      margin-top:18px;color:var(--muted);font-size:12px
+    }
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .fretboard-hook{
+      border:1px dashed var(--border);border-radius:14px;
+      padding:14px;margin-top:12px;color:var(--muted);font-size:13px
+    }
+    .pill{
+      border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#0c0c10;color:var(--muted);font-size:12px
+    }
+    /* compact date control */
+    .datepick{
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px
+    }
+    input[type="date"]{
+      background:#0e0e12;border:1px solid var(--border);color:var(--ink);
+      border-radius:10px;padding:8px 10px;font-size:14px
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>The Harmony Oracle <span class="muted">· El acorde del día</span></h1>
+          <div class="subtitle">Juego / inspiración armónica diaria — estética “kindle”</div>
+        </div>
+      </div>
+      <div><span class="pill">Notación: Do–Re–Mi</span></div>
+    </header>
+
+    <section class="card">
+      <div class="grid">
+        <!-- LADO IZQUIERDO: Resultado del día -->
+        <div>
+          <div class="kicker" id="dateLabel">Hoy</div>
+          <div class="big" id="chordText">—</div>
+          <div class="meta" id="metaTags"></div>
+
+          <div class="controls">
+            <button class="accent" id="btnToday">Hoy</button>
+            <button id="btnRandom">Aleatorio</button>
+            <button class="ok" id="btnShare">Compartir / Copiar</button>
+          </div>
+
+          <div class="datepick">
+            <label for="pickDate" class="muted">Probar otra fecha:</label>
+            <input type="date" id="pickDate" />
+            <button class="ghost" id="btnGo">Ver</button>
+          </div>
+
+          <p class="mood" id="moodLine">—</p>
+
+          <!-- Hook para tu diapasón -->
+          <div class="fretboard-hook" id="fretMsg">
+            Si tu página ya tiene un componente de diapasón, este oráculo
+            emite <span class="kbd">window.dispatchEvent(new CustomEvent("oracle-chord",{detail:{...}}))</span>
+            con <em>root</em>, <em>quality</em>, <em>extensions</em>, <em>alterations</em>, <em>inversion</em> y <em>symbol</em>.
+          </div>
+        </div>
+
+        <!-- LADO DERECHO: Explicación breve -->
+        <aside class="info">
+          <h3 style="margin:8px 0 6px">Cómo se decide el acorde</h3>
+          <p class="muted">Una fórmula musical y simbólica:</p>
+          <ul style="margin:0 0 6px 18px; padding:0">
+            <li><strong>Día de semana</strong> → Nota raíz (Do–Si)</li>
+            <li><strong>Mes</strong> → Familia base (mayor/menor/disminuido/dominante)</li>
+            <li><strong>Día del año</strong> → Tensiones, alteraciones e inversión</li>
+          </ul>
+          <hr class="sep" />
+          <p class="muted">Consejo guitarrista:</p>
+          <p>Probá <span class="kbd">drop 2</span> y <span class="kbd">drop 3</span> en 6ª–4ª–3ª–2ª cuerdas; las inversiones cambian el peso armónico.</p>
+          <p>Si el acorde es dominante con ♯11/♭9, usalo como V de cualquier tonalidad modal (Lidio dominante, Alterada).</p>
+
+          <hr class="sep" />
+          <div class="foot">© HEXES — “Santuario del Colapso Industrial”. Minimal, oscuro, funcional.</div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // =========================
+    // Utilidades de calendario
+    // =========================
+    const WEEKDAY_ES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+    const WEEKDAY_ROOT = {
+      "Lunes":"Do", "Martes":"Re", "Miércoles":"Mi", "Jueves":"Fa",
+      "Viernes":"Sol", "Sábado":"La", "Domingo":"Si"
+    };
+    // Mes -> familia base (1=Ene ... 12=Dic)
+    function monthFamily(month){ // 1..12
+      if(month>=1 && month<=3)  return "mayor";        // Ene–Mar
+      if(month>=4 && month<=6)  return "menor";        // Abr–Jun
+      if(month>=7 && month<=9)  return "disminuido";   // Jul–Sep
+      return "dominante";                               // Oct–Dic
+    }
+    function dayOfYear(d){
+      const start = new Date(d.getFullYear(),0,1);
+      const diff = d - start;
+      return Math.floor(diff/86400000) + 1; // 1..365/366
+    }
+    // Tensiones, alteraciones e inversión (modulares)
+    const TENSION_MAP = [
+      "triada","7","9","11","13","add9","maj7","sus4","mMaj7"
+    ]; // n % 9
+    const ALTER_MAP = [
+      "♭9","♯9","♭5","♯11","♭13","add11","(sin alteraciones)"
+    ]; // n % 7
+    const INVERSION_MAP = ["posición raíz","1ª inversión","2ª inversión"]; // n % 3
+
+    // Mood por familia base
+    const FAMILY_MOODS = {
+      mayor:"Claridad y expansión. Ideal para abrir progresiones.",
+      menor:"Introspección y movimiento interno. Textura emotiva.",
+      disminuido:"Misterio y tensión. Puente dramático / cromático.",
+      dominante:"Decisión y empuje. Tensión lista para resolver."
+    };
+
+    // Según familia, definimos "calidad base" (quality) preferente
+    // y cómo se combinan las tensiones elegidas por TENSION_MAP.
+    function buildChordSymbol(root, family, nDay){
+      const tSel = TENSION_MAP[nDay % 9];      // extensión base
+      const aSel = ALTER_MAP[nDay % 7];        // alteración
+      const inv  = INVERSION_MAP[nDay % 3];    // inversión breve
+
+      let quality = "";         // "maj7", "m7", "dim", "7", "sus4", etc
+      let extensions = [];      // ["9","13"...]
+      let alterations = [];     // ["♭9","♯11"...] (sin "(sin alteraciones)")
+      let symbol = root;        // string final
+
+      // Helper para añadir extensión si no es "triada"/"sus4"/"mMaj7" directo
+      const pushExt = (e)=>{ if(e && e!=="triada" && e!=="sus4" && e!=="mMaj7") extensions.push(e); };
+
+      if(family === "mayor"){
+        // Mayores: Mayor, maj7, add9 (dependiendo de tensión)
+        if(tSel === "maj7")      quality = "maj7";
+        else if(tSel === "add9") quality = "add9";
+        else if(tSel === "sus4") quality = "sus4"; // por si cae en 7 % 9
+        else                     quality = "";     // triada mayor por defecto
+        // Extensiones dulces si tocan
+        if(["9","11","13"].includes(tSel)) pushExt(tSel);
+      }
+      else if(family === "menor"){
+        // Menores: m, m7, m9
+        if(tSel === "mMaj7"){ quality = "mMaj7"; } // caso especial si toca
+        else if(["7","9","11","13"].includes(tSel)) { quality = "m7"; pushExt(tSel==="7"?"":tSel); }
+        else if(tSel === "add9"){ quality = "madd9"; }
+        else { quality = "m"; }
+      }
+      else if(family === "disminuido"){
+        // Disminuido: dim7, m7♭5, mMaj7 (por color)
+        if(tSel === "mMaj7"){ quality = "mMaj7"; }
+        else if(["9","11","13","7"].includes(tSel)) { quality = "m7♭5"; pushExt(tSel==="7"?"":tSel); }
+        else { quality = "dim7"; }
+      }
+      else { // dominante
+        // Dominante: 7, 7sus4, 7alt
+        if(tSel === "sus4"){ quality = "7sus4"; }
+        else if(["11","13","9","7"].includes(tSel)) { quality = "7"; pushExt(tSel==="7"?"":tSel); }
+        else { quality = "7"; }
+      }
+
+      // Alteraciones (solo si existe alteración real)
+      if(aSel && aSel !== "(sin alteraciones)"){
+        // Evitar conflicto semántico con acordes "sus4": mantenemos alter igual
+        alterations.push(aSel);
+      }
+
+      // Construcción del símbolo de texto
+      // Reglas simples: root + quality + (extensiones/alteraciones) compactas
+      symbol = root;
+
+      // quality ya puede incluir 7/sus etc
+      if(quality){
+        if(quality === "m" || quality === "m7" || quality === "mMaj7" || quality === "madd9"){
+          symbol += quality; // e.g. Lam7
+        } else {
+          symbol += quality.startsWith("7") || quality.startsWith("dim") ? quality : quality; // Do7 / Domaj7 / Dodim7
+        }
+      }
+
+      // Agregar extensiones normalizadas (sin duplicar 7 ya presente)
+      // Nota: si quality ya tiene 7, no volvemos a añadir "7".
+      const exts = extensions.filter(e => e && e !== "7");
+      if(exts.length){
+        symbol += exts.map(x => (x.startsWith("add")? x.replace("add","add"): x)).join("");
+      }
+
+      // Alteraciones como sufijo concatenado (♭9, ♯11…)
+      if(alterations.length){
+        symbol += alterations.join("");
+      }
+
+      // Normalización visual mínima: "maj7" → "Δ7" opcional (lo dejamos textual para lectura amplia)
+      return {
+        root, family, quality, extensions: exts, alterations,
+        inversion: inv, symbol
+      };
+    }
+
+    // Nota raíz por día de semana
+    function rootFromWeekday(d){
+      const wd = WEEKDAY_ES[d.getDay()];
+      return WEEKDAY_ROOT[wd];
+    }
+
+    // UI helpers
+    const $ = sel => document.querySelector(sel);
+    const dateLabel = $("#dateLabel");
+    const chordText = $("#chordText");
+    const metaTags  = $("#metaTags");
+    const moodLine  = $("#moodLine");
+    const fretMsg   = $("#fretMsg");
+    const inputDate = $("#pickDate");
+
+    function tagsRender(items){
+      metaTags.innerHTML = "";
+      items.forEach(t=>{
+        const span = document.createElement("div");
+        span.className = "tag";
+        span.textContent = t;
+        metaTags.appendChild(span);
+      });
+    }
+
+    function formatDateLong(d){
+      return d.toLocaleDateString("es-UY",{weekday:"long", year:"numeric", month:"long", day:"numeric"});
+    }
+
+    function computeForDate(d){
+      const n = dayOfYear(d);
+      const root = rootFromWeekday(d);
+      const fam  = monthFamily(d.getMonth()+1);
+      const built = buildChordSymbol(root, fam, n);
+
+      // Etiquetas
+      const invShort = built.inversion;
+      const tags = [
+        `Día ${n}`,
+        `Familia: ${fam}`,
+        `Inversión: ${invShort}`
+      ];
+      // UI
+      dateLabel.textContent = formatDateLong(d);
+      chordText.textContent = built.symbol;
+      tagsRender(tags);
+      moodLine.textContent = FAMILY_MOODS[fam];
+
+      // Hook para tu diapasón (si existe listener, lo usará)
+      window.dispatchEvent(new CustomEvent("oracle-chord",{
+        detail:{
+          date: d.toISOString().slice(0,10),
+          dayOfYear: n,
+          root: built.root,
+          family: built.family,
+          quality: built.quality,
+          extensions: built.extensions,
+          alterations: built.alterations,
+          inversion: built.inversion,
+          symbol: built.symbol
+        }
+      }));
+
+      // Mensaje visual si nadie escucha el hook
+      fretMsg.style.opacity = 0.9;
+    }
+
+    // Controles
+    $("#btnToday").addEventListener("click", ()=> computeForDate(new Date()));
+    $("#btnRandom").addEventListener("click", ()=>{
+      // Año actual, fecha aleatoria (1..365) aproximado
+      const year = new Date().getFullYear();
+      const start = new Date(year,0,1);
+      const rnd = Math.floor(Math.random()*365); // ignoramos bisiesto por simplicidad
+      const d = new Date(start.getTime() + rnd*86400000);
+      inputDate.value = d.toISOString().slice(0,10);
+      computeForDate(d);
+    });
+    $("#btnGo").addEventListener("click", ()=>{
+      const v = inputDate.value;
+      if(!v){ alert("Elegí una fecha."); return; }
+      const d = new Date(v+"T12:00:00"); // evitar desfases de TZ
+      computeForDate(d);
+    });
+    $("#btnShare").addEventListener("click", async ()=>{
+      const title = "El Acorde del Día — The Harmony Oracle";
+      const text = `${$("#chordText").textContent} · ${$("#dateLabel").textContent}`;
+      if(navigator.share){
+        try{ await navigator.share({title, text}); }catch(e){}
+      }else{
+        try{
+          await navigator.clipboard.writeText(`${title}\n${text}`);
+          alert("Copiado al portapapeles.");
+        }catch(e){
+          alert(text);
+        }
+      }
+    });
+
+    // Inicializar con "hoy"
+    (function init(){
+      const t = new Date();
+      // default del input date
+      const iso = t.toISOString().slice(0,10);
+      inputDate.value = iso;
+      computeForDate(t);
+    })();
+
+    // (Opcional) ejemplo de escucha del hook para debug:
+    // window.addEventListener("oracle-chord", (e)=>console.log("ORACLE CHORD:", e.detail));
+  </script>
+</body>
+</html>
