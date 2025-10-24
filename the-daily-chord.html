@@ -158,7 +158,7 @@
   <script>
     // Utilidades calendario y mapeos
     var WEEKDAY_ES=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-    var WEEKDAY_ROOT={"Lunes":"Do","Martes":"Re","Miércoles":"Mi","Jueves":"Fa","Viernes":"Sol","Sábado":"La","Domingo":"Si"};
+    var WEEKDAY_ROOT={"Lunes":"C","Martes":"D","Miércoles":"E","Jueves":"F","Viernes":"G","Sábado":"A","Domingo":"B"};
     function monthFamily(m){ if(m>=1&&m<=3) return 'mayor'; if(m>=4&&m<=6) return 'menor'; if(m>=7&&m<=9) return 'disminuido'; return 'dominante'; }
     function dayOfYear(d){ var s=new Date(d.getFullYear(),0,1); return Math.floor((d-s)/86400000)+1; }
     var TENSION_MAP=["triada","7","9","11","13","add9","maj7","sus4","mMaj7"]; // n%9
@@ -204,7 +204,7 @@
     // ====== Notas y diapasón ======
     var SOLFEGE_PC={"Do":0,"Re":2,"Mi":4,"Fa":5,"Sol":7,"La":9,"Si":11};
     var STD_TUNING=[40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 en MIDI
-    var STRING_NAMES=['6(E)','5(A)','4(D)','3(G)','2(B)','1(E)'];
+    var STRING_NAMES=['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
     var DEG_LABELS={0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
 
     function qualityToIntervals(family, quality){
