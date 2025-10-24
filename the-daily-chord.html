@@ -30,7 +30,7 @@
     body{margin:0;padding:0;color:var(--ink);background:var(--paper);
       font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;}
-    /* Textura sutil tipo papel */
+    /* Textura sutil tipo papel (igual al libro de escalas) */
     body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
       background-image:radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
                        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
@@ -51,7 +51,7 @@
 
     hr{border:none;border-top:1px solid var(--accent);margin:1.25rem 0;opacity:.5}
 
-    /* Panel colapsable para controles */
+    /* Panel colapsable reutilizado para los controles del oráculo */
     details.panel{border:1px solid var(--accent);border-radius:.6rem;background:rgba(255,255,255,.6)}
     html.theme-dark details.panel{background:rgba(0,0,0,.1)}
     details.panel>summary{cursor:pointer;list-style:none;padding:.6rem .8rem;font-size:1.05rem;font-weight:700;color:var(--ink)}
@@ -65,7 +65,7 @@
       padding:10px 12px;border-radius:.5rem;font-family:inherit;font-size:14px;line-height:1;min-width:0}
     button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
-    /* Tarjeta resultado visual */
+    /* Tarjeta resultado visual coherente con el libro */
     .result{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem .9rem 1rem;background:transparent}
     .kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
     .big{font-weight:700;letter-spacing:.02em;font-size:clamp(2.2rem,6vw,3rem);line-height:1.08;margin:.2rem 0 .1rem}
@@ -73,14 +73,14 @@
     .tag{border:1px solid var(--accent);border-radius:999px;padding:.2rem .55rem;font-size:.8rem;color:var(--muted)}
     .mood{color:var(--muted);font-size:.95rem;margin-top:.2rem}
 
-    /* Diapasón compacto */
+    /* Diapasón compacto para referencia visual */
     .fretcard{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem;background:transparent;margin-top:12px}
-    #fretboard{overflow:auto}
+    #fretboard{overflow:auto;text-align:center}
     .fret svg{max-width:100%;height:auto;display:block}
-    .legend{color:var(--muted);font-size:.8rem;margin-top:.5rem}
+    .legend{color:var(--muted);font-size:.8rem;margin-top:.5rem;text-align:center}
     .fb-grid line{stroke:var(--rule);stroke-width:1}
     .fb-grid .nut{stroke:var(--ink);stroke-width:3}
-    .fb-note{fill:var(--ink)}
+    .fb-note circle{fill:var(--ink)}
     .fb-note text{font-size:10px;font-weight:700;fill:var(--paper)}
 
     .foot{margin:30px 0 60px;font-size:12px;color:var(--muted)}
@@ -129,7 +129,7 @@
     <section class="fretcard" aria-label="Diapasón con el acorde">
       <div class="kicker">Diapasón</div>
       <div id="fretboard"></div>
-      <div class="legend">R = raíz · 3/b3 · 5 · 7/b7 (se muestran las notas del acorde dentro de una ventana de trastes).</div>
+      <div class="legend">Cuerdas (6→1) a la izquierda · Trastes indicados arriba. R = raíz · 3/b3 · 5 · 7/b7.</div>
     </section>
 
     <section class="result" aria-live="polite">
@@ -139,7 +139,7 @@
       <p class="mood" id="moodLine">—</p>
     </section>
 
-    <p class="foot">© HEXES — “Santuario del Colapso Industrial”.</p>
+    <p class="foot">© HEXES — “Santuario del Colapso Industrial”. Minimal, oscuro, funcional. Este oráculo comparte estilos, rejillas, tipografías y controles con <em>The Scales Book</em> para una estética común.</p>
   </main>
 
   <!-- === Toggle de tema === -->
@@ -204,6 +204,7 @@
     // ====== Notas y diapasón ======
     var SOLFEGE_PC={"Do":0,"Re":2,"Mi":4,"Fa":5,"Sol":7,"La":9,"Si":11};
     var STD_TUNING=[40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 en MIDI
+    var STRING_NAMES=['6(E)','5(A)','4(D)','3(G)','2(B)','1(E)'];
     var DEG_LABELS={0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
 
     function qualityToIntervals(family, quality){
@@ -247,15 +248,20 @@
     function renderFretboard(rootName, family, quality, nDay){
       var pcRoot=SOLFEGE_PC[rootName]||0;
       var intervals=qualityToIntervals(family,quality);
-      var start=( (nDay%12)+1 );
+      var start=( (nDay%12)+1 ); // ventana desplazada por día del año
       var voicing=pickVoicing(pcRoot, intervals, start);
-      var frets=5; var startFret=start; var strings=6; var w=frets*44+60; var h=strings*26+30;
+      var frets=5; var startFret=start; var strings=6; var w=frets*44+100; var h=strings*26+70;
       var svg=['<svg xmlns="http://www.w3.org/2000/svg" class="fret" viewBox="0 0 '+w+' '+h+'">'];
+      var x0=70, y0=40, dx=44, dy=26;
+      // Títulos e indicadores
+      svg.push('<text x="'+(x0+(frets*dx)/2)+'" y="'+(y0-18)+'" font-size="10">Trastes '+startFret+'–'+(startFret+frets-1)+'</text>');
+      svg.push('<text x="'+(x0-55)+'" y="'+(y0+(strings-1)*dy/2)+'" font-size="10" transform="rotate(-90 '+(x0-55)+','+(y0+(strings-1)*dy/2)+')">Cuerdas (6→1)</text>');
       // Grid
       svg.push('<g class="fb-grid">');
-      var x0=40, y0=15, dx=44, dy=26;
       for(var s=0;s<strings;s++){
         var y=y0+s*dy; svg.push('<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+frets*dx)+'" y2="'+y+'" />');
+        // nombre de cuerda
+        svg.push('<text x="'+(x0-15)+'" y="'+(y+4)+'" font-size="10" text-anchor="end">'+STRING_NAMES[s]+'</text>');
       }
       for(var f=0; f<=frets; f++){
         var x=x0+f*dx; var cls=(startFret+f===0?'nut':'');
@@ -270,7 +276,7 @@
         svg.push('<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle">'+label+'</text>');
       });
       svg.push('</g></svg>');
-      document.getElementById('fretboard').innerHTML='<div class="fret">'+svg.join('')+'</div>';
+      document.getElementById('fretboard').innerHTML=svg.join('');
     }
 
     function tagsRender(items){ metaTags.innerHTML=''; items.forEach(function(t){ var el=document.createElement('span'); el.className='tag'; el.textContent=t; metaTags.appendChild(el); }); }
@@ -294,14 +300,10 @@
     document.getElementById('btnGo').addEventListener('click', function(){ var v=inputDate.value; if(!v){ alert('Elegí una fecha.'); return;} var d=new Date(v+'T12:00:00'); computeForDate(d); });
     document.getElementById('btnShare').addEventListener('click', function(){ var title='El Acorde del Día — The Harmony Oracle'; var text=chordText.textContent+' · '+dateLabel.textContent; if(navigator.share){ navigator.share({title:title,text:text}).catch(function(){}); } else { (navigator.clipboard? navigator.clipboard.writeText(title+'\n'+text): Promise.reject()).then(function(){ alert('Copiado al portapapeles.');}).catch(function(){ alert(text);}); }});
 
-    // Init robusto (con try/catch para evitar pantalla en blanco si algo falla)
+    // Init robusto
     (function init(){
-      try{
-        var t=new Date(); inputDate.value=t.toISOString().slice(0,10); computeForDate(t);
-      }catch(err){
-        document.getElementById('chordText').textContent='⚠️ Error de inicialización';
-        console.error(err);
-      }
+      try{ var t=new Date(); inputDate.value=t.toISOString().slice(0,10); computeForDate(t); }
+      catch(err){ document.getElementById('chordText').textContent='⚠️ Error de inicialización'; console.error(err); }
     })();
   </script>
 </body>
