@@ -82,6 +82,15 @@
       a{position:relative;background-image:linear-gradient(currentColor,currentColor);background-position:0 100%;background-repeat:no-repeat;background-size:0% 1px;transition:background-size .25s ease,color .2s ease}
       a:hover,a:focus-visible{background-size:100% 1px;outline:none}
     }
+    /* === Diapasón compacto para referencia visual === */
+    .fretcard{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem;background:transparent;margin-top:12px}
+    #fretboard{overflow:auto}
+    .fret svg{max-width:100%;height:auto;display:block}
+    .legend{color:var(--muted);font-size:.8rem;margin-top:.5rem}
+    .fb-grid line{stroke:var(--rule);stroke-width:1}
+    .fb-grid .nut{stroke:var(--ink);stroke-width:3}
+    .fb-note{fill:var(--ink)}
+    .fb-note text{font-size:10px;font-weight:700;fill:var(--paper)}
   </style>
 </head>
 <body>
@@ -116,9 +125,11 @@
             <span class="tag" id="notationTag" title="Notación usada">Notación: Do–Re–Mi</span>
           </div>
         </div>
-        <div class="hook" id="fretMsg">
-          Si tu sitio carga también el diapasón de <em>The Scales Book</em>, este oráculo emite <code>window.dispatchEvent(new CustomEvent("oracle-chord",{detail:{...}}))</code> con <em>root</em>, <em>quality</em>, <em>extensions</em>, <em>alterations</em>, <em>inversion</em> y <em>symbol</em>.
-        </div>
+        <section class="fretcard" aria-label="Diapasón con el acorde">
+  <div class="kicker">Diapasón</div>
+  <div id="fretboard"></div>
+  <div class="legend">R = raíz · 3/b3 · 5 · 7/b7 (se muestran las notas del acorde dentro de una ventana de trastes).</div>
+</section>
       </div>
     </details>
 
@@ -198,11 +209,14 @@
       dateLabel.textContent=formatDateLong(d); chordText.textContent=built.symbol;
       tagsRender([ 'Día '+n, 'Familia: '+fam, 'Inversión: '+built.inversion ]);
       moodLine.textContent=FAMILY_MOODS[fam];
-      // Hook para integrar con el diapasón del libro de escalas
+      // Render del diapasón inline
+      renderFretboard(built.root, built.family, built.quality, n);
+      // Evento opcional si hay integración externa
       window.dispatchEvent(new CustomEvent('oracle-chord',{detail:{
         date:d.toISOString().slice(0,10), dayOfYear:n, root:built.root, family:built.family, quality:built.quality,
         extensions:built.extensions, alterations:built.alterations, inversion:built.inversion, symbol:built.symbol
       }}));
+    }}));
       fretMsg.style.opacity=.9;
     }
 
