@@ -4,100 +4,111 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Chords Book — Contumance</title>
-  <meta name="description" content="The Chords Book — todas las inversiones posibles de un acorde a lo largo del diapasón, con estética tipo e‑ink." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♭</text></svg>">
+  <meta name="description" content="The Chords Book — todas las inversiones posibles de un acorde en el diapasón." />
   <style>
-    /* Paleta base (modo claro) alineada con el sitio */
+    /* ===== Estética Kindle (claro por defecto) ===== */
     :root {
-      --paper: #f5f1e8; --ink: #2f2a1e; --muted: #6b6253; --link: #2d5842; --link-visited: #514f7a; --accent: #a08a63; --rule: #d8d2c2;
-      --maxw: 42rem; --radius: .6rem; --lh: 1.6; --fs-base: 18px;
-      /* overlays por inversión (claro) */
-      --inv0: rgba(0,0,0,.16); /* root position */
-      --inv1: rgba(0,0,0,.24);
-      --inv2: rgba(0,0,0,.32);
-      --inv3: rgba(0,0,0,.40);
+      --paper: #f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --accent:#a08a63; --rule:#d8d2c2;
+      --link:#2d5842; --link-visited:#514f7a; --maxw:42rem; --lh:1.6; --fs:18px;
+      /* Grises para inversiones (modo claro) */
+      --g0: rgba(0,0,0,.12); /* root */
+      --g1: rgba(0,0,0,.18);
+      --g2: rgba(0,0,0,.26);
+      --g3: rgba(0,0,0,.34);
+      --dot-border: rgba(0,0,0,.35);
     }
-    html.theme-dark {
-      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c; --link:#a9d0b8; --link-visited:#c0b8e0; --accent:#2a2b27; --rule:#2a2b27;
-      /* overlays por inversión (oscuro) */
-      --inv0: rgba(255,255,255,.06);
-      --inv1: rgba(255,255,255,.10);
-      --inv2: rgba(255,255,255,.14);
-      --inv3: rgba(255,255,255,.18);
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c; --accent:#2a2b27; --rule:#2a2b27;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      /* Grises para inversiones (modo oscuro) */
+      --g0: rgba(255,255,255,.08);
+      --g1: rgba(255,255,255,.12);
+      --g2: rgba(255,255,255,.16);
+      --g3: rgba(255,255,255,.20);
+      --dot-border: rgba(255,255,255,.35);
     }
 
-    html { font-size: var(--fs-base); }
-    body { margin:0; padding:0; color:var(--ink); background:var(--paper); font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif; line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased; }
-    body::before{ content:""; position:fixed; inset:0; pointer-events:none; opacity:.06; background-image:radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px), radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px); background-size:3px 3px, 3px 3px; mix-blend-mode:multiply; }
+    html{ font-size:var(--fs); }
+    body{ margin:0; color:var(--ink); background:var(--paper); line-height:var(--lh);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased; }
+    body::before{ content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image: radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+                        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply; }
 
-    main{ max-width: var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
-    .topbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
-    nav.breadcrumb { font-size:.95rem; }
-    nav.breadcrumb a { color:var(--link); text-decoration:none; text-underline-offset:2px; }
-    h1{ margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem);} 
+    main{ max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; }
+    nav.breadcrumb a{ color:var(--link); text-decoration:none; text-underline-offset:2px; }
+    h1{ margin:.2rem 0 .3rem; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem); }
     .subtitle{ color:var(--muted); font-size:.95rem; margin-bottom:.8rem; }
 
-    .theme-toggle{ border:1px solid var(--accent); background:transparent; color:var(--ink); border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1; }
+    .theme-toggle{ border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.1rem; line-height:1; }
     .theme-toggle:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
 
-    details.panel{ border:1px solid var(--accent); border-radius: .6rem; background: rgba(255,255,255,0.6); }
-    html.theme-dark details.panel{ background: rgba(0,0,0,0.1); }
+    details.panel{ border:1px solid var(--accent); border-radius:.6rem; background:rgba(255,255,255,.6); }
+    html.theme-dark details.panel{ background:rgba(0,0,0,.1); }
     details.panel > summary{ cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink); }
     details.panel > summary::-webkit-details-marker{ display:none; }
     details.panel .panel-body{ padding:.6rem .8rem .9rem; }
 
-    .controls{ display:grid; gap:8px; align-items:center; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); margin-bottom:8px; }
-    .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    .controls{ display:grid; gap:8px; align-items:center; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); }
+    .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     label{ font-size:12px; opacity:.9; }
-    select, button, input[type="number"]{ appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink); padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0; }
-    button.primary{ background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    select, button, input[type="number"]{ appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font:inherit; line-height:1; min-width:0; }
+    button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
 
     .tuning{ display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); }
-    .tuning .string-card{ border:1px solid var(--accent); border-radius:.6rem; background:transparent; padding:8px; }
+    .string-card{ border:1px solid var(--accent); border-radius:.6rem; padding:8px; }
 
-    /* Fretboard sin scroll: ocupa 100% */
+    /* ===== Diapasón (sin scroll, ancho completo) ===== */
     .fretboard-wrap{ margin:10px 0 40px; }
-    .fretboard{ width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent; }
-    .board{ display:grid; grid-auto-rows:minmax(30px, 5vh); grid-template-columns: 40px repeat(24, 1fr); position:relative; width:100%; }
+    .fretboard{ width:100%; border:1px solid var(--accent); border-radius:.6rem; }
+    .board{ display:grid; width:100%; position:relative;
+      grid-auto-rows:minmax(30px,5vh);
+      grid-template-columns: 44px repeat(24, 1fr); /* 0=nuez + 24 trastes */ }
     .string{ display:contents; }
-    .nut, .fret{ border-right:1px solid var(--rule); position:relative; }
-    .nut{ display:flex; align-items:center; justify-content:center; font-size:12px; background: rgba(0,0,0,0.04); }
-    html.theme-dark .nut{ background: rgba(255,255,255,0.06); }
-    .open-note{ display:flex; align-items:center; justify-content:center; font-size:12px; }
+    .nut,.fret{ border-right:1px solid var(--rule); position:relative; }
+    .nut{ display:flex; align-items:center; justify-content:center; font-size:12px; background:rgba(0,0,0,.04); }
+    html.theme-dark .nut{ background:rgba(255,255,255,.06); }
+    .open-note{ font-size:12px; }
     .cell{ position:relative; display:flex; align-items:center; justify-content:center; }
     .fret-number{ position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35; }
 
+    /* Notas */
     .marker{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-    .dot{ width:24px; height:24px; border-radius:999px; border:1.5px solid rgba(0,0,0,.25); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px; }
-    html.theme-dark .dot{ border-color: rgba(255,255,255,.25);} 
+    .dot{ width:24px; height:24px; border-radius:999px; border:1.5px solid var(--dot-border); background:transparent;
+      display:flex; align-items:center; justify-content:center; font-size:11px; }
     .dot.root{ background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600; }
 
-    /* overlays de voicings/inversiones */
-    .voicing{ border-radius:.5rem; align-self:stretch; justify-self:stretch; border:1px dashed var(--accent); position:relative; }
-    .voicing.inv0{ background: var(--inv0); }
-    .voicing.inv1{ background: var(--inv1); }
-    .voicing.inv2{ background: var(--inv2); }
-    .voicing.inv3{ background: var(--inv3); }
+    /* Overlays de inversiones */
+    .voicing{ border-radius:.5rem; border:1px dashed var(--accent); position:relative; }
+    .inv0{ background:var(--g0);} .inv1{ background:var(--g1);} .inv2{ background:var(--g2);} .inv3{ background:var(--g3);} 
     .voicing label{ position:absolute; top:4px; left:6px; font-size:10px; color:var(--muted); }
 
-    .legend{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted); margin: 8px 0 0; }
+    .legend{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:8px 0 0; }
     .chip{ display:inline-flex; align-items:center; gap:6px; }
     .chip i{ width:14px; height:10px; border-radius:3px; display:inline-block; }
-    .chip.root i{ background: var(--inv0);} .chip.inv1 i{ background: var(--inv1);} .chip.inv2 i{ background: var(--inv2);} .chip.inv3 i{ background: var(--inv3);} 
+    .chip.root i{ background:var(--g0);} .chip.inv1 i{ background:var(--g1);} .chip.inv2 i{ background:var(--g2);} .chip.inv3 i{ background:var(--g3);} 
 
-    @media (prefers-reduced-motion: no-preference){ a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; } a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }}
+    @media (prefers-reduced-motion:no-preference){
+      a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; }
+      a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }
+    }
   </style>
 </head>
 <body>
   <main>
     <div class="topbar">
-      <nav class="breadcrumb" aria-label="Miga de pan"><a href="index.html">← Volver al índice</a></nav>
+      <nav class="breadcrumb"><a href="index.html">← Volver al índice</a></nav>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌓</button>
     </div>
 
     <header>
       <h1>The Chords Book</h1>
-      <div class="subtitle">Mostrá todas las inversiones posibles de un acorde a lo largo del diapasón. Elegí cuerdas, afinación, tónica y tipo de acorde.</div>
+      <div class="subtitle">Seleccioná tónica y tipo de acorde y se muestran todas las inversiones posibles a lo largo del diapasón.</div>
     </header>
 
     <details class="panel" open>
@@ -143,12 +154,12 @@
           </div>
         </div>
 
-        <div id="tuningPanel" class="tuning" aria-label="Editor de afinación"></div>
+        <div id="tuningPanel" class="tuning"></div>
         <div class="legend" aria-hidden="true">
           <span class="chip root"><i></i>Root pos.</span>
-          <span class="chip inv1"><i></i>1ra inv.</span>
-          <span class="chip inv2"><i></i>2da inv.</span>
-          <span class="chip inv3"><i></i>3ra inv.</span>
+          <span class="chip inv1"><i></i>1ª inv.</span>
+          <span class="chip inv2"><i></i>2ª inv.</span>
+          <span class="chip inv3"><i></i>3ª inv.</span>
         </div>
       </div>
     </details>
@@ -160,28 +171,26 @@
     </section>
 
     <footer>
-      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">Invitame un cafecito</a>
+      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener" style="border:1px solid var(--accent); padding:.5rem .8rem; border-radius:.35rem; text-decoration:none; color:var(--link);">Invitame un cafecito</a>
     </footer>
   </main>
 
   <script>
-    // --- Theme toggle (igual al sitio) ---
+    // ===== Switch de tema =====
     (function(){
-      const KEY = 'theme-preference';
-      const root = document.documentElement; const btn = document.getElementById('themeToggle');
-      function setIcon(mode){ btn.textContent = mode === 'dark' ? '☀️' : '🌙'; }
-      function apply(mode){ root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
-      function getPreferred(){ const s = localStorage.getItem(KEY); if(s==='light'||s==='dark') return s; return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
-      let current = getPreferred(); apply(current);
-      btn.addEventListener('click', ()=>{ current = current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+      const KEY='theme-preference'; const root=document.documentElement; const btn=document.getElementById('themeToggle');
+      function setIcon(mode){ btn.textContent = mode==='dark' ? '☀️':'🌙'; btn.title = mode==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+      function get(){ const s=localStorage.getItem(KEY); if(s==='light'||s==='dark') return s; return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
+      let mode=get(); apply(mode); btn.addEventListener('click',()=>{ mode = mode==='dark'?'light':'dark'; localStorage.setItem(KEY,mode); apply(mode); });
     })();
   </script>
 
   <script>
+  // ===== Lógica de acordes =====
   (function(){
-    // --- Datos musicales ---
-    const NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-    const CHORDS = {
+    const NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    const CHORDS={
       "Major (maj)":        [0,4,7],
       "Minor (min)":        [0,3,7],
       "Dominant 7 (7)":     [0,4,7,10],
@@ -194,107 +203,88 @@
       "Sus2":               [0,2,7],
       "Sus4":               [0,5,7]
     };
+    const DEG={0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'#5/6b',9:'6',10:'b7',11:'7'};
+    const DEFAULT_TUNING_6=["E","B","G","D","A","E"]; // 1ª aguda arriba
+    const FRETS=24;
 
-    const DEG_NAMES = {0:'R', 1:'b2',2:'2',3:'b3',4:'3',5:'4',6:'b5',7:'5',8:'#5/6b',9:'6',10:'b7',11:'7'};
+    const state={ strings:6, tuning:DEFAULT_TUNING_6.slice(), root:'C', chordName:'Major (maj)', labels:'notes', stringsUsed:4, span:4 };
+    try{ const s=JSON.parse(localStorage.getItem('the_chords_book_state_v2')||'null'); if(s) Object.assign(state,s);}catch(e){}
+    function save(){ localStorage.setItem('the_chords_book_state_v2', JSON.stringify(state)); }
 
-    const DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1ª aguda arriba
-    const FRETS = 24;
+    // DOM refs
+    const board=document.getElementById('board');
+    const rootSel=document.getElementById('root');
+    const chordSel=document.getElementById('chord');
+    const labelsSel=document.getElementById('labels');
+    const stringsUsedSel=document.getElementById('stringsUsed');
+    const spanSel=document.getElementById('span');
+    const stringCountInput=document.getElementById('stringCount');
+    const applyBtn=document.getElementById('applyStrings');
+    const tuningPanel=document.getElementById('tuningPanel');
 
-    // --- Estado ---
-    const state = { strings:6, tuning: DEFAULT_TUNING_6.slice(), root:'C', chordName: 'Major (maj)', labelMode:'notes', stringsUsed:4, span:4 };
-    const LS = 'the_chords_book_state_v1';
-    try{ const s = JSON.parse(localStorage.getItem(LS)||'null'); if(s) Object.assign(state,s);}catch(e){}
-    function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
-
-    // --- DOM ---
-    const board = document.getElementById('board');
-    const rootSel = document.getElementById('root');
-    const chordSel = document.getElementById('chord');
-    const labelsSel = document.getElementById('labels');
-    const tuningPanel = document.getElementById('tuningPanel');
-    const stringCountInput = document.getElementById('stringCount');
-    const applyStringsBtn = document.getElementById('applyStrings');
-    const stringsUsedSel = document.getElementById('stringsUsed');
-    const spanSel = document.getElementById('span');
-
-    // --- Helpers ---
+    // Helpers
     const idx = n => NOTES.indexOf(n);
-    const wrap = (n) => (n+12)%12;
+    const wrap = n => (n+12)%12;
     function ensureTuningLen(n){
-      if(state.tuning.length<n){ let last = state.tuning[state.tuning.length-1]||'E'; while(state.tuning.length<n) state.tuning.push(last); }
-      else if(state.tuning.length>n){ state.tuning = state.tuning.slice(0,n); }
+      if(state.tuning.length<n){ let last=state.tuning[state.tuning.length-1]||'E'; while(state.tuning.length<n) state.tuning.push(last); }
+      else if(state.tuning.length>n){ state.tuning=state.tuning.slice(0,n); }
     }
 
-    // --- Selects ---
-    function fillSelect(el, arr){ el.innerHTML = arr.map(v=>`<option value="${v}">${v}</option>`).join(''); }
-    fillSelect(rootSel, NOTES); rootSel.value = state.root;
-    fillSelect(chordSel, Object.keys(CHORDS)); chordSel.value = state.chordName;
-    labelsSel.value = state.labelMode; stringCountInput.value = state.strings; stringsUsedSel.value = String(state.stringsUsed); spanSel.value = String(state.span);
+    function fillSelect(el, arr){ el.innerHTML=arr.map(v=>`<option value="${v}">${v}</option>`).join(''); }
+    fillSelect(rootSel, NOTES); rootSel.value=state.root;
+    fillSelect(chordSel, Object.keys(CHORDS)); chordSel.value=state.chordName;
+    labelsSel.value=state.labels; stringsUsedSel.value=String(state.stringsUsed); spanSel.value=String(state.span);
+    stringCountInput.value=state.strings;
 
-    // --- Editor de afinación ---
+    // Editor de afinación
     function cycle(note, step){ let i=idx(note); if(i<0) i=0; return NOTES[wrap(i+step)]; }
     function renderTuningEditor(){
       ensureTuningLen(state.strings);
       let html='';
       for(let i=0;i<state.tuning.length;i++){
-        const note = state.tuning[i];
-        const opts = NOTES.map(n=>`<option value="${n}" ${n===note?'selected':''}>${n}</option>`).join('');
-        html += `
-        <div class="string-card">
-          <div style="font-size:12px; opacity:.8; margin-bottom:6px;">String ${i+1}</div>
+        const note=state.tuning[i];
+        const opts=NOTES.map(n=>`<option value="${n}" ${n===note?'selected':''}>${n}</option>`).join('');
+        html+=`<div class="string-card">
+          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">String ${i+1}</div>
           <div class="row" style="gap:6px;">
-            <button data-act="down" data-idx="${i}" title="Lower">−</button>
-            <div class="open-note" style="min-width:40px; text-align:center">${note}</div>
-            <button data-act="up" data-idx="${i}" title="Raise">+</button>
-            <select data-act="set" data-idx="${i}" style="flex:1; min-width:0;">${opts}</select>
+            <button data-act="down" data-idx="${i}" title="Bajar">−</button>
+            <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
+            <button data-act="up" data-idx="${i}" title="Subir">+</button>
+            <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;">${opts}</select>
           </div>
         </div>`;
       }
-      tuningPanel.innerHTML = html;
-      tuningPanel.querySelectorAll('button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{ const i=+btn.dataset.idx; const act=btn.dataset.act; state.tuning[i]=cycle(state.tuning[i], act==='up'?+1:-1); save(); renderTuningEditor(); renderAll(); });
-      });
-      tuningPanel.querySelectorAll('select').forEach(sel=>{
-        sel.addEventListener('change', ()=>{ const i=+sel.dataset.idx; state.tuning[i]=sel.value; save(); renderAll(); });
-      });
+      tuningPanel.innerHTML=html;
+      tuningPanel.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+        const i=+b.dataset.idx; const up=b.dataset.act==='up'; state.tuning[i]=cycle(state.tuning[i], up?+1:-1); save(); renderTuningEditor(); renderAll();
+      }));
+      tuningPanel.querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>{
+        const i=+s.dataset.idx; state.tuning[i]=s.value; save(); renderAll();
+      }));
     }
 
-    // --- Render base del diapasón y notas del acorde ---
+    // Render base del diapasón con notas del acorde
     function renderBoardNotes(){
       board.innerHTML='';
-      const chord = CHORDS[state.chordName];
-      const rootIdx = idx(state.root);
-      const scaleSet = new Set(chord.map(x=>wrap(x)));
-      const degreeByRel = new Map();
-      chord.forEach((off,i)=> degreeByRel.set(wrap(off), i)); // 0=root pos degree index order
+      const chord=CHORDS[state.chordName];
+      const rootIdx=idx(state.root);
+      const chordSet=new Set(chord.map(wrap));
 
-      for(let s=0; s<state.strings; s++){
-        const openIdx = idx(state.tuning[s]);
-        const row = document.createElement('div'); row.className='string';
-        const nut = document.createElement('div'); nut.className='nut open-note'; if(s>0) nut.style.borderTop='1px solid var(--rule)';
-        const labelSpan = document.createElement('span'); labelSpan.textContent = state.tuning[s]; nut.appendChild(labelSpan);
-        const openPC = wrap(openIdx);
-        if(scaleSet.has(wrap(openPC - rootIdx))){
-          const m0 = document.createElement('div'); m0.className='marker'; const d0 = document.createElement('div'); d0.className='dot';
-          if(wrap(openPC - rootIdx)===0) d0.classList.add('root');
-          let lbl='';
-          if(state.labelMode==='notes') lbl = NOTES[openPC];
-          else if(state.labelMode==='degrees'){ const rel=wrap(openPC - rootIdx); const ord = degreeByRel.get(rel); lbl = ord===0?'R':(ord===1?'3/♭3':'5/7'); }
-          d0.textContent = lbl; m0.appendChild(d0); nut.appendChild(m0);
-        }
-        row.appendChild(nut);
+      for(let s=0;s<state.strings;s++){
+        const openIdx=idx(state.tuning[s]);
+        const row=document.createElement('div'); row.className='string';
+        const nut=document.createElement('div'); nut.className='nut cell'; if(s>0) nut.style.borderTop='1px solid var(--rule)';
+        nut.innerHTML=`<span>${state.tuning[s]}</span>`; row.appendChild(nut);
         for(let f=1; f<=FRETS; f++){
-          const cell = document.createElement('div'); cell.className='fret cell'; if(s>0) cell.style.borderTop='1px solid var(--rule)';
-          const pc = wrap(openIdx + f);
-          const rel = wrap(pc - rootIdx);
-          if(scaleSet.has(rel)){
-            const m = document.createElement('div'); m.className='marker';
-            const dot = document.createElement('div'); dot.className='dot';
-            if(rel===0) dot.classList.add('root');
+          const cell=document.createElement('div'); cell.className='fret cell'; if(s>0) cell.style.borderTop='1px solid var(--rule)';
+          const pc=wrap(openIdx+f);
+          const rel=wrap(pc-rootIdx);
+          if(chordSet.has(rel)){
+            const m=document.createElement('div'); m.className='marker'; const d=document.createElement('div'); d.className='dot';
+            if(rel===0) d.classList.add('root');
             let lbl='';
-            if(state.labelMode==='notes') lbl = NOTES[pc];
-            else if(state.labelMode==='degrees'){ lbl = DEG_NAMES[rel] || ''; }
-            dot.textContent = lbl; m.appendChild(dot); cell.appendChild(m);
+            if(state.labels==='notes') lbl=NOTES[pc]; else if(state.labels==='degrees') lbl=DEG[rel]||'';
+            d.textContent=lbl; m.appendChild(d); cell.appendChild(m);
           }
           if(s===state.strings-1){ const num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num); }
           row.appendChild(cell);
@@ -303,76 +293,69 @@
       }
     }
 
-    // --- Búsqueda de voicings (simples) ---
+    // Buscar voicings (grupos contiguos de cuerdas dentro de una ventana de trastes)
     function findVoicings(){
-      const chord = CHORDS[state.chordName];
-      const rootIdx = idx(state.root);
-      const chordSet = new Set(chord.map(x=>wrap(x)));
-      const groups = [];
-      const used = state.stringsUsed|0; const span = state.span|0; 
+      const chord=CHORDS[state.chordName];
+      const rootIdx=idx(state.root);
+      const chordSet=new Set(chord.map(wrap));
+      const used=state.stringsUsed|0; const span=state.span|0;
+      const results=[];
 
-      // Para cada grupo de cuerdas contiguas del tamaño solicitado
-      for(let startS=0; startS<=state.strings-used; startS++){
-        const endS = startS + used - 1;
-        // recorremos las ventanas de trastes
-        for(let startF=0; startF<=FRETS-span; startF++){
-          const chosen = []; // {s, f, pc, rel}
-          let ok = true;
-          for(let s=startS; s<=endS; s++){
+      for(let s0=0; s0<=state.strings-used; s0++){
+        const s1=s0+used-1; // inclusive
+        for(let f0=1; f0<=FRETS-span; f0++){
+          const chosen=[]; // {s,f,pc,rel}
+          let ok=true;
+          for(let s=s0; s<=s1; s++){
+            const openIdx=idx(state.tuning[s]);
             let found=null;
-            const openIdx = idx(state.tuning[s]);
-            // buscar el traste más cercano al inicio de ventana que pertenezca al acorde
-            for(let f=startF; f<=startF+span; f++){
-              const pc = wrap(openIdx + f);
-              const rel = wrap(pc - rootIdx);
-              if(chordSet.has(rel)){ found = {s, f, pc, rel}; break; }
+            for(let f=f0; f<=f0+span; f++){
+              const pc=wrap(openIdx+f); const rel=wrap(pc-rootIdx);
+              if(chordSet.has(rel)){ found={s,f,pc,rel}; break; }
             }
             if(!found){ ok=false; break; }
             chosen.push(found);
           }
           if(!ok) continue;
-          // Debe contener al menos 3 grados distintos
-          const uniq = new Set(chosen.map(c=>wrap(c.rel)));
+          // Debe tener al menos 3 grados distintos
+          const uniq=new Set(chosen.map(c=>c.rel));
           if(uniq.size < Math.min(3, chordSet.size)) continue;
-          // Identificar inversión por la nota más grave (string más baja: índice mayor)
-          let bass = chosen.reduce((a,b)=> a.s>b.s?a:b);
-          const invIndex = chord.indexOf([...chordSet].find(x=>x===bass.rel)) ?? 0; // 0=root,1=3rd,...
-          groups.push({startS, endS, startF, endF:startF+span, chosen, inv:Math.min(invIndex,3)});
+          // Inversión por bajo (cuerda más grave => índice mayor)
+          const bass = chosen.reduce((a,b)=> a.s>b.s?a:b);
+          const invIdx = chord.findIndex(iv => wrap(iv)===bass.rel); // 0 root pos, 1=1ª inv...
+          results.push({s0,s1,f0,f1:f0+span, inv:Math.max(0,Math.min(invIdx,3))});
         }
       }
-      return groups;
+      return results;
     }
 
-    function renderVoicings(overlays){
-      // Agregar elementos posicionados por grid-area
-      overlays.forEach(v=>{
-        const el = document.createElement('div');
-        el.className = 'voicing inv'+v.inv;
-        // grid-row: (fila es 1..strings); grid-col: 1 (nut) cuenta, así que +1
-        el.style.gridRow = (v.startS+1) + ' / ' + (v.endS+2);
-        el.style.gridColumn = (1 + v.startF) + ' / ' + (1 + v.endF + 1);
-        const lab = document.createElement('label'); lab.textContent = v.inv===0?'Root':(v.inv===1?'1ª inv.':(v.inv===2?'2ª inv.':'3ª inv.'));
-        el.appendChild(lab);
+    function renderVoicings(vxs){
+      vxs.forEach(v=>{
+        const el=document.createElement('div'); el.className='voicing inv'+v.inv;
+        // grid lines: column 1 es la nuez; filas comienzan en 1 también
+        el.style.gridColumn = (v.f0) + 1 + ' / ' + (v.f1 + 2); // +1 por nuez, +1 porque CSS grid end es exclusivo
+        el.style.gridRow = (v.s0+1) + ' / ' + (v.s1+2);
+        const label=document.createElement('label'); label.textContent = v.inv===0?'Root': (v.inv===1?'1ª inv.': (v.inv===2?'2ª inv.':'3ª inv.'));
+        el.appendChild(label);
         board.appendChild(el);
       });
     }
 
     function renderAll(){
       renderBoardNotes();
-      const overlays = findVoicings();
-      renderVoicings(overlays);
+      renderVoicings(findVoicings());
       save();
     }
 
-    // --- Eventos ---
-    rootSel.addEventListener('change', ()=>{ state.root=rootSel.value; renderAll(); });
-    chordSel.addEventListener('change', ()=>{ state.chordName=chordSel.value; renderAll(); });
-    labelsSel.addEventListener('change', ()=>{ state.labelMode=labelsSel.value; renderAll(); });
-    stringsUsedSel.addEventListener('change', ()=>{ state.stringsUsed=+stringsUsedSel.value; renderAll(); });
-    spanSel.addEventListener('change', ()=>{ state.span=+spanSel.value; renderAll(); });
-    applyStringsBtn.addEventListener('click', ()=>{ const n=Math.max(3, Math.min(10, parseInt(stringCountInput.value||6,10))); state.strings=n; ensureTuningLen(n); renderTuningEditor(); renderAll(); });
+    // Eventos
+    rootSel.addEventListener('change',()=>{ state.root=rootSel.value; renderAll(); });
+    chordSel.addEventListener('change',()=>{ state.chordName=chordSel.value; renderAll(); });
+    labelsSel.addEventListener('change',()=>{ state.labels=labelsSel.value; renderAll(); });
+    stringsUsedSel.addEventListener('change',()=>{ state.stringsUsed=+stringsUsedSel.value; renderAll(); });
+    spanSel.addEventListener('change',()=>{ state.span=+spanSel.value; renderAll(); });
+    applyBtn.addEventListener('click',()=>{ const n=Math.max(3,Math.min(10,parseInt(stringCountInput.value||6,10))); state.strings=n; ensureTuningLen(n); renderTuningEditor(); renderAll(); });
 
-    // --- Init ---
+    // Init
     renderTuningEditor();
     renderAll();
   })();
