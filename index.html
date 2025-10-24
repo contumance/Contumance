@@ -1,86 +1,73 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Contumance library</title>
-  <meta name="description" content="Contumance — proyectos y escritos en una estética tipo e-ink." />
+  <title>Contumance — Library</title>
+  <meta name="description" content="Contumance — Where sound becomes a language. A quiet library of interactive music ebooks." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
   <style>
-    /* Paleta base (modo claro) */
-    :root {
-      --paper: #f5f1e8;
-      --ink: #2f2a1e;
-      --muted: #6b6253;
-      --link: #2d5842;
-      --link-visited: #514f7a;
-      --accent: #a08a63;
-      --maxw: 42rem;
-      --lh: 1.6;
-      --fs-base: 18px;
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
+      --link-visited:#514f7a; --accent:#a08a63; --maxw:42rem; --lh:1.6; --fs-base:18px;
     }
-    /* Overrides para modo oscuro, controlado con clase en <html> */
-    html.theme-dark {
-      --paper: #10110f;
-      --ink: #dbd6c9;
-      --muted: #a39c8c;
-      --link: #a9d0b8;
-      --link-visited: #c0b8e0;
-      --accent: #2a2b27;
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c; --link:#a9d0b8;
+      --link-visited:#c0b8e0; --accent:#2a2b27;
     }
-
-    html { font-size: var(--fs-base); }
-    body {
-      margin: 0; padding: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-      line-height: var(--lh);
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+    html{font-size:var(--fs-base)}
+    body{
+      margin:0; color:var(--ink); background:var(--paper);
+      font-family:ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
+      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
-    /* textura sutil tipo papel */
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .06;
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
-        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
-        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
-      background-size: 3px 3px, 3px 3px;
-      mix-blend-mode: multiply;
+        radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
     }
-    main { max-width: var(--maxw); margin: 0 auto; padding: 9vh 1.25rem 4rem; }
+    main{max-width:var(--maxw); margin:0 auto; padding:9vh 1.25rem 4rem}
+    header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
+    header h1{font-weight:600; margin:0 0 .25rem 0; font-size:clamp(1.8rem,4vw,2.4rem); letter-spacing:.2px}
+    header p.desc{margin:0 0 2rem 0; color:var(--muted); font-style:italic}
+    .theme-toggle{border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1}
+    .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+    hr{border:none; border-top:1px solid var(--accent); margin:1.5rem 0; opacity:.5}
 
-    /* Header con botón a la derecha */
-    header.header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      gap: 1rem;
+    nav h2{font-size:1rem; font-weight:600; text-transform:uppercase; color:var(--muted);
+      margin:0 0 .5rem 0; letter-spacing:.08em}
+    ul.index{list-style:none; padding:0; margin:0}
+    ul.index li{padding:.7rem 0}
+    ul.index li+li{border-top:1px dotted var(--accent)}
+    a{color:var(--link); text-decoration:none; text-underline-offset:2px}
+    a:visited{color:var(--link-visited)}
+
+    /* Item con icono */
+    .item{display:grid; grid-template-columns:auto 1fr; column-gap:.6rem; row-gap:.1rem; align-items:start}
+    .title{line-height:1.25}
+    .meta{color:var(--muted); font-size:.95rem}
+    .icon{
+      width:1.15rem; height:1.15rem; margin-top:.15rem; flex:0 0 auto; color:currentColor;
+      opacity:.9;
     }
-    header h1 { font-weight: 600; margin: 0 0 .25rem 0; font-size: clamp(1.8rem, 4vw, 2.4rem); }
-    header p.desc { margin: 0 0 2rem 0; color: var(--muted); }
+    /* Variante de icono con trazo sutil */
+    .icon stroke{stroke-linecap:round; stroke-linejoin:round}
 
-    /* Botón de tema (opción A: icono grande minimal) */
-    .theme-toggle { border: 1px solid var(--accent); background: transparent; color: var(--ink);
-      border-radius: .45rem; padding: .35rem .55rem; cursor: pointer; font-size: 1.15rem; line-height: 1; }
-    .theme-toggle:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    footer{margin-top:2.5rem; font-size:.95rem; color:var(--muted);
+      display:flex; gap:.75rem; align-items:center; flex-wrap:wrap}
+    .btn{border:1px solid var(--accent); padding:.5rem .8rem; border-radius:.35rem; text-decoration:none}
+    .note{width:100%; color:var(--muted); font-style:italic; margin-top:.35rem}
 
-    hr { border: none; border-top: 1px solid var(--accent); margin: 1.5rem 0; opacity: .5; }
-    nav h2 { font-size: 1rem; font-weight: 600; text-transform: uppercase; color: var(--muted); margin: 0 0 .5rem 0; }
-    ul.index { list-style: none; padding: 0; margin: 0; }
-    ul.index li { padding: .6rem 0; }
-    ul.index li + li { border-top: 1px dotted var(--accent); }
-
-    a { color: var(--link); text-decoration: none; text-underline-offset: 2px; }
-    a:visited { color: var(--link-visited); }
-
-    footer { margin-top: 2.5rem; font-size: .95rem; color: var(--muted); display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
-    .btn { border: 1px solid var(--accent); padding: .5rem .8rem; border-radius: .35rem; text-decoration: none; }
-
-    /* Animación sutil para enlaces y filas del índice */
-    @media (prefers-reduced-motion: no-preference) {
-      a { position: relative; background-image: linear-gradient(currentColor, currentColor); background-position: 0 100%; background-repeat: no-repeat; background-size: 0% 1px; transition: background-size .25s ease, color .2s ease; }
-      a:hover, a:focus-visible { background-size: 100% 1px; outline: none; }
-      ul.index li { transition: transform .12s ease; }
-      ul.index li:hover { transform: translateX(2px); }
+    @media (prefers-reduced-motion:no-preference){
+      a{position:relative; background-image:linear-gradient(currentColor, currentColor);
+        background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px;
+        transition:background-size .25s ease, color .2s ease}
+      a:hover, a:focus-visible{background-size:100% 1px; outline:none}
+      ul.index li{transition:transform .12s ease}
+      ul.index li:hover{transform:translateX(2px)}
     }
   </style>
 </head>
@@ -88,64 +75,88 @@
   <main>
     <header class="header">
       <div>
-        <h1>Contumance library</h1>
-        <p class="desc">my books</p>
+        <h1>Contumance</h1>
+        <p class="desc">Where sound becomes a language.</p>
       </div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">◑</button>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
     </header>
 
     <hr>
 
-    <nav aria-label="Proyectos">
-      <h2>books</h2>
+    <nav aria-label="Library">
+      <h2>Library</h2>
       <ul class="index">
-        <li><a href="the-chords-book.html">The chords book</a></li>
-        <li><a href="the-scales-book.html">The scales book</a></li>
-        <li><a href="the-daily-chord.html">The daily chord</a></li>
+        <!-- CHORDS: triad (tres nodos conectados) -->
+        <li>
+          <a class="item" href="the-chords-book.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="6" cy="17" r="2.4"></circle>
+              <circle cx="18" cy="17" r="2.4"></circle>
+              <circle cx="12" cy="7" r="2.4"></circle>
+              <path d="M7.9 16.2 L10.4 8.8 M16.1 16.2 L13.6 8.8" />
+            </svg>
+            <span class="title">The Chords Book</span>
+            <span class="meta">Shapes of harmony across the neck.</span>
+          </a>
+        </li>
+
+        <!-- SCALES: puntos ascendentes (camino/escala) -->
+        <li>
+          <a class="item" href="the-scales-book.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <circle cx="5" cy="16" r="1.6"></circle>
+              <circle cx="9.5" cy="13.2" r="1.6"></circle>
+              <circle cx="14" cy="10.6" r="1.6"></circle>
+              <circle cx="18.5" cy="8" r="1.6"></circle>
+            </svg>
+            <span class="title">The Scales Book</span>
+            <span class="meta">Paths that lead the hand to new colors.</span>
+          </a>
+        </li>
+
+        <!-- DAILY CHORD (APP): calendario minimal + chispa -->
+        <li>
+          <a class="item" href="the-daily-chord.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <!-- calendario -->
+              <rect x="3.5" y="6" width="17" height="13" rx="1.8"></rect>
+              <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
+              <!-- chispa minimal -->
+              <path d="M12 13.2 l0 -1.7 M12 13.2 l1.2 1.2 M12 13.2 l-1.2 1.2 M12 13.2 l0 1.8" />
+            </svg>
+            <span class="title">The Daily Chord</span>
+            <span class="meta">A quiet, interactive spark—one chord each day.</span>
+          </a>
+        </li>
       </ul>
     </nav>
 
     <footer>
-      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">♨︎ Invitame un cafecito</a>
+      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">Invite me a coffee ☕</a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
       <span>© <span id="y"></span> Contumance</span>
     </footer>
   </main>
 
   <script>
     (function(){
-      const KEY = 'theme-preference';
-      const root = document.documentElement;
-      const btn = document.getElementById('themeToggle');
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
 
       function setIcon(mode){
-        // Claro → mostrar luna (ofrece pasar a oscuro). Oscuro → mostrar sol.
-        btn.textContent = mode === 'dark' ? '◐' : '◐';
-
-        btn.setAttribute('aria-label', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
-        btn.setAttribute('title', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        btn.textContent = mode==='dark' ? '☀︎' : '☾';
+        btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
       }
-
-      function apply(mode){
-        root.classList.toggle('theme-dark', mode === 'dark');
-        setIcon(mode);
-      }
-
+      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
       function getPreferred(){
-        const saved = localStorage.getItem(KEY);
-        if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const saved=localStorage.getItem(KEY);
+        if(saved==='light' || saved==='dark') return saved;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
       }
-
-      let current = getPreferred();
-      apply(current);
-
-      btn.addEventListener('click', () => {
-        current = current === 'dark' ? 'light' : 'dark';
-        localStorage.setItem(KEY, current);
-        apply(current);
-      });
-
-      // Actualiza el año del footer
+      let current=getPreferred(); apply(current);
+      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); apply(current); });
       document.getElementById('y').textContent = new Date().getFullYear();
     })();
   </script>
