@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Contumance — Índice</title>
+  <title>Contumance library</title>
   <meta name="description" content="Contumance — proyectos y escritos en una estética tipo e-ink." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
   <style>
@@ -97,8 +97,9 @@
     <hr>
 
     <nav aria-label="Proyectos">
-      <h2>Proyectos</h2>
+      <h2>books</h2>
       <ul class="index">
+        <li><a href="the-chords-book.html">The chords book</a></li>
         <li><a href="the-scales-book.html">The scales book</a></li>
       </ul>
     </nav>
@@ -117,7 +118,7 @@
 
       function setIcon(mode){
         // Claro → mostrar luna (ofrece pasar a oscuro). Oscuro → mostrar sol.
-        btn.textContent = mode === 'dark' ? '◐' : '◑';
+        btn.textContent = mode === 'dark' ? '◐' : '◐';
 
         btn.setAttribute('aria-label', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
         btn.setAttribute('title', mode === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
