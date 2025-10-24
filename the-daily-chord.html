@@ -30,7 +30,7 @@
     body{margin:0;padding:0;color:var(--ink);background:var(--paper);
       font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;}
-    /* Textura sutil tipo papel (igual al libro de escalas) */
+    /* Textura sutil tipo papel */
     body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
       background-image:radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
                        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
@@ -51,10 +51,10 @@
 
     hr{border:none;border-top:1px solid var(--accent);margin:1.25rem 0;opacity:.5}
 
-    /* Panel colapsable reutilizado para los controles del oráculo */
+    /* Panel colapsable para controles */
     details.panel{border:1px solid var(--accent);border-radius:.6rem;background:rgba(255,255,255,.6)}
     html.theme-dark details.panel{background:rgba(0,0,0,.1)}
-    details.panel>summary{cursor:pointer;list-style:none;padding:.6rem .8rem;font-size:.95rem;font-weight:600;color:var(--ink)}
+    details.panel>summary{cursor:pointer;list-style:none;padding:.6rem .8rem;font-size:1.05rem;font-weight:700;color:var(--ink)}
     details.panel>summary::-webkit-details-marker{display:none}
     details.panel .panel-body{padding:.6rem .8rem .9rem}
 
@@ -65,7 +65,7 @@
       padding:10px 12px;border-radius:.5rem;font-family:inherit;font-size:14px;line-height:1;min-width:0}
     button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
-    /* Tarjeta resultado visual coherente con el libro */
+    /* Tarjeta resultado visual */
     .result{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem .9rem 1rem;background:transparent}
     .kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
     .big{font-weight:700;letter-spacing:.02em;font-size:clamp(2.2rem,6vw,3rem);line-height:1.08;margin:.2rem 0 .1rem}
@@ -73,16 +73,7 @@
     .tag{border:1px solid var(--accent);border-radius:999px;padding:.2rem .55rem;font-size:.8rem;color:var(--muted)}
     .mood{color:var(--muted);font-size:.95rem;margin-top:.2rem}
 
-    /* Pie y hook al diapasón */
-    .foot{margin:30px 0 60px;font-size:12px;color:var(--muted)}
-    .hook{border:1px dashed var(--accent);border-radius:.6rem;padding:.6rem .8rem;font-size:.85rem;color:var(--muted)}
-
-    /* Animación link coherente */
-    @media (prefers-reduced-motion:no-preference){
-      a{position:relative;background-image:linear-gradient(currentColor,currentColor);background-position:0 100%;background-repeat:no-repeat;background-size:0% 1px;transition:background-size .25s ease,color .2s ease}
-      a:hover,a:focus-visible{background-size:100% 1px;outline:none}
-    }
-    /* === Diapasón compacto para referencia visual === */
+    /* Diapasón compacto */
     .fretcard{border:1px solid var(--accent);border-radius:.6rem;padding:.9rem;background:transparent;margin-top:12px}
     #fretboard{overflow:auto}
     .fret svg{max-width:100%;height:auto;display:block}
@@ -91,6 +82,13 @@
     .fb-grid .nut{stroke:var(--ink);stroke-width:3}
     .fb-note{fill:var(--ink)}
     .fb-note text{font-size:10px;font-weight:700;fill:var(--paper)}
+
+    .foot{margin:30px 0 60px;font-size:12px;color:var(--muted)}
+
+    @media (prefers-reduced-motion:no-preference){
+      a{position:relative;background-image:linear-gradient(currentColor,currentColor);background-position:0 100%;background-repeat:no-repeat;background-size:0% 1px;transition:background-size .25s ease,color .2s ease}
+      a:hover,a:focus-visible{background-size:100% 1px;outline:none}
+    }
   </style>
 </head>
 <body>
@@ -125,13 +123,14 @@
             <span class="tag" id="notationTag" title="Notación usada">Notación: Do–Re–Mi</span>
           </div>
         </div>
-        <section class="fretcard" aria-label="Diapasón con el acorde">
-  <div class="kicker">Diapasón</div>
-  <div id="fretboard"></div>
-  <div class="legend">R = raíz · 3/b3 · 5 · 7/b7 (se muestran las notas del acorde dentro de una ventana de trastes).</div>
-</section>
       </div>
     </details>
+
+    <section class="fretcard" aria-label="Diapasón con el acorde">
+      <div class="kicker">Diapasón</div>
+      <div id="fretboard"></div>
+      <div class="legend">R = raíz · 3/b3 · 5 · 7/b7 (se muestran las notas del acorde dentro de una ventana de trastes).</div>
+    </section>
 
     <section class="result" aria-live="polite">
       <div class="kicker" id="dateLabel">Hoy</div>
@@ -140,10 +139,10 @@
       <p class="mood" id="moodLine">—</p>
     </section>
 
-    <p class="foot">© HEXES — “Santuario del Colapso Industrial”. Minimal, oscuro, funcional. Este oráculo comparte estilos, rejillas, tipografías y controles con <em>The Scales Book</em> para una estética común.</p>
+    <p class="foot">© HEXES — “Santuario del Colapso Industrial”.</p>
   </main>
 
-  <!-- === Scripts compartidos / toggle de tema (idéntico a Scales) === -->
+  <!-- === Toggle de tema === -->
   <script>
     (function(){
       var KEY='theme-preference';
@@ -155,9 +154,9 @@
     })();
   </script>
 
-  <!-- === Lógica del oráculo (portada y adaptada del prototipo original) === -->
+  <!-- === Lógica del oráculo + diapasón integrado === -->
   <script>
-    // Utilidades calendario y mapeos (idénticos conceptualmente al prototipo)
+    // Utilidades calendario y mapeos
     var WEEKDAY_ES=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
     var WEEKDAY_ROOT={"Lunes":"Do","Martes":"Re","Miércoles":"Mi","Jueves":"Fa","Viernes":"Sol","Sábado":"La","Domingo":"Si"};
     function monthFamily(m){ if(m>=1&&m<=3) return 'mayor'; if(m>=4&&m<=6) return 'menor'; if(m>=7&&m<=9) return 'disminuido'; return 'dominante'; }
@@ -198,9 +197,82 @@
     }
     function rootFromWeekday(d){ return WEEKDAY_ROOT[ WEEKDAY_ES[d.getDay()] ]; }
 
-    // Refs UI
+    // === UI refs ===
     var $=function(s){return document.querySelector(s)};
-    var dateLabel=$('#dateLabel'); var chordText=$('#chordText'); var metaTags=$('#metaTags'); var moodLine=$('#moodLine'); var fretMsg=$('#fretMsg'); var inputDate=$('#pickDate');
+    var dateLabel=$('#dateLabel'); var chordText=$('#chordText'); var metaTags=$('#metaTags'); var moodLine=$('#moodLine'); var inputDate=$('#pickDate');
+
+    // ====== Notas y diapasón ======
+    var SOLFEGE_PC={"Do":0,"Re":2,"Mi":4,"Fa":5,"Sol":7,"La":9,"Si":11};
+    var STD_TUNING=[40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 en MIDI
+    var DEG_LABELS={0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
+
+    function qualityToIntervals(family, quality){
+      if(family==='mayor'){
+        if(quality==='maj7') return [0,4,7,11];
+        if(quality==='sus4') return [0,5,7];
+        if(quality==='add9') return [0,4,7,14];
+        return [0,4,7];
+      }
+      if(family==='menor'){
+        if(quality==='mMaj7') return [0,3,7,11];
+        if(quality==='m7') return [0,3,7,10];
+        if(quality==='madd9') return [0,3,7,14];
+        return [0,3,7];
+      }
+      if(family==='disminuido'){
+        if(quality==='m7♭5') return [0,3,6,10];
+        return [0,3,6,9];
+      }
+      if(quality==='7sus4') return [0,5,7,10];
+      return [0,4,7,10];
+    }
+
+    function pickVoicing(pcRoot, intervals, windowStart){
+      var win=5; var out=[];
+      for(var s=0;s<STD_TUNING.length;s++){
+        var midiOpen=STD_TUNING[s];
+        var chosen=null, chosenDeg=null;
+        for(var f=windowStart; f<windowStart+win && f<=20; f++){
+          var pc=(midiOpen+f)%12;
+          for(var k=0;k<intervals.length;k++){
+            if(pc=== (pcRoot+ (intervals[k]%12)+12)%12){ chosen={string:s,fret:f}; chosenDeg=(intervals[k]%12); break; }
+          }
+          if(chosen) break;
+        }
+        out.push(chosen? {string:s,fret:chosen.fret,deg:chosenDeg} : null);
+      }
+      return out;
+    }
+
+    function renderFretboard(rootName, family, quality, nDay){
+      var pcRoot=SOLFEGE_PC[rootName]||0;
+      var intervals=qualityToIntervals(family,quality);
+      var start=( (nDay%12)+1 );
+      var voicing=pickVoicing(pcRoot, intervals, start);
+      var frets=5; var startFret=start; var strings=6; var w=frets*44+60; var h=strings*26+30;
+      var svg=['<svg xmlns="http://www.w3.org/2000/svg" class="fret" viewBox="0 0 '+w+' '+h+'">'];
+      // Grid
+      svg.push('<g class="fb-grid">');
+      var x0=40, y0=15, dx=44, dy=26;
+      for(var s=0;s<strings;s++){
+        var y=y0+s*dy; svg.push('<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+frets*dx)+'" y2="'+y+'" />');
+      }
+      for(var f=0; f<=frets; f++){
+        var x=x0+f*dx; var cls=(startFret+f===0?'nut':'');
+        svg.push('<line x1="'+x+'" y1="'+(y0-dy/2)+'" x2="'+x+'" y2="'+(y0+(strings-1)*dy+dy/2)+'" class="'+cls+'" />');
+        if(f>0){ svg.push('<text x="'+(x-dx/2)+'" y="'+(y0-dy/1.3)+'" font-size="10">'+(startFret+f-1)+'</text>'); }
+      }
+      svg.push('</g>');
+      // Notas
+      svg.push('<g class="fb-note">');
+      voicing.forEach(function(v,idx){ if(!v) return; var cx=x0+(v.fret-startFret+.5)*dx; var cy=y0+idx*dy; var label=DEG_LABELS[(v.deg+12)%12]||'•';
+        svg.push('<circle cx="'+cx+'" cy="'+cy+'" r="11" />');
+        svg.push('<text x="'+cx+'" y="'+(cy+3)+'" text-anchor="middle">'+label+'</text>');
+      });
+      svg.push('</g></svg>');
+      document.getElementById('fretboard').innerHTML='<div class="fret">'+svg.join('')+'</div>';
+    }
+
     function tagsRender(items){ metaTags.innerHTML=''; items.forEach(function(t){ var el=document.createElement('span'); el.className='tag'; el.textContent=t; metaTags.appendChild(el); }); }
     function formatDateLong(d){ return d.toLocaleDateString('es-UY',{weekday:'long',year:'numeric',month:'long',day:'numeric'}); }
 
@@ -209,25 +281,28 @@
       dateLabel.textContent=formatDateLong(d); chordText.textContent=built.symbol;
       tagsRender([ 'Día '+n, 'Familia: '+fam, 'Inversión: '+built.inversion ]);
       moodLine.textContent=FAMILY_MOODS[fam];
-      // Render del diapasón inline
       renderFretboard(built.root, built.family, built.quality, n);
-      // Evento opcional si hay integración externa
       window.dispatchEvent(new CustomEvent('oracle-chord',{detail:{
         date:d.toISOString().slice(0,10), dayOfYear:n, root:built.root, family:built.family, quality:built.quality,
         extensions:built.extensions, alterations:built.alterations, inversion:built.inversion, symbol:built.symbol
       }}));
-    }}));
-      fretMsg.style.opacity=.9;
     }
 
     // Controles
-    $('#btnToday').addEventListener('click', function(){ computeForDate(new Date()); });
-    $('#btnRandom').addEventListener('click', function(){ var y=(new Date()).getFullYear(); var start=new Date(y,0,1); var rnd=Math.floor(Math.random()*365); var d=new Date(start.getTime()+rnd*86400000); inputDate.value=d.toISOString().slice(0,10); computeForDate(d); });
-    $('#btnGo').addEventListener('click', function(){ var v=inputDate.value; if(!v){ alert('Elegí una fecha.'); return;} var d=new Date(v+'T12:00:00'); computeForDate(d); });
-    $('#btnShare').addEventListener('click', function(){ var title='El Acorde del Día — The Harmony Oracle'; var text=chordText.textContent+' · '+dateLabel.textContent; if(navigator.share){ navigator.share({title:title,text:text}).catch(function(){}); } else { (navigator.clipboard? navigator.clipboard.writeText(title+'\n'+text): Promise.reject()).then(function(){ alert('Copiado al portapapeles.');}).catch(function(){ alert(text);}); }});
+    document.getElementById('btnToday').addEventListener('click', function(){ computeForDate(new Date()); });
+    document.getElementById('btnRandom').addEventListener('click', function(){ var y=(new Date()).getFullYear(); var start=new Date(y,0,1); var rnd=Math.floor(Math.random()*365); var d=new Date(start.getTime()+rnd*86400000); inputDate.value=d.toISOString().slice(0,10); computeForDate(d); });
+    document.getElementById('btnGo').addEventListener('click', function(){ var v=inputDate.value; if(!v){ alert('Elegí una fecha.'); return;} var d=new Date(v+'T12:00:00'); computeForDate(d); });
+    document.getElementById('btnShare').addEventListener('click', function(){ var title='El Acorde del Día — The Harmony Oracle'; var text=chordText.textContent+' · '+dateLabel.textContent; if(navigator.share){ navigator.share({title:title,text:text}).catch(function(){}); } else { (navigator.clipboard? navigator.clipboard.writeText(title+'\n'+text): Promise.reject()).then(function(){ alert('Copiado al portapapeles.');}).catch(function(){ alert(text);}); }});
 
-    // Init
-    (function init(){ var t=new Date(); inputDate.value=t.toISOString().slice(0,10); computeForDate(t); })();
+    // Init robusto (con try/catch para evitar pantalla en blanco si algo falla)
+    (function init(){
+      try{
+        var t=new Date(); inputDate.value=t.toISOString().slice(0,10); computeForDate(t);
+      }catch(err){
+        document.getElementById('chordText').textContent='⚠️ Error de inicialización';
+        console.error(err);
+      }
+    })();
   </script>
 </body>
 </html>
