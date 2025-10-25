@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Chords Book — Contumance</title>
-  <meta name="description" content="The Chords Book — visualiza en el diapasón las notas de un acorde y guías de inversión, estética e‑ink." />
+  <title>The Chords Book</title>
+  <meta name="description" content="Shapes of harmony across the neck." />
   <style>
     /* ===== Estética Kindle ===== */
     :root { --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --accent:#a08a63; --rule:#d8d2c2; --link:#2d5842; --link-visited:#514f7a; --maxw:42rem; --lh:1.6; --fs:18px; --dot-border: rgba(0,0,0,.35); }
@@ -68,13 +68,13 @@
 <body>
   <main>
     <div class="topbar">
-      <nav class="breadcrumb"><a href="index.html">← Volver al índice</a></nav>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">🌓</button>
+      <nav class="breadcrumb"><a href="index.html">← back main</a></nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
     </div>
 
     <header>
       <h1>The Chords Book</h1>
-      <div class="subtitle">Visual limpio: solo puntos del acorde y **líneas guía** que separan zonas de inversión.</div>
+      <div class="subtitle">Shapes of harmony across the neck.</div>
     </header>
 
     <details class="panel" open>
@@ -82,24 +82,24 @@
       <div class="panel-body">
         <div class="controls">
           <div class="row">
-            <label for="stringCount">Cuerdas</label>
+            <label for="stringCount">Strings</label>
             <input id="stringCount" type="number" min="3" max="10" value="6" style="width:86px" />
-            <button id="applyStrings">Aplicar</button>
+            <button id="applyStrings">Apply</button>
           </div>
           <div class="row">
-            <label for="root">Tónica</label>
+            <label for="root">Root</label>
             <select id="root"></select>
           </div>
           <div class="row">
-            <label for="chord">Acorde</label>
+            <label for="chord">Chord</label>
             <select id="chord"></select>
           </div>
           <div class="row">
-            <label for="labels">Etiquetas</label>
+            <label for="labels">Labels</label>
             <select id="labels">
-              <option value="notes">Notas</option>
-              <option value="degrees">Grados</option>
-              <option value="off">Ocultas</option>
+              <option value="notes">Notes</option>
+              <option value="degrees">Grades</option>
+              <option value="off">Hidden</option>
             </select>
           </div>
           <div class="row">
