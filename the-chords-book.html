@@ -145,7 +145,7 @@
     // ===== Switch de tema =====
     (function(){
       const KEY='theme-preference'; const root=document.documentElement; const btn=document.getElementById('themeToggle');
-      function setIcon(mode){ btn.textContent = mode==='dark' ? '☀️':'🌙'; btn.title = mode==='dark'?'Cambiar a modo claro':'Cambiar a modo oscuro'; }
+      function setIcon(mode){ btn.textContent = mode==='dark' ? '☀︎' : '☾'; btn.title = mode==='dark'?'light mode':'dark mode'; }
       function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
       function get(){ const s=localStorage.getItem(KEY); if(s==='light'||s==='dark') return s; return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
       let mode=get(); apply(mode); btn.addEventListener('click',()=>{ mode = mode==='dark'?'light':'dark'; localStorage.setItem(KEY,mode); apply(mode); });
