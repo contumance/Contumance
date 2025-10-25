@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Contumance — Library</title>
-  <meta name="description" content="Contumance — Where sound becomes a language. A quiet library of interactive music ebooks." />
+  <meta name="description" content="Contumance — A quiet library of interactive music ebooks." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
   <style>
     :root{
@@ -21,6 +21,7 @@
       font-family:ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
+    /* textura sutil tipo papel */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
@@ -29,35 +30,58 @@
       background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
     }
     main{max-width:var(--maxw); margin:0 auto; padding:9vh 1.25rem 4rem}
+
+    /* Header */
     header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
     header h1{font-weight:600; margin:0 0 .25rem 0; font-size:clamp(1.8rem,4vw,2.4rem); letter-spacing:.2px}
     header p.desc{margin:0 0 2rem 0; color:var(--muted); font-style:italic}
-    .theme-toggle{border:1px solid var(--accent); background:transparent; color:var(--ink);
-      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1}
+
+    /* Botón de tema */
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1
+    }
     .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+
     hr{border:none; border-top:1px solid var(--accent); margin:1.5rem 0; opacity:.5}
 
-    nav h2{font-size:1rem; font-weight:600; text-transform:uppercase; color:var(--muted);
-      margin:0 0 .5rem 0; letter-spacing:.08em}
+    /* Lista / índice */
+    nav h2{
+      font-size:1rem; font-weight:600; text-transform:uppercase; color:var(--muted);
+      margin:0 0 .5rem 0; letter-spacing:.08em
+    }
     ul.index{list-style:none; padding:0; margin:0}
-    ul.index li{padding:.7rem 0}
+    ul.index li{padding:0}
     ul.index li+li{border-top:1px dotted var(--accent)}
+
     a{color:var(--link); text-decoration:none; text-underline-offset:2px}
     a:visited{color:var(--link-visited)}
 
-    /* Item con icono */
-    .item{display:grid; grid-template-columns:auto 1fr; column-gap:.6rem; row-gap:.1rem; align-items:start}
-    .title{line-height:1.25}
-    .meta{color:var(--muted); font-size:.95rem}
-    .icon{
-      width:1.15rem; height:1.15rem; margin-top:.15rem; flex:0 0 auto; color:currentColor;
-      opacity:.9;
+    /* ====== BLOQUE CLICABLE CON ICONO + TITULO + DESCRIPCION ====== */
+    .item{
+      display:grid;
+      grid-template-columns: 1.6rem 1fr;
+      grid-template-areas:
+        "icon title"
+        "icon meta";
+      column-gap:.75rem;
+      row-gap:.2rem;
+      align-items:center;
+      padding:.85rem 0;           /* área táctil cómoda */
+      width:100%;                 /* el enlace ocupa toda la fila */
     }
-    /* Variante de icono con trazo sutil */
-    .icon stroke{stroke-linecap:round; stroke-linejoin:round}
+    .item:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+    .item:hover .title,
+    .item:focus-visible .title{text-decoration:underline}
 
-    footer{margin-top:2.5rem; font-size:.95rem; color:var(--muted);
-      display:flex; gap:.75rem; align-items:center; flex-wrap:wrap}
+    .icon{grid-area:icon; width:1.15rem; height:1.15rem; margin:0; color:currentColor; opacity:.9}
+    .title{grid-area:title; line-height:1.25}
+    .meta{grid-area:meta; color:var(--muted); font-size:.95rem; margin-top:.1rem}
+
+    footer{
+      margin-top:2.5rem; font-size:.95rem; color:var(--muted);
+      display:flex; gap:.75rem; align-items:center; flex-wrap:wrap
+    }
     .btn{border:1px solid var(--accent); padding:.5rem .8rem; border-radius:.35rem; text-decoration:none}
     .note{width:100%; color:var(--muted); font-style:italic; margin-top:.35rem}
 
@@ -76,7 +100,7 @@
     <header class="header">
       <div>
         <h1>Contumance</h1>
-        <p class="desc">Where sound becomes a language.</p>
+        <p class="desc">A quiet selection for curious hands.</p>
       </div>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
     </header>
@@ -89,7 +113,7 @@
         <!-- CHORDS: triad (tres nodos conectados) -->
         <li>
           <a class="item" href="the-chords-book.html">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="6" cy="17" r="2.4"></circle>
               <circle cx="18" cy="17" r="2.4"></circle>
               <circle cx="12" cy="7" r="2.4"></circle>
@@ -117,12 +141,12 @@
         <!-- DAILY CHORD (APP): calendario minimal + chispa -->
         <li>
           <a class="item" href="the-daily-chord.html">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <!-- calendario -->
               <rect x="3.5" y="6" width="17" height="13" rx="1.8"></rect>
               <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
               <!-- chispa minimal -->
-              <path d="M12 13.2 l0 -1.7 M12 13.2 l1.2 1.2 M12 13.2 l-1.2 1.2 M12 13.2 l0 1.8" />
+              <path d="M12 13.1 v-1.7 M12 13.1 l1.15 1.15 M12 13.1 l-1.15 1.15 M12 13.1 v1.7" />
             </svg>
             <span class="title">The Daily Chord</span>
             <span class="meta">A quiet, interactive spark—one chord each day.</span>
