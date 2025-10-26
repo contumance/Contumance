@@ -110,7 +110,7 @@
     </header>
 
     <details class="panel" id="panel" open>
-      <summary>Setup</summary>
+      <summary>Guitar setup</summary>
       <div class="panel-body">
         <div class="controls" role="group" aria-label="Controls">
           <div class="row">
@@ -139,6 +139,12 @@
       </div>
     </details>
 
+    <section class="fretboard-wrap">
+      <div id="fretboard" class="fretboard">
+        <div id="board" class="board" role="grid" aria-label="Fretboard"></div>
+      </div>
+    </section>
+
     <!-- ===== Piano (one octave C–C) ===== -->
     <section class="piano-wrap" aria-label="Piano octave">
       <div class="piano-head">
@@ -146,12 +152,6 @@
         <div class="piano-caption" id="pianoCaption">C Major (Ionian)</div>
       </div>
       <div id="pianoContainer" style="width:100%; overflow:hidden;"></div>
-    </section>
-
-    <section class="fretboard-wrap">
-      <div id="fretboard" class="fretboard">
-        <div id="board" class="board" role="grid" aria-label="Fretboard"></div>
-      </div>
     </section>
 
     <p class="footer">Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).</p>
