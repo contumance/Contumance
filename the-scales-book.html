@@ -453,7 +453,7 @@
         pianoContainer.appendChild(svg);
       }
 
-            function renderPiano(){
+      function renderPianoOLD2(){
         var w = pianoContainer.clientWidth || 560;
         var h = 120;
         var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -549,6 +549,115 @@
             circ.setAttribute("cx",cx);
             circ.setAttribute("cy",cy);
             circ.setAttribute("r",blackW*0.22);
+            circ.setAttribute("stroke",paper);
+            circ.setAttribute("stroke-width","2");
+            circ.setAttribute("fill","none");
+            if (pc === rootIdx){
+              circ.setAttribute("fill",paper);
+            }
+            svg.appendChild(circ);
+          }
+        });
+
+        pianoContainer.innerHTML="";
+        pianoContainer.appendChild(svg);
+      }
+
+      function renderPiano(){
+        var w = pianoContainer.clientWidth || 520;
+        var h = 160;
+        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("viewBox","0 0 "+w+" "+h);
+        svg.setAttribute("width","100%");
+        svg.setAttribute("height","auto");
+
+        var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
+        var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
+
+        // Layout refinado
+        var pad = 10;
+        var innerW = w - pad*2;
+        var whiteW = innerW / 7.2;  // un poco más angostas
+        var whiteH = h - pad*2;
+        var blackW = whiteW * 0.58;
+        var blackH = whiteH * 0.58;
+        var blackShift = whiteW * 0.74; // centradas entre blancas
+
+        // Escala actual
+        var scale = SCALES[state.scaleName];
+        var rootIdx = noteIndex(state.root);
+        var inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
+
+        pianoCaption.textContent = state.root + " " + state.scaleName;
+
+        // --- Blancas ---
+        WHITE_PC.forEach(function(pc,i){
+          var x = pad + i*whiteW;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x);
+          rect.setAttribute("y",pad);
+          rect.setAttribute("width",whiteW);
+          rect.setAttribute("height",whiteH);
+          rect.setAttribute("fill",paper);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1");
+          rect.setAttribute("rx","4");
+          svg.appendChild(rect);
+
+          // Etiquetas
+          var label = document.createElementNS(svg.namespaceURI,"text");
+          label.setAttribute("x", x + whiteW/2);
+          label.setAttribute("y", pad + whiteH - 8);
+          label.setAttribute("font-size","10");
+          label.setAttribute("text-anchor","middle");
+          label.setAttribute("fill",accent);
+          label.textContent = WHITE[i];
+          svg.appendChild(label);
+
+          // Círculos de escala (más abajo para no chocar con negras)
+          if (inScaleSet.has(pc)){
+            var cx = x + whiteW/2;
+            var cy = pad + whiteH * 0.75;
+            var circle = document.createElementNS(svg.namespaceURI,"circle");
+            circle.setAttribute("cx",cx);
+            circle.setAttribute("cy",cy);
+            circle.setAttribute("r",whiteW*0.22);
+            circle.setAttribute("stroke",ink);
+            circle.setAttribute("stroke-width","2");
+            circle.setAttribute("fill","none");
+            if (pc === rootIdx){
+              circle.setAttribute("fill",ink);
+            }
+            svg.appendChild(circle);
+          }
+        });
+
+        // --- Negras ---
+        BLACK_PC.forEach(function(pc,j){
+          var afterWhite = BLACK_AT[j];
+          var xLeft = pad + afterWhite*whiteW;
+          var x = xLeft + blackShift - blackW/2;
+          var y = pad;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x);
+          rect.setAttribute("y",y);
+          rect.setAttribute("width",blackW);
+          rect.setAttribute("height",blackH);
+          rect.setAttribute("rx","3");
+          rect.setAttribute("fill",ink);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1");
+          svg.appendChild(rect);
+
+          // Círculos sobre negras (centrados)
+          if (inScaleSet.has(pc)){
+            var cx = x + blackW/2;
+            var cy = y + blackH * 0.55;
+            var circ = document.createElementNS(svg.namespaceURI,"circle");
+            circ.setAttribute("cx",cx);
+            circ.setAttribute("cy",cy);
+            circ.setAttribute("r",blackW*0.23);
             circ.setAttribute("stroke",paper);
             circ.setAttribute("stroke-width","2");
             circ.setAttribute("fill","none");
