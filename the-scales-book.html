@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,335 +9,92 @@
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <style>
     /* Base palette (light mode) aligned with index */
-    :root {
-      --paper: #f5f1e8;      /* paper background */
-      --ink: #2f2a1e;        /* primary text */
-      --muted: #6b6253;      /* secondary text */
-      --link: #2d5842;       /* links */
-      --link-visited: #514f7a;
-      --accent: #a08a63;     /* borders & separators */
-      --rule: #d8d2c2;       /* inner fretboard lines */
-      --accent-soft: #999;   /* secondary markers */
-      --maxw: 42rem;         /* reading width */
-      --radius: 14px;
-      --lh: 1.6;             /* line-height */
-      --fs-base: 18px;       /* base font size */
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+      --link:#2d5842; --link-visited:#514f7a;
+      --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
+      --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
     }
-
-    /* Dark mode controlled by class on <html> (same as index) */
-    html.theme-dark {
-      --paper: #10110f;
-      --ink: #dbd6c9;
-      --muted: #a39c8c;
-      --link: #a9d0b8;
-      --link-visited: #c0b8e0;
-      --accent: #2a2b27;
-      --rule: #2a2b27;
-      --accent-soft: #7f7a6b;
+    /* Dark mode */
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
     }
-
-    html { font-size: var(--fs-base); }
-
-    body {
-      margin: 0;
-      padding: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-      line-height: var(--lh);
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+    html{font-size:var(--fs-base)}
+    body{
+      margin:0; padding:0; color:var(--ink); background:var(--paper);
+      font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
-
     /* subtle paper texture */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .06;
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
         radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
         radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
-      background-size: 3px 3px, 3px 3px;
-      mix-blend-mode: multiply;
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
     }
+    main{max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem;}
+    nav.breadcrumb{font-size:.95rem}
+    nav.breadcrumb a{color:var(--link); text-decoration:none; text-underline-offset:2px;}
+    h1{margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem);}
+    .subtitle{color:var(--muted); font-size:.95rem; margin-bottom:.8rem;}
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
+    }
+    .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px;}
+    hr{border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5;}
+    details.panel{border:1px solid var(--accent); border-radius:.6rem; background:rgba(255,255,255,.6);}
+    html.theme-dark details.panel{background:rgba(0,0,0,.1);}
+    details.panel>summary{cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);}
+    details.panel>summary::-webkit-details-marker{display:none;}
+    details.panel .panel-body{padding:.6rem .8rem .9rem;}
+    .controls{display:grid; gap:8px; align-items:center; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); margin-bottom:8px;}
+    .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    label{font-size:12px; opacity:.9;}
+    select,button,input[type="number"]{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
+    }
+    button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+    .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+    .tuning .string-card{border:1px solid var(--accent); border-radius:.6rem; background:transparent; padding:8px;}
 
-    main {
-      max-width: var(--maxw);
-      margin: 0 auto;
-      padding: 7vh 1.25rem 4rem;
+    /* -------- Piano section -------- */
+    .piano-wrap{
+      border:1px solid var(--accent); border-radius:.6rem; background:transparent;
+      margin:14px 0 18px; padding:10px 10px 14px;
     }
-
-    /* Header with breadcrumb and theme switch to the right */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    nav.breadcrumb { font-size: .95rem; }
-    nav.breadcrumb a {
-      color: var(--link);
-      text-decoration: none;
-      text-underline-offset: 2px;
-    }
-
-    h1 {
-      margin: .2rem 0 .3rem 0;
-      font-weight: 600;
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: .95rem;
-      margin-bottom: .8rem;
-    }
-
-    .theme-toggle {
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--ink);
-      border-radius: .45rem;
-      padding: .35rem .55rem;
-      cursor: pointer;
-      font-size: 1.15rem;
-      line-height: 1;
-    }
-    .theme-toggle:focus-visible {
-      outline: 2px dashed var(--accent);
-      outline-offset: 2px;
-    }
-
-    hr {
-      border: none;
-      border-top: 1px solid var(--accent);
-      margin: 1.25rem 0;
-      opacity: .5;
-    }
-
-    /* Collapsible panel styled to fit the site */
-    details.panel {
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      background: rgba(255, 255, 255, 0.6);
-    }
-    html.theme-dark details.panel {
-      background: rgba(0, 0, 0, 0.1);
-    }
-
-    details.panel > summary {
-      cursor: pointer;
-      list-style: none;
-      padding: .6rem .8rem;
-      font-size: .95rem;
-      font-weight: 600;
-      color: var(--ink);
-    }
-    details.panel > summary::-webkit-details-marker { display: none; }
-
-    details.panel .panel-body { padding: .6rem .8rem .9rem; }
-
-    /* Compact controls */
-    .controls {
-      display: grid;
-      gap: 8px;
-      align-items: center;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      margin-bottom: 8px;
-    }
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap
-    }
-
-    label { font-size: 12px; opacity: .9; }
-
-    select, button, input[type="number"] {
-      appearance: none;
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--ink);
-      padding: 10px 12px;
-      border-radius: .5rem;
-      font-family: inherit;
-      font-size: 14px;
-      line-height: 1;
-      min-width: 0;
-    }
-    button.primary {
-      background: var(--ink);
-      color: var(--paper);
-      border-color: var(--ink);
-    }
-
-    /* Tuning editor as cards */
-    .tuning {
-      display: grid;
-      gap: 8px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .tuning .string-card {
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      background: transparent;
-      padding: 8px;
-    }
-
-    /* --- Notation (staff) --- */
-    .notation-wrap {
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      background: transparent;
-      margin: 14px 0 18px;
-      padding: 10px 10px 14px;
-    }
-    .notation-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
-      margin-bottom: 6px;
-      font-size: .95rem;
-    }
-    .notation-caption { color: var(--muted); font-size: .85rem; }
+    .piano-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; font-size:.95rem;}
+    .piano-caption{color:var(--muted); font-size:.85rem;}
 
     /* Fretboard */
-    .fretboard {
-      width: 100%;
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      background: transparent;
-    }
-    .board {
-      display: grid;
-      grid-auto-rows: minmax(30px, 5vh);
-      grid-template-columns: 40px repeat(24, 1fr);
-      position: relative;
-      width: 100%;
-    }
-    .string { display: contents; }
-
-    .nut, .fret {
-      border-right: 1px solid var(--rule);
-      position: relative;
-    }
-    .nut {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      background: rgba(0, 0, 0, 0.04);
-    }
-    html.theme-dark .nut { background: rgba(255, 255, 255, 0.06); }
-
-    .open-note {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-    }
-
-    .cell {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .fret-number {
-      position: absolute;
-      bottom: 2px;
-      right: 6px;
-      font-size: 10px;
-      opacity: .35;
-    }
-
-    /* Note markers */
-    .marker {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-    .dot {
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      border: 1.5px solid var(--accent-soft);
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-    }
-    .dot.root {
-      background: var(--ink);
-      color: var(--paper);
-      border-color: var(--ink);
-      font-weight: 600;
-    }
-
-    /* Position markers (3,5,7,9,12,...) */
-    .pos-marker {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #bbb;
-      opacity: .5;
-    }
-    .pos-marker.double {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      width: auto;
-      height: auto;
-      background: transparent;
-    }
-    .pos-marker.double i {
-      width: 6px;
-      height: 6px;
-      background: #bbb;
-      opacity: .5;
-      border-radius: 999px;
-      display: block;
-    }
-
-    .footer {
-      margin: 30px 0 60px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* Subtle animation (same as index) */
-    @media (prefers-reduced-motion: no-preference) {
-      a {
-        position: relative;
-        background-image: linear-gradient(currentColor, currentColor);
-        background-position: 0 100%;
-        background-repeat: no-repeat;
-        background-size: 0% 1px;
-        transition: background-size .25s ease, color .2s ease;
-      }
-      a:hover,
-      a:focus-visible {
-        background-size: 100% 1px;
-        outline: none;
-      }
+    .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent;}
+    .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(24,1fr); position:relative; width:100%;}
+    .string{display:contents;}
+    .nut,.fret{border-right:1px solid var(--rule); position:relative;}
+    .nut{display:flex; align-items:center; justify-content:center; font-size:12px; background:rgba(0,0,0,.04);}
+    html.theme-dark .nut{background:rgba(255,255,255,.06);}
+    .open-note{display:flex; align-items:center; justify-content:center; font-size:12px;}
+    .cell{position:relative; display:flex; align-items:center; justify-content:center;}
+    .fret-number{position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35;}
+    .marker{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+    .dot{width:24px; height:24px; border-radius:999px; border:1.5px solid var(--accent-soft); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px;}
+    .dot.root{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600;}
+    .pos-marker{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:6px; height:6px; border-radius:999px; background:#bbb; opacity:.5;}
+    .pos-marker.double{display:grid; grid-template-columns:1fr 1fr; gap:8px; width:auto; height:auto; background:transparent;}
+    .pos-marker.double i{width:6px; height:6px; background:#bbb; opacity:.5; border-radius:999px; display:block;}
+    .footer{margin:30px 0 60px; font-size:12px; color:var(--muted);}
+    @media (prefers-reduced-motion:no-preference){
+      a{position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%;
+        background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease;}
+      a:hover, a:focus-visible{background-size:100% 1px; outline:none;}
     }
   </style>
 </head>
-
 <body>
   <main>
     <div class="topbar">
@@ -362,17 +118,14 @@
             <input id="stringCount" type="number" min="3" max="10" value="6" style="width:86px" />
             <button id="applyStrings">Apply</button>
           </div>
-
           <div class="row">
             <label for="root">Root</label>
             <select id="root"></select>
           </div>
-
           <div class="row">
             <label for="scale">Scale</label>
             <select id="scale"></select>
           </div>
-
           <div class="row">
             <label for="labels">Labels</label>
             <select id="labels">
@@ -382,22 +135,17 @@
             </select>
           </div>
         </div>
-
-        <div id="tuningPanel" class="tuning" aria-label="Tuning editor">
-          <!-- string cards -->
-        </div>
+        <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
       </div>
     </details>
 
-    <!-- ===== Notation section (Treble staff) ===== -->
-    <section class="notation-wrap" aria-label="Staff notation">
-      <div class="notation-head">
-        <div><strong>Notation</strong> — Treble clef (one octave)</div>
-        <div class="notation-caption" id="notationCaption">C Major (Ionian)</div>
+    <!-- ===== Piano (one octave C–C) ===== -->
+    <section class="piano-wrap" aria-label="Piano octave">
+      <div class="piano-head">
+        <div><strong>Piano</strong> — one octave (C–C)</div>
+        <div class="piano-caption" id="pianoCaption">C Major (Ionian)</div>
       </div>
-      <div id="staffContainer" style="width:100%; overflow:hidden;">
-        <!-- SVG staff is injected here -->
-      </div>
+      <div id="pianoContainer" style="width:100%; overflow:hidden;"></div>
     </section>
 
     <section class="fretboard-wrap">
@@ -414,184 +162,158 @@
   </main>
 
   <script>
-    // --- Theme toggle (same as index) ---
-    (function () {
-      const KEY = 'theme-preference';
-      const root = document.documentElement;
-      const btn = document.getElementById('themeToggle');
-      function setIcon(mode) { btn.textContent = mode === 'dark' ? '◑' : '◑'; }
-      function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
-      function getPreferred() {
-        const saved = localStorage.getItem(KEY);
-        if (saved === 'light' || saved === 'dark') return saved;
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // --- Theme toggle ---
+    (function(){
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
+      function setIcon(mode){ btn.textContent = '◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark',mode==='dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved=localStorage.getItem(KEY);
+        if(saved==='light'||saved==='dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
       }
-      let current = getPreferred();
-      apply(current);
-      btn.addEventListener('click', () => { current = current === 'dark' ? 'light' : 'dark'; localStorage.setItem(KEY, current); apply(current); });
+      let current=getPreferred(); apply(current);
+      btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
     })();
   </script>
 
   <script>
-    (function () {
+    (function(){
       // ------- Musical data -------
-      var NOTES_SHARP = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-      var LETTERS = ["C","D","E","F","G","A","B"]; // for diatonic positioning
-
+      var NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
       var SCALES = {
-        "Major (Ionian)": [0, 2, 4, 5, 7, 9, 11],
-        "Natural minor (Aeolian)": [0, 2, 3, 5, 7, 8, 10],
-        "Harmonic minor": [0, 2, 3, 5, 7, 8, 11],
-        "Melodic minor (asc)": [0, 2, 3, 5, 7, 9, 11],
-        "Pentatonic major": [0, 2, 4, 7, 9],
-        "Pentatonic minor": [0, 3, 5, 7, 10],
-        "Blues minor": [0, 3, 5, 6, 7, 10],
-        "Dorian": [0, 2, 3, 5, 7, 9, 10],
-        "Phrygian": [0, 1, 3, 5, 7, 8, 10],
-        "Lydian": [0, 2, 4, 6, 7, 9, 11],
-        "Mixolydian": [0, 2, 4, 5, 7, 9, 10],
-        "Locrian": [0, 1, 3, 5, 6, 8, 10],
-        "Whole tone": [0, 2, 4, 6, 8, 10],
-        "Chromatic": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        "Major (Ionian)": [0,2,4,5,7,9,11],
+        "Natural minor (Aeolian)": [0,2,3,5,7,8,10],
+        "Harmonic minor": [0,2,3,5,7,8,11],
+        "Melodic minor (asc)": [0,2,3,5,7,9,11],
+        "Pentatonic major": [0,2,4,7,9],
+        "Pentatonic minor": [0,3,5,7,10],
+        "Blues minor": [0,3,5,6,7,10],
+        "Dorian": [0,2,3,5,7,9,10],
+        "Phrygian": [0,1,3,5,7,8,10],
+        "Lydian": [0,2,4,6,7,9,11],
+        "Mixolydian": [0,2,4,5,7,9,10],
+        "Locrian": [0,1,3,5,6,8,10],
+        "Whole tone": [0,2,4,6,8,10],
+        "Chromatic": [0,1,2,3,4,5,6,7,8,9,10,11]
       };
-      var DEFAULT_TUNING_6 = ["E", "B", "G", "D", "A", "E"]; // 1st (highest) on top
+      var DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1st (highest) on top
 
       // ------- State & persistence -------
-      var state = {
-        strings: 6,
-        tuning: DEFAULT_TUNING_6.slice(),
-        root: "C",
-        scaleName: "Major (Ionian)",
-        labelMode: "notes" // notes | degrees | off
-      };
-      var LS_KEY = "the_scales_book_state_v1";
-      try {
-        var saved = JSON.parse(localStorage.getItem(LS_KEY) || "null");
-        if (saved && typeof saved === "object") Object.assign(state, saved);
-      } catch (e) { }
-      function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+      var state = { strings:6, tuning:DEFAULT_TUNING_6.slice(), root:"C", scaleName:"Major (Ionian)", labelMode:"notes" };
+      var LS_KEY="the_scales_book_state_v1";
+      try{ var saved=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(saved&&typeof saved==="object") Object.assign(state,saved);}catch(e){}
+      function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
       // ------- DOM refs -------
-      var board = document.getElementById("board");
-      var rootSel = document.getElementById("root");
-      var scaleSel = document.getElementById("scale");
-      var labelsSel = document.getElementById("labels");
-      var tuningPanel = document.getElementById("tuningPanel");
-      var stringCountInput = document.getElementById("stringCount");
-      var applyStringsBtn = document.getElementById("applyStrings");
-      var staffContainer = document.getElementById("staffContainer");
-      var notationCaption = document.getElementById("notationCaption");
+      var board=document.getElementById("board");
+      var rootSel=document.getElementById("root");
+      var scaleSel=document.getElementById("scale");
+      var labelsSel=document.getElementById("labels");
+      var tuningPanel=document.getElementById("tuningPanel");
+      var stringCountInput=document.getElementById("stringCount");
+      var applyStringsBtn=document.getElementById("applyStrings");
+      var pianoContainer=document.getElementById("pianoContainer");
+      var pianoCaption=document.getElementById("pianoCaption");
 
       // ------- Helpers -------
-      function noteIndex(name) { return NOTES_SHARP.indexOf(name); }
-      function cycleNote(note, step) { var i = noteIndex(note); if (i < 0) i = 0; i = (i + step + 12) % 12; return NOTES_SHARP[i]; }
-      function ensureTuningLen(n) {
-        if (state.tuning.length < n) {
-          var last = state.tuning[state.tuning.length - 1] || "E";
-          while (state.tuning.length < n) state.tuning.push(last);
-        } else if (state.tuning.length > n) {
-          state.tuning = state.tuning.slice(0, n);
-        }
+      function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
+      function cycleNote(note, step){ var i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
+      function ensureTuningLen(n){
+        if(state.tuning.length<n){
+          var last=state.tuning[state.tuning.length-1]||"E";
+          while(state.tuning.length<n) state.tuning.push(last);
+        }else if(state.tuning.length>n){ state.tuning=state.tuning.slice(0,n); }
       }
-      function inScale(semitone, rootIdx, scale) { var rel = (semitone - rootIdx + 12) % 12; return scale.indexOf(rel) !== -1; }
-      function isRoot(semitone, rootIdx) { return ((semitone - rootIdx + 12) % 12) === 0; }
+      function inScaleClass(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
 
       // ------- Populate selects -------
-      function fillSelect(el, arr) { el.innerHTML = arr.map(function (v) { return '<option value="' + v + '">' + v + '</option>'; }).join(''); }
+      function fillSelect(el, arr){ el.innerHTML = arr.map(v=>'<option value="'+v+'">'+v+'</option>').join(''); }
       fillSelect(rootSel, NOTES_SHARP);
       fillSelect(scaleSel, Object.keys(SCALES));
-      rootSel.value = state.root;
-      scaleSel.value = state.scaleName;
-      stringCountInput.value = state.strings;
-      labelsSel.value = state.labelMode;
+      rootSel.value=state.root; scaleSel.value=state.scaleName; stringCountInput.value=state.strings; labelsSel.value=state.labelMode;
 
       // ------- Tuning editor -------
-      function renderTuningEditor() {
+      function renderTuningEditor(){
         ensureTuningLen(state.strings);
-        var html = "";
-        for (var idx = 0; idx < state.tuning.length; idx++) {
-          var note = state.tuning[idx];
-          var stringNum = idx + 1;
-          var opts = NOTES_SHARP.map(function (n) { return '<option value="' + n + '"' + (n === note ? ' selected' : '') + '>' + n + '</option>'; }).join('');
-          html += ''
-            + '<div class="string-card">'
-            +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String ' + stringNum + '</div>'
-            +   '<div class="row" style="gap:6px;">'
-            +     '<button data-act="down" data-idx="' + idx + '" title="Lower">−</button>'
-            +     '<div class="open-note" style="min-width:40px; text-align:center">' + note + '</div>'
-            +     '<button data-act="up" data-idx="' + idx + '" title="Raise">+</button>'
-            +     '<select data-act="set" data-idx="' + idx + '" style="flex:1; min-width:0;">' + opts + '</select>'
-            +   '</div>'
-            + '</div>';
+        var html="";
+        for(var idx=0; idx<state.tuning.length; idx++){
+          var note=state.tuning[idx], stringNum=idx+1;
+          var opts=NOTES_SHARP.map(n=>'<option value="'+n+'"'+(n===note?' selected':'')+'>'+n+'</option>').join('');
+          html+= '<div class="string-card">'
+               +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String '+stringNum+'</div>'
+               +   '<div class="row" style="gap:6px;">'
+               +     '<button data-act="down" data-idx="'+idx+'" title="Lower">−</button>'
+               +     '<div class="open-note" style="min-width:40px; text-align:center">'+note+'</div>'
+               +     '<button data-act="up" data-idx="'+idx+'" title="Raise">+</button>'
+               +     '<select data-act="set" data-idx="'+idx+'" style="flex:1; min-width:0;">'+opts+'</select>'
+               +   '</div>'
+               + '</div>';
         }
-        tuningPanel.innerHTML = html;
-        tuningPanel.querySelectorAll('button').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var i = +btn.dataset.idx; var act = btn.dataset.act;
-            state.tuning[i] = cycleNote(state.tuning[i], act === 'up' ? +1 : -1);
+        tuningPanel.innerHTML=html;
+        tuningPanel.querySelectorAll('button').forEach(function(btn){
+          btn.addEventListener('click',function(){
+            var i=+btn.dataset.idx; var act=btn.dataset.act;
+            state.tuning[i]=cycleNote(state.tuning[i], act==='up'?+1:-1);
             save(); renderTuningEditor(); renderBoard();
           });
         });
-        tuningPanel.querySelectorAll('select').forEach(function (sel) {
-          sel.addEventListener('change', function () { var i = +sel.dataset.idx; state.tuning[i] = sel.value; save(); renderBoard(); });
+        tuningPanel.querySelectorAll('select').forEach(function(sel){
+          sel.addEventListener('change', function(){ var i=+sel.dataset.idx; state.tuning[i]=sel.value; save(); renderBoard(); });
         });
       }
 
       // ------- Fretboard render -------
-      var FRETS = 24;
-      function renderBoard() {
-        board.innerHTML = "";
-        var markerCols = new Set([3, 5, 7, 9, 12, 15, 17, 19, 21, 24]);
-        var scale = SCALES[state.scaleName];
-        var rootIdx = noteIndex(state.root);
-        var degreeBySemitone = new Map();
-        scale.forEach(function (offset, i) { degreeBySemitone.set(offset % 12, String(i + 1)); });
+      var FRETS=24;
+      function renderBoard(){
+        board.innerHTML="";
+        var markerCols=new Set([3,5,7,9,12,15,17,19,21,24]);
+        var scale=SCALES[state.scaleName];
+        var rootIdx=noteIndex(state.root);
+        var degreeBySemitone=new Map();
+        scale.forEach(function(off,i){ degreeBySemitone.set(off%12, String(i+1)); });
 
-        for (var s = 0; s < state.strings; s++) {
-          var openIdx = noteIndex(state.tuning[s]);
-          var stringRow = document.createElement('div');
-          stringRow.className = 'string';
+        for(var s=0; s<state.strings; s++){
+          var openIdx=noteIndex(state.tuning[s]);
+          var stringRow=document.createElement('div'); stringRow.className='string';
 
-          var nut = document.createElement('div');
-          nut.className = 'nut open-note';
-          if (s > 0) nut.style.borderTop = '1px solid var(--rule)';
-          var labelSpan = document.createElement('span'); labelSpan.textContent = state.tuning[s]; nut.appendChild(labelSpan);
+          var nut=document.createElement('div'); nut.className='nut open-note';
+          if(s>0) nut.style.borderTop='1px solid var(--rule)';
+          var labelSpan=document.createElement('span'); labelSpan.textContent=state.tuning[s]; nut.appendChild(labelSpan);
 
-          var openSemitone = openIdx % 12;
-          if (inScale(openSemitone, rootIdx, scale)) {
-            var m0 = document.createElement('div'); m0.className = 'marker';
-            var d0 = document.createElement('div'); d0.className = 'dot';
-            if (isRoot(openSemitone, rootIdx)) d0.classList.add('root');
-            var label0 = "";
-            if (state.labelMode === 'notes') label0 = NOTES_SHARP[openSemitone];
-            else if (state.labelMode === 'degrees') {
-              var rel0 = (openSemitone - rootIdx + 12) % 12; label0 = degreeBySemitone.get(rel0) || "";
-            }
-            d0.textContent = label0; m0.appendChild(d0); nut.appendChild(m0);
+          var openSemitone=openIdx%12;
+          if(inScaleClass(openSemitone, rootIdx, scale)){
+            var m0=document.createElement('div'); m0.className='marker';
+            var d0=document.createElement('div'); d0.className='dot';
+            if(((openSemitone-rootIdx+12)%12)===0) d0.classList.add('root');
+            var label0="";
+            if(state.labelMode==='notes') label0=NOTES_SHARP[openSemitone];
+            else if(state.labelMode==='degrees'){ var rel0=(openSemitone-rootIdx+12)%12; label0=degreeBySemitone.get(rel0)||""; }
+            d0.textContent=label0; m0.appendChild(d0); nut.appendChild(m0);
           }
           stringRow.appendChild(nut);
 
-          for (var f = 1; f <= FRETS; f++) {
-            var cell = document.createElement('div'); cell.className = 'fret cell';
-            if (s > 0) cell.style.borderTop = '1px solid var(--rule)';
-            var semitone = (openIdx + f) % 12;
-            if (inScale(semitone, rootIdx, scale)) {
-              var m = document.createElement('div'); m.className = 'marker';
-              var dot = document.createElement('div'); dot.className = 'dot';
-              if (isRoot(semitone, rootIdx)) dot.classList.add('root');
-              var label = "";
-              if (state.labelMode === 'notes') label = NOTES_SHARP[semitone];
-              else if (state.labelMode === 'degrees') {
-                var rel = (semitone - rootIdx + 12) % 12; label = degreeBySemitone.get(rel) || "";
-              }
-              dot.textContent = label; m.appendChild(dot); cell.appendChild(m);
+          for(var f=1; f<=FRETS; f++){
+            var cell=document.createElement('div'); cell.className='fret cell';
+            if(s>0) cell.style.borderTop='1px solid var(--rule)';
+            var semitone=(openIdx+f)%12;
+            if(inScaleClass(semitone, rootIdx, scale)){
+              var m=document.createElement('div'); m.className='marker';
+              var dot=document.createElement('div'); dot.className='dot';
+              if(((semitone-rootIdx+12)%12)===0) dot.classList.add('root');
+              var label="";
+              if(state.labelMode==='notes') label=NOTES_SHARP[semitone];
+              else if(state.labelMode==='degrees'){ var rel=(semitone-rootIdx+12)%12; label=degreeBySemitone.get(rel)||""; }
+              dot.textContent=label; m.appendChild(dot); cell.appendChild(m);
             }
-            if (s === state.strings - 1) {
-              var num = document.createElement('div'); num.className = 'fret-number'; num.textContent = f; cell.appendChild(num);
-              if (markerCols.has(f)) {
-                var pm = document.createElement('div');
-                if (f === 12 || f === 24) { pm.className = 'pos-marker double'; var i1 = document.createElement('i'); var i2 = document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
-                else { pm.className = 'pos-marker'; }
+            if(s===state.strings-1){
+              var num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
+              if(markerCols.has(f)){
+                var pm=document.createElement('div');
+                if(f===12||f===24){ pm.className='pos-marker double'; var i1=document.createElement('i'); var i2=document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
+                else { pm.className='pos-marker'; }
                 cell.appendChild(pm);
               }
             }
@@ -600,182 +322,135 @@
           board.appendChild(stringRow);
         }
 
-        // refresh the notation too whenever the fretboard re-renders
-        renderStaff();
+        // refresh piano too
+        renderPiano();
       }
 
-      // ------- Notation (treble staff) -------
-      // Staff reference: E4 = bottom line, G-clef (treble)
-      function midiFromNameOct(noteName, octave) {
-        var idx = NOTES_SHARP.indexOf(noteName);
-        return (octave + 1) * 12 + idx;
-      }
-      function noteNameFromMidi(m) {
-        return NOTES_SHARP[m % 12];
-      }
-      function octaveFromMidi(m) { return Math.floor(m / 12) - 1; }
+      // ------- Piano (SVG, one octave C–C) -------
+      var WHITE = ["C","D","E","F","G","A","B"];
+      var WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n)); // [0,2,4,5,7,9,11]
+      var BLACK_AT = [0,1,3,4,5];               // after C,D,F,G,A
+      var BLACK_NAMES = ["C#","D#","F#","G#","A#"];
+      var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n)); // [1,3,6,8,10]
 
-      // Find the MIDI note near middle C (C4=60) matching a note class
-      function nearestMidiForClass(targetClass, aroundMidi) {
-        var best = aroundMidi, bestDiff = 1e9;
-        for (var o = -3; o <= 3; o++) {
-          var cand = (Math.floor(aroundMidi / 12) + o) * 12 + targetClass;
-          var diff = Math.abs(cand - aroundMidi);
-          if (diff < bestDiff) { bestDiff = diff; best = cand; }
-        }
-        return best;
-      }
-
-      // Build one-octave (including octave root) scale MIDI sequence around C4
-      function buildScaleMidiSequence(rootName, scaleOffsets) {
-        var rootClass = NOTES_SHARP.indexOf(rootName);
-        var base = 60; // C4
-        var rootMidi = nearestMidiForClass(rootClass, base);
-        var arr = scaleOffsets.map(function (off) { return rootMidi + off; });
-        // Append octave root if not already at +12
-        if (scaleOffsets.length === 0 || scaleOffsets[scaleOffsets.length - 1] !== 12) {
-          arr.push(rootMidi + 12);
-        }
-        return arr;
-      }
-
-      // Diatonic staff position: compute relative steps from E4 line
-      // Map letter index: C=0..B=6
-      function letterIndexOf(name) { return LETTERS.indexOf(name[0]); }
-
-      function staffStepsFromE4(midi) {
-        // Convert MIDI to letter & octave assuming sharps
-        var name = noteNameFromMidi(midi); // e.g., "F#"
-        var oct = octaveFromMidi(midi);
-        var letterIdx = letterIndexOf(name);
-        // Convert to diatonic index from C0
-        var diatonicIndex = letterIdx + 7 * (oct);
-        // E4 data
-        var E4_midi = 64; // reference
-        var E4_name = "E", E4_oct = 4;
-        var E_letterIdx = letterIndexOf(E4_name);
-        var E_diatonic = E_letterIdx + 7 * (E4_oct);
-        return diatonicIndex - E_diatonic; // +1 = one staff step up
-      }
-
-      function renderStaff() {
-        var w = staffContainer.clientWidth || 640;
+      function renderPiano(){
+        var w = pianoContainer.clientWidth || 640;
         var h = 160;
-        var leftPad = 54; // room for clef and key text
-        var rightPad = 12;
-        var topPad = 24;
-        var bottomPad = 28;
+        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("viewBox","0 0 "+w+" "+h);
+        svg.setAttribute("width","100%");
+        svg.setAttribute("height","auto");
+        svg.setAttribute("role","img");
+        svg.setAttribute("aria-label","Piano octave showing scale tones");
 
-        var scale = SCALES[state.scaleName];
-        var seq = buildScaleMidiSequence(state.root, scale);
-        notationCaption.textContent = state.root + " " + state.scaleName;
-
-        // Staff metrics
-        var staffGap = 10; // distance between staff lines
-        var staffMidY = topPad + 2 * staffGap; // 5 lines => bottom at mid - 2*gap, top at mid + 2*gap
-        var staffBottomY = staffMidY + 2 * staffGap;
-        var staffTopY = staffMidY - 2 * staffGap;
-
-        // X positions
-        var noteCount = seq.length;
-        var innerW = Math.max(1, w - leftPad - rightPad);
-        var stepX = innerW / Math.max(1, noteCount);
-        var noteRadiusX = 8, noteRadiusY = 6;
-
-        // Build SVG
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("viewBox", "0 0 " + w + " " + h);
-        svg.setAttribute("width", "100%");
-        svg.setAttribute("height", "auto");
-        svg.setAttribute("role", "img");
-        svg.setAttribute("aria-label", "Treble staff notation for the selected scale");
-
-        // Colors adapting to theme via CSS variables
-        var strokeColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
-        var lineColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
         var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
         var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
 
-        // Staff 5 lines
-        for (var i = 0; i < 5; i++) {
-          var y = staffTopY + i * staffGap;
-          var line = document.createElementNS(svg.namespaceURI, "line");
-          line.setAttribute("x1", leftPad); line.setAttribute("x2", w - rightPad);
-          line.setAttribute("y1", y); line.setAttribute("y2", y);
-          line.setAttribute("stroke", lineColor);
-          line.setAttribute("stroke-width", "1");
-          svg.appendChild(line);
-        }
+        // Sizes
+        var pad = 10;
+        var innerW = w - pad*2;
+        var innerH = h - pad*2;
+        var whiteW = innerW / 7;
+        var whiteH = innerH;
+        var blackW = whiteW * 0.6;
+        var blackH = innerH * 0.62;
 
-        // Simple treble clef using Unicode glyph (font-dependent but lightweight)
-        var clef = document.createElementNS(svg.namespaceURI, "text");
-        clef.setAttribute("x", 16);
-        clef.setAttribute("y", staffMidY + staffGap); // roughly center
-        clef.setAttribute("font-size", "38");
-        clef.setAttribute("fill", ink);
-        clef.textContent = "𝄞"; // U+1D11E
-        svg.appendChild(clef);
+        // Scale membership
+        var scale = SCALES[state.scaleName];
+        var rootIdx = noteIndex(state.root);
+        var inScaleSet = new Set(scale.map(function(off){ return (rootIdx + off) % 12; }));
 
-        // Notes
-        var rootClass = noteIndex(state.root);
-        seq.forEach(function (midi, idx) {
-          var x = leftPad + stepX * (idx + 0.6);
-          var steps = staffStepsFromE4(midi);
-          var y = staffMidY - (steps * (staffGap / 1)); // 1 staff step per diatonic step
+        // Caption
+        pianoCaption.textContent = state.root + " " + state.scaleName;
 
-          // Ledger lines when outside the 5 staff lines
-          // Determine how many steps beyond top/bottom lines (every 1 step = space/line)
-          var topSteps = Math.round((staffTopY - y) / (staffGap/1));
-          var bottomSteps = Math.round((y - staffBottomY) / (staffGap/1));
-          function drawLedger(atY) {
-            var l = document.createElementNS(svg.namespaceURI, "line");
-            l.setAttribute("x1", x - 14); l.setAttribute("x2", x + 14);
-            l.setAttribute("y1", atY);    l.setAttribute("y2", atY);
-            l.setAttribute("stroke", lineColor);
-            l.setAttribute("stroke-width", "1");
-            svg.appendChild(l);
+        // --- White keys ---
+        WHITE_PC.forEach(function(pc, i){
+          var x = pad + i*whiteW;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x); rect.setAttribute("y",pad);
+          rect.setAttribute("width",whiteW); rect.setAttribute("height",whiteH);
+          rect.setAttribute("rx","6"); rect.setAttribute("ry","6");
+          rect.setAttribute("fill",paper);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1");
+          svg.appendChild(rect);
+
+          // If note in scale, add inner outline
+          if (inScaleSet.has(pc)){
+            var hi = document.createElementNS(svg.namespaceURI,"rect");
+            hi.setAttribute("x",x+3); hi.setAttribute("y",pad+3);
+            hi.setAttribute("width",whiteW-6); hi.setAttribute("height",whiteH-6);
+            hi.setAttribute("rx","4"); hi.setAttribute("ry","4");
+            hi.setAttribute("fill","none");
+            hi.setAttribute("stroke",ink);
+            hi.setAttribute("stroke-width","2");
+            svg.appendChild(hi);
           }
-          // For each second step beyond bounds (lines), place a ledger line
-          if (y < staffTopY) {
-            // above: place at every line position past top
-            var needed = Math.ceil((staffTopY - y) / (staffGap));
-            for (var n = 1; n <= needed; n++) drawLedger(staffTopY - n * staffGap);
-          } else if (y > staffBottomY) {
-            var neededB = Math.ceil((y - staffBottomY) / (staffGap));
-            for (var n2 = 1; n2 <= neededB; n2++) drawLedger(staffBottomY + n2 * staffGap);
+          // If note is the root, fill badge at bottom
+          if (pc === rootIdx){
+            var badge = document.createElementNS(svg.namespaceURI,"rect");
+            badge.setAttribute("x",x+whiteW*0.25);
+            badge.setAttribute("y",pad+whiteH-16);
+            badge.setAttribute("width",whiteW*0.5);
+            badge.setAttribute("height",10);
+            badge.setAttribute("rx","5");
+            badge.setAttribute("fill",ink);
+            svg.appendChild(badge);
           }
 
-          // Notehead
-          var ellipse = document.createElementNS(svg.namespaceURI, "ellipse");
-          ellipse.setAttribute("cx", x);
-          ellipse.setAttribute("cy", y);
-          ellipse.setAttribute("rx", noteRadiusX);
-          ellipse.setAttribute("ry", noteRadiusY);
-          ellipse.setAttribute("transform", "rotate(-20 " + x + " " + y + ")");
-          var semitoneClass = midi % 12;
-          var isRootHere = (semitoneClass === rootClass);
-          ellipse.setAttribute("fill", isRootHere ? ink : paper);
-          ellipse.setAttribute("stroke", ink);
-          ellipse.setAttribute("stroke-width", isRootHere ? "1.5" : "1");
+          // Optional tiny labels
+          var label = document.createElementNS(svg.namespaceURI,"text");
+          label.setAttribute("x", x + whiteW/2);
+          label.setAttribute("y", pad + whiteH - 4);
+          label.setAttribute("font-size","10");
+          label.setAttribute("text-anchor","middle");
+          label.setAttribute("fill",accent);
+          label.textContent = WHITE[i];
+          svg.appendChild(label);
+        });
 
-          svg.appendChild(ellipse);
+        // --- Black keys ---
+        BLACK_PC.forEach(function(pc, j){
+          // Black keys sit between certain white keys
+          var afterWhiteIndex = BLACK_AT[j]; // index of white key to the left
+          var xLeft = pad + afterWhiteIndex*whiteW;
+          var x = xLeft + whiteW*0.7 - blackW/2; // centered between whites
+          var y = pad;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x); rect.setAttribute("y",y);
+          rect.setAttribute("width",blackW); rect.setAttribute("height",blackH);
+          rect.setAttribute("rx","5"); rect.setAttribute("ry","5");
+          rect.setAttribute("fill",ink);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1.2");
+          svg.appendChild(rect);
 
-          // Accidental if sharp (#)
-          var name = noteNameFromMidi(midi);
-          if (name.indexOf("#") !== -1) {
-            var acc = document.createElementNS(svg.namespaceURI, "text");
-            acc.setAttribute("x", x - 20);
-            acc.setAttribute("y", y + 5);
-            acc.setAttribute("font-size", "16");
-            acc.setAttribute("fill", ink);
-            acc.textContent = "#";
-            svg.appendChild(acc);
+          // If in scale, add bright border
+          if (inScaleSet.has(pc)){
+            var hi = document.createElementNS(svg.namespaceURI,"rect");
+            hi.setAttribute("x",x+2); hi.setAttribute("y",y+2);
+            hi.setAttribute("width",blackW-4); hi.setAttribute("height",blackH-4);
+            hi.setAttribute("rx","4"); hi.setAttribute("ry","4");
+            hi.setAttribute("fill","none");
+            hi.setAttribute("stroke",paper);
+            hi.setAttribute("stroke-width","2");
+            svg.appendChild(hi);
+          }
+          // Root marker on black key (small circle)
+          if (pc === rootIdx){
+            var circ = document.createElementNS(svg.namespaceURI,"circle");
+            circ.setAttribute("cx", x + blackW/2);
+            circ.setAttribute("cy", y + blackH - 8);
+            circ.setAttribute("r", 4);
+            circ.setAttribute("fill", paper);
+            svg.appendChild(circ);
           }
         });
 
-        // Clear and insert
-        staffContainer.innerHTML = "";
-        staffContainer.appendChild(svg);
+        // Clear & mount
+        pianoContainer.innerHTML = "";
+        pianoContainer.appendChild(svg);
       }
 
       // ------- Events -------
@@ -790,17 +465,10 @@
       // ------- Init -------
       renderTuningEditor();
       renderBoard();
-      // also update selects if state had persisted values
-      rootSel.value = state.root;
-      scaleSel.value = state.scaleName;
-      labelsSel.value = state.labelMode;
+      rootSel.value=state.root; scaleSel.value=state.scaleName; labelsSel.value=state.labelMode;
 
-      // Re-render notation on resize (keeps SVG crisp)
-      var resizeTimer;
-      window.addEventListener('resize', function(){
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(renderStaff, 120);
-      });
+      // Keep piano crisp on resize
+      var rT; window.addEventListener('resize', function(){ clearTimeout(rT); rT=setTimeout(renderPiano, 120); });
     })();
   </script>
 </body>
