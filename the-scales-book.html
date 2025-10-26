@@ -618,11 +618,11 @@
           // Círculos de escala (más abajo para no chocar con negras)
           if (inScaleSet.has(pc)){
             var cx = x + whiteW/2;
-            var cy = pad + whiteH * 0.55;
+            var cy = pad + whiteH * 0.75;
             var circle = document.createElementNS(svg.namespaceURI,"circle");
             circle.setAttribute("cx",cx);
             circle.setAttribute("cy",cy);
-            circle.setAttribute("r",whiteW*0.22);
+            circle.setAttribute("r",whiteW*0.15);
             circle.setAttribute("stroke",ink);
             circle.setAttribute("stroke-width","2");
             circle.setAttribute("fill","none");
