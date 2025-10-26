@@ -333,7 +333,7 @@
       var BLACK_NAMES = ["C#","D#","F#","G#","A#"];
       var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n)); // [1,3,6,8,10]
 
-      function renderPiano(){
+      function renderPianoOLD(){
         var w = pianoContainer.clientWidth || 640;
         var h = 160;
         var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -450,6 +450,116 @@
 
         // Clear & mount
         pianoContainer.innerHTML = "";
+        pianoContainer.appendChild(svg);
+      }
+
+            function renderPiano(){
+        var w = pianoContainer.clientWidth || 560;
+        var h = 120;
+        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("viewBox","0 0 "+w+" "+h);
+        svg.setAttribute("width","100%");
+        svg.setAttribute("height","auto");
+
+        var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
+        var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
+
+        // Layout
+        var pad = 8;
+        var innerW = w - pad*2;
+        var whiteW = innerW / 7;
+        var whiteH = h - pad*2;
+        var blackW = whiteW * 0.55;
+        var blackH = whiteH * 0.58;
+        var blackOffset = whiteW * 0.7; // relative shift for overlap realism
+
+        // Scale membership
+        var scale = SCALES[state.scaleName];
+        var rootIdx = noteIndex(state.root);
+        var inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
+
+        pianoCaption.textContent = state.root + " " + state.scaleName;
+
+        // --- White keys base ---
+        WHITE_PC.forEach(function(pc,i){
+          var x = pad + i*whiteW;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x);
+          rect.setAttribute("y",pad);
+          rect.setAttribute("width",whiteW);
+          rect.setAttribute("height",whiteH);
+          rect.setAttribute("fill",paper);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1");
+          rect.setAttribute("rx","4");
+          svg.appendChild(rect);
+
+          // note labels
+          var label = document.createElementNS(svg.namespaceURI,"text");
+          label.setAttribute("x", x + whiteW/2);
+          label.setAttribute("y", pad + whiteH - 6);
+          label.setAttribute("font-size","10");
+          label.setAttribute("text-anchor","middle");
+          label.setAttribute("fill",accent);
+          label.textContent = WHITE[i];
+          svg.appendChild(label);
+
+          // circles for notes in scale
+          if (inScaleSet.has(pc)){
+            var cx = x + whiteW/2;
+            var cy = pad + whiteH/2;
+            var circle = document.createElementNS(svg.namespaceURI,"circle");
+            circle.setAttribute("cx",cx);
+            circle.setAttribute("cy",cy);
+            circle.setAttribute("r",whiteW*0.2);
+            circle.setAttribute("stroke",ink);
+            circle.setAttribute("stroke-width","2");
+            circle.setAttribute("fill","none");
+            svg.appendChild(circle);
+
+            // root = filled
+            if (pc === rootIdx){
+              circle.setAttribute("fill",ink);
+            }
+          }
+        });
+
+        // --- Black keys overlapping ---
+        BLACK_PC.forEach(function(pc,j){
+          var afterWhite = BLACK_AT[j];
+          var xLeft = pad + afterWhite*whiteW;
+          var x = xLeft + blackOffset - blackW/2;
+          var y = pad;
+          var rect = document.createElementNS(svg.namespaceURI,"rect");
+          rect.setAttribute("x",x);
+          rect.setAttribute("y",y);
+          rect.setAttribute("width",blackW);
+          rect.setAttribute("height",blackH);
+          rect.setAttribute("rx","3");
+          rect.setAttribute("fill",ink);
+          rect.setAttribute("stroke",accent);
+          rect.setAttribute("stroke-width","1");
+          svg.appendChild(rect);
+
+          if (inScaleSet.has(pc)){
+            var cx = x + blackW/2;
+            var cy = y + blackH/2;
+            var circ = document.createElementNS(svg.namespaceURI,"circle");
+            circ.setAttribute("cx",cx);
+            circ.setAttribute("cy",cy);
+            circ.setAttribute("r",blackW*0.22);
+            circ.setAttribute("stroke",paper);
+            circ.setAttribute("stroke-width","2");
+            circ.setAttribute("fill","none");
+            if (pc === rootIdx){
+              circ.setAttribute("fill",paper);
+            }
+            svg.appendChild(circ);
+          }
+        });
+
+        pianoContainer.innerHTML="";
         pianoContainer.appendChild(svg);
       }
 
