@@ -1,446 +1,420 @@
 <!doctype html>
-<html lang="es">
-
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The Daily Chord</title>
-    <meta name="description"
-        content="Un acorde por día como inspiración creativa" />
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
-    <style>
-        /* Paleta/estilo compartido con Scales */
-        :root {
-            --paper: #f5f1e8;
-            --ink: #2f2a1e;
-            --muted: #6b6253;
-            --link: #2d5842;
-            --accent: #a08a63;
-            --rule: #d8d2c2;
-            --maxw: 42rem;
-            --lh: 1.6;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Daily Chord — Contumance</title>
+  <meta name="description" content="One chord per day as creative inspiration. Minimal e-ink-style UI, dark mode, and an inline fretboard preview." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
 
-        html {
-            font-size: 18px
-        }
+  <style>
+    /* ---- Shared palette & rhythm (matches Scales/Chords) ---- */
+    :root{
+      --paper:#f5f1e8;      /* paper bg */
+      --ink:#2f2a1e;        /* main text */
+      --muted:#6b6253;      /* secondary text */
+      --link:#2d5842;       /* links */
+      --link-visited:#514f7a;
+      --accent:#a08a63;     /* borders */
+      --rule:#d8d2c2;       /* inner lines */
+      --accent-soft:#999;   /* soft markers */
+      --maxw:42rem;         /* reading width */
+      --radius:14px;
+      --lh:1.6;
+      --fs-base:18px;
+    }
+    html.theme-dark{
+      --paper:#10110f;
+      --ink:#dbd6c9;
+      --muted:#a39c8c;
+      --link:#a9d0b8;
+      --link-visited:#c0b8e0;
+      --accent:#2a2b27;
+      --rule:#2a2b27;
+      --accent-soft:#7f7a6b;
+    }
 
-        body {
-            margin: 0;
-            background: var(--paper);
-            color: var(--ink);
-            font-family: ui-serif, Georgia, serif;
-            line-height: var(--lh)
-        }
+    html{ font-size:var(--fs-base); }
+    body{
+      margin:0; padding:0;
+      color:var(--ink); background:var(--paper);
+      line-height:var(--lh);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            opacity: .06;
-            background-image: radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
-                radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
-            background-size: 3px 3px, 3px 3px;
-            mix-blend-mode: multiply
-        }
+    /* subtle paper texture */
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size:3px 3px, 3px 3px;
+      mix-blend-mode:multiply;
+    }
 
-        main {
-            max-width: var(--maxw);
-            margin: 0 auto;
-            padding: 7vh 1.25rem 4rem
-        }
+    main{ max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
 
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem
-        }
+    /* topbar + breadcrumb matches Scales/Chords */
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+    nav.breadcrumb{ font-size:.95rem; }
+    nav.breadcrumb a{
+      color:var(--link); text-decoration:none; text-underline-offset:2px;
+    }
 
-        nav.breadcrumb a {
-            color: var(--link);
-            text-decoration: none
-        }
+    h1{ margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem); }
+    .subtitle{ color:var(--muted); font-size:.95rem; margin-bottom:.8rem; }
 
-        .theme-toggle {
-            border: 1px solid var(--accent);
-            background: transparent;
-            color: var(--ink);
-            border-radius: .45rem;
-            padding: .35rem .55rem;
-            cursor: pointer
-        }
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
+    }
+    .theme-toggle:focus-visible{
+      outline:2px dashed var(--accent); outline-offset:2px;
+    }
 
-        h1 {
-            margin: .2rem 0 .3rem 0;
-            font-weight: 600;
-            font-size: clamp(1.6rem, 4vw, 2.2rem)
-        }
+    hr{ border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5; }
 
-        .subtitle {
-            color: var(--muted);
-            font-size: .95rem;
-            margin-bottom: .8rem
-        }
+    /* panel styling */
+    details.panel{
+      border:1px solid var(--accent);
+      border-radius:.6rem;
+      background: rgba(255,255,255,0.6);
+    }
+    html.theme-dark details.panel{ background: rgba(0,0,0,0.1); }
+    details.panel>summary{
+      cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);
+    }
+    details.panel>summary::-webkit-details-marker{ display:none; }
+    details.panel .panel-body{ padding:.6rem .8rem .9rem; }
 
-        details.panel {
-            border: 1px solid var(--accent);
-            border-radius: .6rem;
-            background: rgba(255, 255, 255, .6)
-        }
+    /* compact controls (same grid as other pages) */
+    .controls{
+      display:grid; gap:8px; align-items:center;
+      grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+      margin-bottom:8px;
+    }
+    .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    label{ font-size:12px; opacity:.9; }
+    button, input[type="date"]{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
+      outline:none;
+    }
+    button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    button:focus-visible, input[type="date"]:focus-visible{
+      outline:2px dashed var(--accent); outline-offset:2px;
+    }
 
-        details.panel>summary {
-            cursor: pointer;
-            list-style: none;
-            padding: .6rem .8rem;
-            font-weight: 700
-        }
+    /* result block */
+    .result{
+      border:1px solid var(--accent); border-radius:.6rem; padding:.9rem .9rem 1rem; background:transparent; margin-top:12px;
+    }
+    .kicker{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .big{
+      font-weight:700; letter-spacing:.02em;
+      font-size:clamp(2.2rem,6vw,3rem); line-height:1.08; margin:.2rem 0 .1rem;
+    }
+    .meta{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.35rem 0; }
+    .tag{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .55rem; font-size:.8rem; color:var(--muted); }
+    .mood{ color:var(--muted); font-size:.95rem; margin-top:.2rem; }
 
-        details.panel>summary::-webkit-details-marker {
-            display: none
-        }
+    /* fretboard card */
+    .fretcard{ border:1px solid var(--accent); border-radius:.6rem; padding:.9rem; background:transparent; margin-top:12px; }
+    #fretboard{ overflow:auto; text-align:center; }
+    .fret svg{ max-width:100%; height:auto; display:block; }
 
-        .panel-body {
-            padding: .6rem .8rem .9rem
-        }
+    .legend{ color:var(--muted); font-size:.8rem; margin-top:.5rem; text-align:center; }
 
-        .controls {
-            display: grid;
-            gap: 8px;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))
-        }
+    /* mini SVG palette coherence (same fixes used in Chords) */
+    .fb-grid line{ stroke:var(--rule); stroke-width:1; }
+    .fb-grid .nut{ stroke:var(--ink); stroke-width:3; }
+    .fb-grid text { fill: var(--muted); }
+    html.theme-dark .fb-grid text { fill: var(--ink); opacity: .85; }
+    html.theme-dark .fb-grid line { stroke:#3b3a34; }
+    .fb-note circle{ fill:var(--ink); }
+    .fb-note text{ font-size:10px; font-weight:700; fill:var(--paper); }
 
-        .row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center
-        }
+    footer.page{
+      margin:30px 0 60px; font-size:12px; color:var(--muted); display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    footer.page a.btn{
+      border:1px solid var(--accent); border-radius:.5rem; padding:.35rem .6rem; text-decoration:none; color:var(--ink);
+    }
 
-        button,
-        input[type="date"] {
-            appearance: none;
-            border: 1px solid var(--accent);
-            background: transparent;
-            color: var(--ink);
-            padding: 10px 12px;
-            border-radius: .5rem;
-            font-size: 14px
-        }
-
-        button.primary {
-            background: var(--ink);
-            color: var(--paper);
-            border-color: var(--ink)
-        }
-
-        .result {
-            border: 1px solid var(--accent);
-            border-radius: .6rem;
-            padding: .9rem .9rem 1rem;
-            background: transparent;
-            margin-top: 12px
-        }
-
-        .kicker {
-            font-size: .78rem;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: var(--muted)
-        }
-
-        .big {
-            font-weight: 700;
-            letter-spacing: .02em;
-            font-size: clamp(2.2rem, 6vw, 3rem);
-            line-height: 1.08;
-            margin: .2rem 0 .1rem
-        }
-
-        .meta {
-            display: flex;
-            gap: .5rem;
-            flex-wrap: wrap;
-            margin: .35rem 0
-        }
-
-        .tag {
-            border: 1px solid var(--accent);
-            border-radius: 999px;
-            padding: .2rem .55rem;
-            font-size: .8rem;
-            color: var(--muted)
-        }
-
-        .mood {
-            color: var(--muted);
-            font-size: .95rem;
-            margin-top: .2rem
-        }
-
-        /* Diapasón compacto */
-        .fretcard {
-            border: 1px solid var(--accent);
-            border-radius: .6rem;
-            padding: .9rem;
-            background: transparent;
-            margin-top: 12px
-        }
-
-        #fretboard {
-            overflow: auto;
-            text-align: center
-        }
-
-        .fret svg {
-            max-width: 100%;
-            height: auto;
-            display: block
-        }
-
-        .legend {
-            color: var(--muted);
-            font-size: .8rem;
-            margin-top: .5rem;
-            text-align: center
-        }
-
-        .fb-grid line {
-            stroke: var(--rule);
-            stroke-width: 1
-        }
-
-        .fb-grid .nut {
-            stroke: var(--ink);
-            stroke-width: 3
-        }
-
-        .fb-note circle {
-            fill: var(--ink)
-        }
-
-        .fb-note text {
-            font-size: 10px;
-            font-weight: 700;
-            fill: var(--paper)
-        }
-
-        .foot {
-            margin: 30px 0 60px;
-            font-size: 12px;
-            color: var(--muted)
-        }
-    </style>
+    /* Hover underline animation (like index/Scales) */
+    @media (prefers-reduced-motion:no-preference){
+      a{
+        position:relative;
+        background-image:linear-gradient(currentColor,currentColor);
+        background-position:0 100%;
+        background-repeat:no-repeat;
+        background-size:0% 1px;
+        transition:background-size .25s ease, color .2s ease;
+      }
+      a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }
+    }
+  </style>
 </head>
-
 <body>
-    <main>
-        <div class="topbar">
-            <nav class="breadcrumb" aria-label="Miga de pan"><a href="index.html">← Volver al índice</a></nav>
-            <button class="theme-toggle" id="themeToggle" type="button" title="Cambiar tema">🌓</button>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">← Back to index</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+    </div>
+
+    <header>
+      <h1>The Daily Chord</h1>
+      <div class="subtitle">One chord per day.</div>
+    </header>
+
+    <details class="panel" open>
+      <summary>Controls</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Daily chord controls">
+          <div class="row">
+            <button id="btnToday" class="primary" type="button">Today</button>
+            <button id="btnRandom" type="button">Random</button>
+            <button id="btnShare" type="button">Share / Copy</button>
+          </div>
+          <div class="row">
+            <label for="pickDate">Pick a date:</label>
+            <input type="date" id="pickDate" />
+            <button id="btnGo" type="button">Show</button>
+          </div>
         </div>
+      </div>
+    </details>
 
-        <header>
-            <h1>The Daily Chord</h1>
-            <div class="subtitle">Un acorde por día</div>
-        </header>
+    <section class="result" aria-live="polite">
+      <div class="kicker" id="dateLabel">Today</div>
+      <div class="big" id="chordText">—</div>
+      <div class="meta" id="metaTags"></div>
+      <p class="mood" id="moodLine">—</p>
+    </section>
 
-        <details class="panel" open>
-            <summary>Controles</summary>
-            <div class="panel-body">
-                <div class="controls" role="group" aria-label="Controles del oráculo">
-                    <div class="row">
-                        <button id="btnToday" class="primary" type="button">Hoy</button>
-                        <button id="btnRandom" type="button">Aleatorio</button>
-                        <button id="btnShare" type="button">Compartir / Copiar</button>
-                    </div>
-                    <div class="row">
-                        <label for="pickDate">Otra fecha:</label>
-                        <input type="date" id="pickDate" />
-                        <button id="btnGo" type="button">Ver</button>
-                    </div>
-                </div>
-            </div>
-        </details>
+    <section class="fretcard" aria-label="Fretboard for this chord">
+      <div class="kicker">Fretboard</div>
+      <div id="fretboard"></div>
+      <!-- <div class="legend">Strings (6→1) on the left · Fret numbers above. R = root · 3/b3 · 5 · 7/b7.</div> -->
+    </section>
 
-        <section class="result" aria-live="polite">
-            <div class="kicker" id="dateLabel">Hoy</div>
-            <div class="big" id="chordText">—</div>
-            <div class="meta" id="metaTags"></div>
-            <p class="mood" id="moodLine">—</p>
-        </section>
+    <footer class="page">
+      <a class="btn" href="YOUR_CAFECITO_URL" target="_blank" rel="noopener">Buy me a coffee</a>
+      <span>© Contumance</span>
+    </footer>
+  </main>
 
-        <section class="fretcard" aria-label="Diapasón con el acorde">
-            <div class="kicker">Diapasón</div>
-            <div id="fretboard"></div>
-            <!--<div class="legend">Strings (6→1) a la izquierda · Frets indicados arriba. R = root · 3/b3 · 5 · 7/b7.</div>-->
-        </section>
+  <!-- Theme toggle (same logic as other pages) -->
+  <script>
+    (function () {
+      const KEY = 'theme-preference';
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      function setIcon(mode){ btn.textContent = '◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let current = getPreferred(); apply(current);
+      btn.addEventListener('click', () => {
+        current = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(KEY, current); apply(current);
+      });
+    })();
+  </script>
 
-        <p class="foot">© Contumance</p>
-    </main>
+  <!-- Oracle logic + fretboard (American notation, robust root, dark-friendly SVG) -->
+  <script>
+    // Day-of-year
+    function dayOfYear(d){ const s = new Date(d.getFullYear(),0,1); return Math.floor((d - s)/86400000) + 1; }
 
-    <!-- Toggle de tema -->
-    <script>
-        (function () {
-            var KEY = 'theme-preference';
-            var root = document.documentElement; var btn = document.getElementById('themeToggle');
-            function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); btn.textContent = '◑'; }
-            function preferred() {
-                var s = localStorage.getItem(KEY); if (s === 'light' || s === 'dark') return s;
-                return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    // Family by month
+    function monthFamily(m){
+      if (m>=1 && m<=3) return 'major';
+      if (m>=4 && m<=6) return 'minor';
+      if (m>=7 && m<=9) return 'diminished';
+      return 'dominant';
+    }
+
+    // Root by weekday (0=Sun..6=Sat) — locale-agnostic
+    const ROOTS_BY_DAY = ["C","D","E","F","G","A","B"];
+
+    // Pitch classes & helpers
+    const NOTE_PC = { "C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11 };
+    const STD_TUNING = [40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 (low→high)
+    const STRING_NAMES = ['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
+    const DEG_LABELS = {0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
+
+    function qualityToIntervals(f){
+      if(f==='major') return [0,4,7];
+      if(f==='minor') return [0,3,7];
+      if(f==='diminished') return [0,3,6];
+      return [0,4,7,10]; // dominant -> 7
+    }
+    function familyToSymbolSuffix(f){
+      if(f==='major') return '';
+      if(f==='minor') return 'm';
+      if(f==='diminished') return 'dim';
+      return '7';
+    }
+
+    // Simple closed-position pick (1 note per string within 5-fret window)
+    function pickVoicing(pcRoot, intervals, windowStart){
+      const win = 5, out = [];
+      for(let s=0; s<STD_TUNING.length; s++){
+        const midiOpen = STD_TUNING[s];
+        let chosen = null, deg = null;
+        for(let f=windowStart; f<windowStart+win && f<=20; f++){
+          const pc = (midiOpen + f) % 12;
+          for(let k=0; k<intervals.length; k++){
+            if (pc === (pcRoot + (intervals[k]%12) + 12) % 12){
+              chosen = { string:s, fret:f }; deg = (intervals[k]%12); break;
             }
-            var current = preferred(); apply(current);
-            btn.addEventListener('click', function () {
-                current = current === 'dark' ? 'light' : 'dark';
-                localStorage.setItem(KEY, current); apply(current);
-            });
-        })();
-    </script>
-
-    <!-- Lógica del oráculo + diapasón (cifrado americano y raíz robusta) -->
-    <script>
-        // Día del año
-        function dayOfYear(d) { var s = new Date(d.getFullYear(), 0, 1); return Math.floor((d - s) / 86400000) + 1; }
-
-        // Familia por mes
-        function monthFamily(m) {
-            if (m >= 1 && m <= 3) return 'major'; if (m >= 4 && m <= 6) return 'minor';
-            if (m >= 7 && m <= 9) return 'diminished'; return 'dominant';
+          }
+          if(chosen) break;
         }
+        out.push(chosen ? { string:s, fret:chosen.fret, deg:deg } : null);
+      }
+      return out;
+    }
 
-        // Raíz por día de semana (0=Domingo..6=Sábado) — evita problemas de locale
-        const ROOTS_BY_DAY = ["C", "D", "E", "F", "G", "A", "B"];
+    // Fretboard render (dark-mode friendly)
+    function renderFretboard(rootName, family, nDay){
+      const pcRoot = NOTE_PC[rootName] || 0;
+      const intervals = qualityToIntervals(family);
+      const start = (nDay % 12) + 1;  // slide window by day
+      const voicing = pickVoicing(pcRoot, intervals, start);
 
-        // Notas y grados
-        const NOTE_PC = { "C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11 };
-        const STD_TUNING = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4
-        const STRING_NAMES = ['6(E)', '5(A)', '4(D)', '3(G)', '2(B)', '1(e)'];
-        const DEG_LABELS = { 0: 'R', 1: '♭2', 2: '2', 3: '♭3', 4: '3', 5: '4', 6: '♭5', 7: '5', 8: '♯5', 9: '6', 10: '♭7', 11: '7' };
+      const frets = 5, startFret = start, strings = 6, w = frets*44 + 100, h = strings*26 + 70;
+      const x0 = 70, y0 = 40, dx = 44, dy = 26;
+      const g = [];
+      g.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">`);
 
-        // Intervalos básicos según familia (simple y legible)
-        function qualityToIntervals(family) {
-            if (family === 'major') return [0, 4, 7];
-            if (family === 'minor') return [0, 3, 7];
-            if (family === 'diminished') return [0, 3, 6];
-            return [0, 4, 7, 10]; // dominant -> 7
-        }
-        function familyToSymbolSuffix(family) {
-            if (family === 'major') return '';         // triada mayor
-            if (family === 'minor') return 'm';        // triada menor
-            if (family === 'diminished') return 'dim'; // disminuido
-            return '7';                             // dominante
-        }
+      // grid
+      g.push(`<g class="fb-grid">`);
+      for(let s=0; s<strings; s++){
+        const y = y0 + s*dy;
+        g.push(`<line x1="${x0}" y1="${y}" x2="${x0 + frets*dx}" y2="${y}" />`);
+        g.push(`<text x="${x0-15}" y="${y+4}" font-size="10" text-anchor="end">${STRING_NAMES[s]}</text>`);
+      }
+      for(let f=0; f<=frets; f++){
+        const x = x0 + f*dx;
+        const isNut = (startFret===0 && f===1);
+        g.push(`<line x1="${x}" y1="${(y0 - dy/2)}" x2="${x}" y2="${(y0 + (strings-1)*dy + dy/2)}" class="${isNut?'nut':''}" />`);
+      }
+      // fret numbers
+      for(let c=0; c<frets; c++){
+        const x = x0 + (c+0.5)*dx;
+        const label = startFret + c;
+        g.push(`<text x="${x}" y="${(y0 - dy/1.3)}" font-size="10" text-anchor="middle">${label}</text>`);
+      }
+      g.push(`</g>`);
 
-        // Selección de voicing simple (1 nota por cuerda en ventana de 5 trastes)
-        function pickVoicing(pcRoot, intervals, windowStart) {
-            var win = 5, out = [];
-            for (var s = 0; s < STD_TUNING.length; s++) {
-                var midiOpen = STD_TUNING[s], chosen = null, deg = null;
-                for (var f = windowStart; f < windowStart + win && f <= 20; f++) {
-                    var pc = (midiOpen + f) % 12;
-                    for (var k = 0; k < intervals.length; k++) {
-                        if (pc === (pcRoot + (intervals[k] % 12) + 12) % 12) { chosen = { string: s, fret: f }; deg = (intervals[k] % 12); break; }
-                    }
-                    if (chosen) break;
-                }
-                out.push(chosen ? { string: s, fret: chosen.fret, deg: deg } : null);
-            }
-            return out;
-        }
+      // notes
+      g.push(`<g class="fb-note">`);
+      voicing.forEach((v, idx) => {
+        if(!v) return;
+        const cx = x0 + (v.fret - startFret + .5)*dx;
+        const cy = y0 + idx*dy;
+        const label = DEG_LABELS[(v.deg+12)%12] || '•';
+        g.push(`<circle cx="${cx}" cy="${cy}" r="11"></circle>`);
+        g.push(`<text x="${cx}" y="${(cy+3)}" text-anchor="middle">${label}</text>`);
+      });
+      g.push(`</g></svg>`);
 
-        // Render del diapasón
-        function renderFretboard(rootName, family, nDay) {
-            var pcRoot = NOTE_PC[rootName] || 0;
-            var intervals = qualityToIntervals(family);
-            var start = (nDay % 12) + 1; // desplaza la ventana por día
-            var voicing = pickVoicing(pcRoot, intervals, start);
+      document.getElementById('fretboard').innerHTML = g.join('');
+    }
 
-            var frets = 5, startFret = start, strings = 6, w = frets * 44 + 100, h = strings * 26 + 70;
-            var x0 = 70, y0 = 40, dx = 44, dy = 26;
-            var svg = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '">'];
+    // UI refs
+    const $ = s => document.querySelector(s);
+    const dateLabel = $('#dateLabel'), chordText = $('#chordText'), metaTags = $('#metaTags'), moodLine = $('#moodLine'), inputDate = $('#pickDate');
 
-            // encabezados
-            //svg.push('<text x="' + (x0 + (frets * dx) / 2) + '" y="' + (y0 - 18) + '" font-size="10">Frets ' + startFret + '-' + (startFret + frets - 1) + '</text>');
-            //svg.push('<text x="' + (x0 - 55) + '" y="' + (y0 + (strings - 1) * dy / 2) + '" font-size="10" transform="rotate(-90 ' + (x0 - 55) + ',' + (y0 + (strings - 1) * dy / 2) + ')">Strings (6→1)</text>');
+    function tagsRender(items){
+      metaTags.innerHTML = '';
+      items.forEach(t => {
+        const el = document.createElement('span');
+        el.className = 'tag';
+        el.textContent = t;
+        metaTags.appendChild(el);
+      });
+    }
+    function formatDateLong(d){
+      // English long date; adjusts to user's locale time zone automatically
+      return d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
 
-            // grid
-            svg.push('<g class="fb-grid">');
-            for (var s = 0; s < strings; s++) {
-                var y = y0 + s * dy;
-                svg.push('<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + frets * dx) + '" y2="' + y + '"/>');
-                svg.push('<text x="' + (x0 - 15) + '" y="' + (y + 4) + '" font-size="10" text-anchor="end">' + STRING_NAMES[s] + '</text>');
-            }
-            for (var f = 0; f <= frets; f++) {
-                var x = x0 + f * dx; var cls = (startFret + f === 0 ? 'nut' : '');
-                svg.push('<line x1="' + x + '" y1="' + (y0 - dy / 2) + '" x2="' + x + '" y2="' + (y0 + (strings - 1) * dy + dy / 2) + '" class="' + cls + '"/>');
-                if (f > 0) svg.push('<text x="' + (x - dx / 2) + '" y="' + (y0 - dy / 1.3) + '" font-size="10">' + (startFret + f - 1) + '</text>');
-            }
-            svg.push('</g>');
+    function computeForDate(d){
+      const n = dayOfYear(d);
+      const root = ROOTS_BY_DAY[d.getDay()];
+      const fam = monthFamily(d.getMonth()+1);
+      const symbol = root + familyToSymbolSuffix(fam);
 
-            // notas
-            svg.push('<g class="fb-note">');
-            voicing.forEach(function (v, idx) {
-                if (!v) return;
-                var cx = x0 + (v.fret - startFret + .5) * dx, cy = y0 + idx * dy, label = DEG_LABELS[(v.deg + 12) % 12] || '•';
-                svg.push('<circle cx="' + cx + '" cy="' + cy + '" r="11"/>');
-                svg.push('<text x="' + cx + '" y="' + (cy + 3) + '" text-anchor="middle">' + label + '</text>');
-            });
-            svg.push('</g></svg>');
+      // paint UI
+      dateLabel.textContent = formatDateLong(d);
+      chordText.textContent = symbol;
+      const famLabel = ({major:'major', minor:'minor', diminished:'diminished', dominant:'dominant'}[fam]);
+      tagsRender([`Day ${n}`, `Family: ${famLabel}`]);
+      moodLine.textContent = ({
+        major:'Clarity and expansion.',
+        minor:'Introspection and inner movement.',
+        diminished:'Mystery and tension.',
+        dominant:'Decision and drive. Tension ready to resolve.'
+      }[fam]);
 
-            document.getElementById('fretboard').innerHTML = svg.join('');
-        }
+      // fretboard
+      renderFretboard(root, fam, n);
 
-        // UI refs y helpers
-        var $ = function (s) { return document.querySelector(s) };
-        var dateLabel = $('#dateLabel'), chordText = $('#chordText'), metaTags = $('#metaTags'), moodLine = $('#moodLine'), inputDate = $('#pickDate');
-        function tagsRender(items) { metaTags.innerHTML = ''; items.forEach(function (t) { var el = document.createElement('span'); el.className = 'tag'; el.textContent = t; metaTags.appendChild(el); }); }
-        function formatDateLong(d) { return d.toLocaleDateString('es-UY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
+      // external event hook (if needed)
+      window.dispatchEvent(new CustomEvent('oracle-chord', { detail:{
+        date: d.toISOString().slice(0,10), dayOfYear: n, root, family: fam, symbol
+      }}));
+    }
 
-        function computeForDate(d) {
-            var n = dayOfYear(d);
-            var root = ROOTS_BY_DAY[d.getDay()];         // ← robusto a locale
-            var fam = monthFamily(d.getMonth() + 1);     // major / minor / diminished / dominant
-            var symbol = root + familyToSymbolSuffix(fam);
+    // Controls
+    document.getElementById('btnToday').addEventListener('click', () => computeForDate(new Date()));
+    document.getElementById('btnRandom').addEventListener('click', () => {
+      const y = (new Date()).getFullYear();
+      const start = new Date(y,0,1);
+      const rnd = Math.floor(Math.random()*365);
+      const d = new Date(start.getTime() + rnd*86400000);
+      inputDate.value = d.toISOString().slice(0,10);
+      computeForDate(d);
+    });
+    document.getElementById('btnGo').addEventListener('click', () => {
+      const v = inputDate.value;
+      if(!v){ alert('Pick a date.'); return; }
+      const d = new Date(v + 'T12:00:00');
+      computeForDate(d);
+    });
+    document.getElementById('btnShare').addEventListener('click', () => {
+      const title = 'The Daily Chord';
+      const text = chordText.textContent + ' · ' + dateLabel.textContent;
+      if(navigator.share){
+        navigator.share({ title, text }).catch(() => {});
+      }else{
+        (navigator.clipboard ? navigator.clipboard.writeText(title + '\n' + text) : Promise.reject())
+          .then(() => { alert('Copied to clipboard.'); })
+          .catch(() => { alert(text); });
+      }
+    });
 
-            // pintar UI
-            dateLabel.textContent = formatDateLong(d);
-            chordText.textContent = symbol;
-            tagsRender(['Día ' + n, 'Familia: ' + ({ major: 'mayor', minor: 'menor', diminished: 'disminuido', dominant: 'dominante' }[fam])]);
-            moodLine.textContent = ({ major: 'Claridad y expansión.', minor: 'Introspección y movimiento interno.', diminished: 'Misterio y tensión.', dominant: 'Decisión y empuje. Tensión lista para resolver.' }[fam]);
-
-            // diapasón
-            renderFretboard(root, fam, n);
-
-            // evento externo por si hay integración con otra vista
-            window.dispatchEvent(new CustomEvent('oracle-chord', { detail: { date: d.toISOString().slice(0, 10), dayOfYear: n, root: root, family: fam, symbol: symbol } }));
-        }
-
-        // Controles
-        document.getElementById('btnToday').addEventListener('click', function () { computeForDate(new Date()); });
-        document.getElementById('btnRandom').addEventListener('click', function () {
-            var y = (new Date()).getFullYear(); var start = new Date(y, 0, 1); var rnd = Math.floor(Math.random() * 365);
-            var d = new Date(start.getTime() + rnd * 86400000); inputDate.value = d.toISOString().slice(0, 10); computeForDate(d);
-        });
-        document.getElementById('btnGo').addEventListener('click', function () {
-            var v = inputDate.value; if (!v) { alert('Elegí una fecha.'); return; } var d = new Date(v + 'T12:00:00'); computeForDate(d);
-        });
-        document.getElementById('btnShare').addEventListener('click', function () {
-            var title = 'El Acorde del Día'; var text = chordText.textContent + ' · ' + dateLabel.textContent;
-            if (navigator.share) { navigator.share({ title: title, text: text }).catch(function () { }); }
-            else {
-                (navigator.clipboard ? navigator.clipboard.writeText(title + '\n' + text) : Promise.reject())
-                .then(function () { alert('Copiado al portapapeles.'); })
-                .catch(function () { alert(text); });
-            }
-        });
-
-        // Init
-        (function init() {
-            try { var t = new Date(); inputDate.value = t.toISOString().slice(0, 10); computeForDate(t); }
-            catch (err) { chordText.textContent = '⚠️ Error de inicialización'; console.error(err); }
-        })();
-    </script>
+    // Init
+    (function init(){
+      try{
+        const t = new Date();
+        inputDate.value = t.toISOString().slice(0,10);
+        computeForDate(t);
+      }catch(err){
+        chordText.textContent = '⚠️ Initialization error';
+        console.error(err);
+      }
+    })();
+  </script>
 </body>
 </html>
