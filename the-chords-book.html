@@ -140,8 +140,25 @@
         background-size:0% 1px;
         transition:background-size .25s ease, color .2s ease;
       }
-      a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }
-    }
+      a:hover, a:focus-visible{ background-size:100% 1px; outline:/* 1) Texto del SVG (cuerdas y números de traste) */
+.fb-grid text { 
+  fill: var(--muted);            /* buen contraste en claro */
+}
+html.theme-dark .fb-grid text {
+  fill: var(--ink);              /* claro en oscuro */
+  opacity: .85;                  /* leve suavizado */
+}
+
+/* 2) Líneas del diapasón en oscuro (un poco más visibles) */
+html.theme-dark .fb-grid line { 
+  stroke: #3b3a34;               /* más claro que --rule en dark */
+}
+
+/* 3) (Opcional) Refuerza legibilidad dentro de los círculos */
+html.theme-dark .fb-note text {
+  fill: var(--paper);            /* ya usás esto, aquí lo aseguramos */
+  font-weight: 800;              /* un toque más grueso */
+}
   </style>
 </head>
 <body>
