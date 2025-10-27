@@ -8,18 +8,18 @@
   <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <style>
-    /* Base palette (light mode) aligned with index */
     :root{
       --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
       --link:#2d5842; --link-visited:#514f7a;
       --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
       --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
+      --hit:#d9c8a6;
     }
-    /* Dark mode */
     html.theme-dark{
       --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
       --link:#a9d0b8; --link-visited:#c0b8e0;
       --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
+      --hit:#2a2a22;
     }
     html{font-size:var(--fs-base)}
     body{
@@ -27,7 +27,6 @@
       font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
-    /* subtle paper texture */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
@@ -55,15 +54,15 @@
     .controls{display:grid; gap:8px; align-items:center; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); margin-bottom:8px;}
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
     label{font-size:12px; opacity:.9;}
-    select,button,input[type="number"]{
+    select,button,input[type="number"],input[type="range"]{
       appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
       padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
     }
     button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
-    .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+    .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
     .tuning .string-card{border:1px solid var(--accent); border-radius:.6rem; background:transparent; padding:8px;}
+    .octv{display:flex; align-items:center; gap:6px; font-size:12px; opacity:.9}
 
-    /* -------- Piano section -------- */
     .piano-wrap{
       border:1px solid var(--accent); border-radius:.6rem; background:transparent;
       margin:14px 0 18px; padding:10px 10px 14px;
@@ -71,7 +70,6 @@
     .piano-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; font-size:.95rem;}
     .piano-caption{color:var(--muted); font-size:.85rem;}
 
-    /* Fretboard */
     .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent;}
     .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(24,1fr); position:relative; width:100%;}
     .string{display:contents;}
@@ -82,8 +80,10 @@
     .cell{position:relative; display:flex; align-items:center; justify-content:center;}
     .fret-number{position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35;}
     .marker{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;}
-    .dot{width:24px; height:24px; border-radius:999px; border:1.5px solid var(--accent-soft); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px;}
+    .dot{width:24px; height:24px; border-radius:999px; border:1.5px solid var(--accent-soft); background:transparent; display:flex; align-items:center; justify-content:center; font-size:11px; transition:transform .05s ease, background-color .12s ease;}
     .dot.root{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600;}
+    .hit{animation:hit .18s ease;}
+    @keyframes hit{ from{ background-color:var(--hit);} to{ background-color:transparent;} }
     .pos-marker{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:6px; height:6px; border-radius:999px; background:#bbb; opacity:.5;}
     .pos-marker.double{display:grid; grid-template-columns:1fr 1fr; gap:8px; width:auto; height:auto; background:transparent;}
     .pos-marker.double i{width:6px; height:6px; background:#bbb; opacity:.5; border-radius:999px; display:block;}
@@ -93,7 +93,6 @@
         background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease;}
       a:hover, a:focus-visible{background-size:100% 1px; outline:none;}
     }
-    
     footer{
       margin-top:2.5rem; font-size:.95rem; color:var(--muted);
       display:flex; gap:.75rem; align-items:center; flex-wrap:wrap
@@ -108,7 +107,11 @@
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="index.html">← Back to index</a>
       </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+      <div class="row" style="gap:6px;">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+        <!-- Sound controls -->
+        <button id="audioEnable" class="theme-toggle" title="Enable sound">🔈 Enable sound</button>
+      </div>
     </div>
 
     <header>
@@ -140,6 +143,20 @@
               <option value="degrees">Degrees</option>
               <option value="off">Hidden</option>
             </select>
+          </div>
+          <!-- synth extras -->
+          <div class="row">
+            <label for="wave">Wave</label>
+            <select id="wave">
+              <option>sine</option>
+              <option>triangle</option>
+              <option>square</option>
+              <option>sawtooth</option>
+            </select>
+          </div>
+          <div class="row" style="min-width:190px;">
+            <label for="volume">Volume</label>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.6" style="width:120px;">
           </div>
         </div>
         <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
@@ -209,10 +226,17 @@
         "Chromatic": [0,1,2,3,4,5,6,7,8,9,10,11]
       };
       var DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1st (highest) on top
+      var DEFAULT_OCTAVES_6 = [4,3,3,3,2,2]; // E4,B3,G3,D3,A2,E2
 
       // ------- State & persistence -------
-      var state = { strings:6, tuning:DEFAULT_TUNING_6.slice(), root:"C", scaleName:"Major (Ionian)", labelMode:"notes" };
-      var LS_KEY="the_scales_book_state_v1";
+      var state = {
+        strings:6,
+        tuning:DEFAULT_TUNING_6.slice(),
+        octaves:DEFAULT_OCTAVES_6.slice(),
+        root:"C", scaleName:"Major (Ionian)", labelMode:"notes",
+        wave:"sine", volume:0.6
+      };
+      var LS_KEY="the_scales_book_state_v2_audio";
       try{ var saved=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(saved&&typeof saved==="object") Object.assign(state,saved);}catch(e){}
       function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
@@ -226,38 +250,116 @@
       var applyStringsBtn=document.getElementById("applyStrings");
       var pianoContainer=document.getElementById("pianoContainer");
       var pianoCaption=document.getElementById("pianoCaption");
+      var audioEnableBtn=document.getElementById("audioEnable");
+      var waveSel=document.getElementById("wave");
+      var volSlider=document.getElementById("volume");
 
       // ------- Helpers -------
       function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
       function cycleNote(note, step){ var i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
-      function ensureTuningLen(n){
-        if(state.tuning.length<n){
-          var last=state.tuning[state.tuning.length-1]||"E";
-          while(state.tuning.length<n) state.tuning.push(last);
-        }else if(state.tuning.length>n){ state.tuning=state.tuning.slice(0,n); }
+      function ensureLen(arr, n, fill){
+        if(arr.length<n){ while(arr.length<n) arr.push(fill); }
+        else if(arr.length>n){ arr.splice(n); }
       }
-      function inScaleClass(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
+      function ensureTuningLen(n){
+        ensureLen(state.tuning, n, state.tuning[state.tuning.length-1]||"E");
+        ensureLen(state.octaves, n, 3);
+      }
+      function inScale(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
 
       // ------- Populate selects -------
       function fillSelect(el, arr){ el.innerHTML = arr.map(v=>'<option value="'+v+'">'+v+'</option>').join(''); }
       fillSelect(rootSel, NOTES_SHARP);
       fillSelect(scaleSel, Object.keys(SCALES));
       rootSel.value=state.root; scaleSel.value=state.scaleName; stringCountInput.value=state.strings; labelsSel.value=state.labelMode;
+      waveSel.value=state.wave; volSlider.value=state.volume;
 
-      // ------- Tuning editor -------
+      // ====== AUDIO ENGINE (Web Audio) ======
+      var AudioEngine = (function(){
+        let ctx=null, master=null;
+        let started=false;
+        const A4=440; // reference
+        function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
+        function noteToMidi(name, octave){
+          const pc=noteIndex(name); if(pc<0) return 60; // fallback C4
+          // MIDI formula with C-1 = 0 => C4=60, A4=69
+          return (octave+1)*12 + pc;
+        }
+        function start(){
+          if(started) return;
+          ctx = new (window.AudioContext||window.webkitAudioContext)();
+          master = ctx.createGain(); master.gain.value = state.volume;
+          master.connect(ctx.destination);
+          started=true;
+        }
+        function resumeMaybe(){ if(ctx && ctx.state==="suspended") ctx.resume(); }
+        function setVolume(v){ if(master) master.gain.value=v; }
+        function setWave(w){ currentWave=w; }
+        let currentWave = state.wave || "sine";
+
+        function playFreq(freq, opts){
+          if(!started) return;
+          resumeMaybe();
+          const t=ctx.currentTime;
+          const o=ctx.createOscillator();
+          const g=ctx.createGain();
+
+          // Envelope
+          const A=0.01, D=0.08, S=0.75, R=0.15;
+          const vel = (opts && opts.vel)!=null ? opts.vel : 0.9;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(vel, t+A);
+          g.gain.linearRampToValueAtTime(vel*S, t+A+D);
+
+          o.type = currentWave;
+          o.frequency.setValueAtTime(freq, t);
+
+          o.connect(g); g.connect(master);
+          o.start(t);
+
+          // auto release
+          const dur = (opts && opts.dur) || 0.6;
+          const end = t + dur;
+          g.gain.setTargetAtTime(0.0001, end, R);
+          o.stop(end + R*3);
+        }
+
+        function playNote(name, octave, opts){
+          const midi = noteToMidi(name, octave);
+          const freq = midiToFreq(midi);
+          playFreq(freq, opts);
+        }
+
+        return {start, setVolume, setWave, playNote, noteToMidi};
+      })();
+
+      // Unlock on button (and any first interaction)
+      audioEnableBtn.addEventListener('click', function(){
+        AudioEngine.start();
+        audioEnableBtn.textContent = '🔊 Sound on';
+        audioEnableBtn.disabled = true;
+      }, {passive:true});
+
+      // ------- Tuning editor (now with octave) -------
       function renderTuningEditor(){
         ensureTuningLen(state.strings);
         var html="";
         for(var idx=0; idx<state.tuning.length; idx++){
-          var note=state.tuning[idx], stringNum=idx+1;
+          var note=state.tuning[idx], stringNum=idx+1, oct=state.octaves[idx] ?? 3;
           var opts=NOTES_SHARP.map(n=>'<option value="'+n+'"'+(n===note?' selected':'')+'>'+n+'</option>').join('');
           html+= '<div class="string-card">'
                +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String '+stringNum+'</div>'
-               +   '<div class="row" style="gap:6px;">'
-               +     '<button data-act="down" data-idx="'+idx+'" title="Lower">−</button>'
+               +   '<div class="row" style="gap:6px; flex-wrap:nowrap;">'
+               +     '<button data-act="down" data-idx="'+idx+'" title="Lower note">−</button>'
                +     '<div class="open-note" style="min-width:40px; text-align:center">'+note+'</div>'
-               +     '<button data-act="up" data-idx="'+idx+'" title="Raise">+</button>'
+               +     '<button data-act="up" data-idx="'+idx+'" title="Raise note">+</button>'
                +     '<select data-act="set" data-idx="'+idx+'" style="flex:1; min-width:0;">'+opts+'</select>'
+               +   '</div>'
+               +   '<div class="octv">'
+               +     '<label>Octave</label>'
+               +     '<button data-act="octDown" data-idx="'+idx+'" title="Octave -1">−</button>'
+               +     '<span id="oct'+idx+'" style="min-width:1.5ch; text-align:center;">'+oct+'</span>'
+               +     '<button data-act="octUp" data-idx="'+idx+'" title="Octave +1">+</button>'
                +   '</div>'
                + '</div>';
         }
@@ -265,9 +367,12 @@
         tuningPanel.querySelectorAll('button').forEach(function(btn){
           btn.addEventListener('click',function(){
             var i=+btn.dataset.idx; var act=btn.dataset.act;
-            state.tuning[i]=cycleNote(state.tuning[i], act==='up'?+1:-1);
+            if(act==='up'||act==='down'){
+              state.tuning[i]=cycleNote(state.tuning[i], act==='up'?+1:-1);
+            }else if(act==='octUp'){ state.octaves[i]=Math.min(8, (state.octaves[i]??3)+1); }
+            else if(act==='octDown'){ state.octaves[i]=Math.max(-2, (state.octaves[i]??3)-1); }
             save(); renderTuningEditor(); renderBoard();
-          });
+          }, {passive:true});
         });
         tuningPanel.querySelectorAll('select').forEach(function(sel){
           sel.addEventListener('change', function(){ var i=+sel.dataset.idx; state.tuning[i]=sel.value; save(); renderBoard(); });
@@ -285,22 +390,26 @@
         scale.forEach(function(off,i){ degreeBySemitone.set(off%12, String(i+1)); });
 
         for(var s=0; s<state.strings; s++){
-          var openIdx=noteIndex(state.tuning[s]);
+          var openName = state.tuning[s];
+          var openOct  = state.octaves[s] ?? 3;
+          var openIdx=noteIndex(openName);
           var stringRow=document.createElement('div'); stringRow.className='string';
 
           var nut=document.createElement('div'); nut.className='nut open-note';
           if(s>0) nut.style.borderTop='1px solid var(--rule)';
-          var labelSpan=document.createElement('span'); labelSpan.textContent=state.tuning[s]; nut.appendChild(labelSpan);
+          var labelSpan=document.createElement('span'); labelSpan.textContent=openName; nut.appendChild(labelSpan);
 
           var openSemitone=openIdx%12;
-          if(inScaleClass(openSemitone, rootIdx, scale)){
+          if(inScale(openSemitone, rootIdx, scale)){
             var m0=document.createElement('div'); m0.className='marker';
-            var d0=document.createElement('div'); d0.className='dot';
+            var d0=document.createElement('div'); d0.className='dot'; d0.dataset.note=openName; d0.dataset.oct=openOct; d0.dataset.src='nut';
             if(((openSemitone-rootIdx+12)%12)===0) d0.classList.add('root');
             var label0="";
-            if(state.labelMode==='notes') label0=NOTES_SHARP[openSemitone];
+            if(state.labelMode==='notes') label0=openName;
             else if(state.labelMode==='degrees'){ var rel0=(openSemitone-rootIdx+12)%12; label0=degreeBySemitone.get(rel0)||""; }
             d0.textContent=label0; m0.appendChild(d0); nut.appendChild(m0);
+            d0.style.pointerEvents='auto';
+            d0.tabIndex=0;
           }
           stringRow.appendChild(nut);
 
@@ -308,14 +417,24 @@
             var cell=document.createElement('div'); cell.className='fret cell';
             if(s>0) cell.style.borderTop='1px solid var(--rule)';
             var semitone=(openIdx+f)%12;
-            if(inScaleClass(semitone, rootIdx, scale)){
+            if(inScale(semitone, rootIdx, scale)){
               var m=document.createElement('div'); m.className='marker';
               var dot=document.createElement('div'); dot.className='dot';
+              dot.dataset.note=NOTES_SHARP[semitone];
+              // compute absolute octave by how many wraps from open
+              var midiOpen = AudioEngine.noteToMidi(openName, openOct);
+              var midiFret = midiOpen + f;
+              // back out octave for label (C-based octave)
+              var pc = (midiFret % 12 + 12) % 12;
+              var oct = Math.floor(midiFret/12) - 1; // inverse of (oct+1)*12
+              dot.dataset.oct=oct;
               if(((semitone-rootIdx+12)%12)===0) dot.classList.add('root');
               var label="";
               if(state.labelMode==='notes') label=NOTES_SHARP[semitone];
               else if(state.labelMode==='degrees'){ var rel=(semitone-rootIdx+12)%12; label=degreeBySemitone.get(rel)||""; }
               dot.textContent=label; m.appendChild(dot); cell.appendChild(m);
+              dot.style.pointerEvents='auto';
+              dot.tabIndex=0;
             }
             if(s===state.strings-1){
               var num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
@@ -331,19 +450,39 @@
           board.appendChild(stringRow);
         }
 
+        // attach play handlers
+        board.querySelectorAll('.dot').forEach(function(dot){
+          dot.addEventListener('pointerdown', function(e){
+            if(AudioEngine){ 
+              if(!audioEnableBtn.disabled) { /* auto-start on first touch if user taps a note */
+                AudioEngine.start(); audioEnableBtn.textContent='🔊 Sound on'; audioEnableBtn.disabled=true;
+              }
+              AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
+            }
+            dot.classList.add('hit');
+            setTimeout(()=>dot.classList.remove('hit'), 160);
+          }, {passive:true});
+          dot.addEventListener('keydown', function(e){
+            if(e.key==='Enter' || e.key===' '){
+              AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
+              dot.classList.add('hit'); setTimeout(()=>dot.classList.remove('hit'), 160);
+            }
+          });
+        });
+
         // refresh piano too
         renderPiano();
       }
 
-      // ------- Piano (SVG, one octave C–C) -------
+      // ------- Piano (SVG, one octave C4–C5) -------
       var WHITE = ["C","D","E","F","G","A","B"];
       var WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n)); // [0,2,4,5,7,9,11]
       var BLACK_AT = [0,1,3,4,5];               // after C,D,F,G,A
       var BLACK_NAMES = ["C#","D#","F#","G#","A#"];
       var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n)); // [1,3,6,8,10]
 
-      function renderPianoOLD(){
-        var w = pianoContainer.clientWidth || 640;
+      function renderPiano(){
+        var w = pianoContainer.clientWidth || 520;
         var h = 160;
         var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("viewBox","0 0 "+w+" "+h);
@@ -356,251 +495,30 @@
         var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
         var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
 
-        // Sizes
         var pad = 10;
         var innerW = w - pad*2;
-        var innerH = h - pad*2;
-        var whiteW = innerW / 7;
-        var whiteH = innerH;
-        var blackW = whiteW * 0.6;
-        var blackH = innerH * 0.62;
-
-        // Scale membership
-        var scale = SCALES[state.scaleName];
-        var rootIdx = noteIndex(state.root);
-        var inScaleSet = new Set(scale.map(function(off){ return (rootIdx + off) % 12; }));
-
-        // Caption
-        pianoCaption.textContent = state.root + " " + state.scaleName;
-
-        // --- White keys ---
-        WHITE_PC.forEach(function(pc, i){
-          var x = pad + i*whiteW;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x); rect.setAttribute("y",pad);
-          rect.setAttribute("width",whiteW); rect.setAttribute("height",whiteH);
-          rect.setAttribute("rx","6"); rect.setAttribute("ry","6");
-          rect.setAttribute("fill",paper);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1");
-          svg.appendChild(rect);
-
-          // If note in scale, add inner outline
-          if (inScaleSet.has(pc)){
-            var hi = document.createElementNS(svg.namespaceURI,"rect");
-            hi.setAttribute("x",x+3); hi.setAttribute("y",pad+3);
-            hi.setAttribute("width",whiteW-6); hi.setAttribute("height",whiteH-6);
-            hi.setAttribute("rx","4"); hi.setAttribute("ry","4");
-            hi.setAttribute("fill","none");
-            hi.setAttribute("stroke",ink);
-            hi.setAttribute("stroke-width","2");
-            svg.appendChild(hi);
-          }
-          // If note is the root, fill badge at bottom
-          if (pc === rootIdx){
-            var badge = document.createElementNS(svg.namespaceURI,"rect");
-            badge.setAttribute("x",x+whiteW*0.25);
-            badge.setAttribute("y",pad+whiteH-16);
-            badge.setAttribute("width",whiteW*0.5);
-            badge.setAttribute("height",10);
-            badge.setAttribute("rx","5");
-            badge.setAttribute("fill",ink);
-            svg.appendChild(badge);
-          }
-
-          // Optional tiny labels
-          var label = document.createElementNS(svg.namespaceURI,"text");
-          label.setAttribute("x", x + whiteW/2);
-          label.setAttribute("y", pad + whiteH - 4);
-          label.setAttribute("font-size","10");
-          label.setAttribute("text-anchor","middle");
-          label.setAttribute("fill",accent);
-          label.textContent = WHITE[i];
-          svg.appendChild(label);
-        });
-
-        // --- Black keys ---
-        BLACK_PC.forEach(function(pc, j){
-          // Black keys sit between certain white keys
-          var afterWhiteIndex = BLACK_AT[j]; // index of white key to the left
-          var xLeft = pad + afterWhiteIndex*whiteW;
-          var x = xLeft + whiteW*0.7 - blackW/2; // centered between whites
-          var y = pad;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x); rect.setAttribute("y",y);
-          rect.setAttribute("width",blackW); rect.setAttribute("height",blackH);
-          rect.setAttribute("rx","5"); rect.setAttribute("ry","5");
-          rect.setAttribute("fill",ink);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1.2");
-          svg.appendChild(rect);
-
-          // If in scale, add bright border
-          if (inScaleSet.has(pc)){
-            var hi = document.createElementNS(svg.namespaceURI,"rect");
-            hi.setAttribute("x",x+2); hi.setAttribute("y",y+2);
-            hi.setAttribute("width",blackW-4); hi.setAttribute("height",blackH-4);
-            hi.setAttribute("rx","4"); hi.setAttribute("ry","4");
-            hi.setAttribute("fill","none");
-            hi.setAttribute("stroke",paper);
-            hi.setAttribute("stroke-width","2");
-            svg.appendChild(hi);
-          }
-          // Root marker on black key (small circle)
-          if (pc === rootIdx){
-            var circ = document.createElementNS(svg.namespaceURI,"circle");
-            circ.setAttribute("cx", x + blackW/2);
-            circ.setAttribute("cy", y + blackH - 8);
-            circ.setAttribute("r", 4);
-            circ.setAttribute("fill", paper);
-            svg.appendChild(circ);
-          }
-        });
-
-        // Clear & mount
-        pianoContainer.innerHTML = "";
-        pianoContainer.appendChild(svg);
-      }
-
-      function renderPianoOLD2(){
-        var w = pianoContainer.clientWidth || 560;
-        var h = 120;
-        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-        svg.setAttribute("viewBox","0 0 "+w+" "+h);
-        svg.setAttribute("width","100%");
-        svg.setAttribute("height","auto");
-
-        var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
-        var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
-
-        // Layout
-        var pad = 8;
-        var innerW = w - pad*2;
-        var whiteW = innerW / 7;
-        var whiteH = h - pad*2;
-        var blackW = whiteW * 0.55;
-        var blackH = whiteH * 0.58;
-        var blackOffset = whiteW * 0.7; // relative shift for overlap realism
-
-        // Scale membership
-        var scale = SCALES[state.scaleName];
-        var rootIdx = noteIndex(state.root);
-        var inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
-
-        pianoCaption.textContent = state.root + " " + state.scaleName;
-
-        // --- White keys base ---
-        WHITE_PC.forEach(function(pc,i){
-          var x = pad + i*whiteW;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x);
-          rect.setAttribute("y",pad);
-          rect.setAttribute("width",whiteW);
-          rect.setAttribute("height",whiteH);
-          rect.setAttribute("fill",paper);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1");
-          rect.setAttribute("rx","4");
-          svg.appendChild(rect);
-
-          // note labels
-          var label = document.createElementNS(svg.namespaceURI,"text");
-          label.setAttribute("x", x + whiteW/2);
-          label.setAttribute("y", pad + whiteH - 6);
-          label.setAttribute("font-size","10");
-          label.setAttribute("text-anchor","middle");
-          label.setAttribute("fill",accent);
-          label.textContent = WHITE[i];
-          svg.appendChild(label);
-
-          // circles for notes in scale
-          if (inScaleSet.has(pc)){
-            var cx = x + whiteW/2;
-            var cy = pad + whiteH/2;
-            var circle = document.createElementNS(svg.namespaceURI,"circle");
-            circle.setAttribute("cx",cx);
-            circle.setAttribute("cy",cy);
-            circle.setAttribute("r",whiteW*0.2);
-            circle.setAttribute("stroke",ink);
-            circle.setAttribute("stroke-width","2");
-            circle.setAttribute("fill","none");
-            svg.appendChild(circle);
-
-            // root = filled
-            if (pc === rootIdx){
-              circle.setAttribute("fill",ink);
-            }
-          }
-        });
-
-        // --- Black keys overlapping ---
-        BLACK_PC.forEach(function(pc,j){
-          var afterWhite = BLACK_AT[j];
-          var xLeft = pad + afterWhite*whiteW;
-          var x = xLeft + blackOffset - blackW/2;
-          var y = pad;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x);
-          rect.setAttribute("y",y);
-          rect.setAttribute("width",blackW);
-          rect.setAttribute("height",blackH);
-          rect.setAttribute("rx","3");
-          rect.setAttribute("fill",ink);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1");
-          svg.appendChild(rect);
-
-          if (inScaleSet.has(pc)){
-            var cx = x + blackW/2;
-            var cy = y + blackH/2;
-            var circ = document.createElementNS(svg.namespaceURI,"circle");
-            circ.setAttribute("cx",cx);
-            circ.setAttribute("cy",cy);
-            circ.setAttribute("r",blackW*0.22);
-            circ.setAttribute("stroke",paper);
-            circ.setAttribute("stroke-width","2");
-            circ.setAttribute("fill","none");
-            if (pc === rootIdx){
-              circ.setAttribute("fill",paper);
-            }
-            svg.appendChild(circ);
-          }
-        });
-
-        pianoContainer.innerHTML="";
-        pianoContainer.appendChild(svg);
-      }
-
-      function renderPiano(){
-        var w = pianoContainer.clientWidth || 520;
-        var h = 160;
-        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-        svg.setAttribute("viewBox","0 0 "+w+" "+h);
-        svg.setAttribute("width","100%");
-        svg.setAttribute("height","auto");
-
-        var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
-        var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
-
-        // Layout refinado
-        var pad = 10;
-        var innerW = w - pad*2;
-        var whiteW = innerW / 7.2;  // un poco más angostas
+        var whiteW = innerW / 7.2;
         var whiteH = h - pad*2;
         var blackW = whiteW * 0.58;
         var blackH = whiteH * 0.58;
-        var blackShift = whiteW * 0.74; // centradas entre blancas
+        var blackShift = whiteW * 0.74;
 
-        // Escala actual
         var scale = SCALES[state.scaleName];
         var rootIdx = noteIndex(state.root);
         var inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
 
         pianoCaption.textContent = state.root + " " + state.scaleName;
 
-        // --- Blancas ---
+        // helper to attach play
+        function attachPlay(el, name, octave){
+          el.style.cursor='pointer';
+          el.addEventListener('pointerdown', function(){
+            if(!audioEnableBtn.disabled){ AudioEngine.start(); audioEnableBtn.textContent='🔊 Sound on'; audioEnableBtn.disabled=true; }
+            AudioEngine.playNote(name, octave, {dur:0.5});
+          }, {passive:true});
+        }
+
+        // --- White keys ---
         WHITE_PC.forEach(function(pc,i){
           var x = pad + i*whiteW;
           var rect = document.createElementNS(svg.namespaceURI,"rect");
@@ -614,7 +532,7 @@
           rect.setAttribute("rx","4");
           svg.appendChild(rect);
 
-          // Etiquetas
+          // labels
           var label = document.createElementNS(svg.namespaceURI,"text");
           label.setAttribute("x", x + whiteW/2);
           label.setAttribute("y", pad + whiteH - 8);
@@ -624,7 +542,7 @@
           label.textContent = WHITE[i];
           svg.appendChild(label);
 
-          // Círculos de escala (más abajo para no chocar con negras)
+          // highlight if in scale
           if (inScaleSet.has(pc)){
             var cx = x + whiteW/2;
             var cy = pad + whiteH * 0.75;
@@ -635,14 +553,15 @@
             circle.setAttribute("stroke",ink);
             circle.setAttribute("stroke-width","2");
             circle.setAttribute("fill","none");
-            if (pc === rootIdx){
-              circle.setAttribute("fill",ink);
-            }
+            if (pc === rootIdx){ circle.setAttribute("fill",ink); }
             svg.appendChild(circle);
           }
+
+          // Click plays C4..B4
+          attachPlay(rect, WHITE[i], 4);
         });
 
-        // --- Negras ---
+        // --- Black keys ---
         BLACK_PC.forEach(function(pc,j){
           var afterWhite = BLACK_AT[j];
           var xLeft = pad + afterWhite*whiteW;
@@ -659,7 +578,6 @@
           rect.setAttribute("stroke-width","1");
           svg.appendChild(rect);
 
-          // Círculos sobre negras (centrados)
           if (inScaleSet.has(pc)){
             var cx = x + blackW/2;
             var cy = y + blackH * 0.55;
@@ -670,11 +588,12 @@
             circ.setAttribute("stroke",paper);
             circ.setAttribute("stroke-width","2");
             circ.setAttribute("fill","none");
-            if (pc === rootIdx){
-              circ.setAttribute("fill",paper);
-            }
+            if (pc === rootIdx){ circ.setAttribute("fill",paper); }
             svg.appendChild(circ);
           }
+
+          // Click plays C#4..A#4
+          attachPlay(rect, BLACK_NAMES[j], 4);
         });
 
         pianoContainer.innerHTML="";
@@ -689,14 +608,23 @@
         var n = Math.max(3, Math.min(10, parseInt(stringCountInput.value || 6, 10)));
         state.strings = n; ensureTuningLen(n); save(); renderTuningEditor(); renderBoard();
       });
+      waveSel.addEventListener('change', function(){ state.wave=waveSel.value; save(); AudioEngine.setWave(state.wave); });
+      volSlider.addEventListener('input', function(){ state.volume=parseFloat(volSlider.value); save(); AudioEngine.setVolume(state.volume); });
 
       // ------- Init -------
+      document.getElementById('y').textContent = new Date().getFullYear();
+      fillSelect(rootSel, NOTES_SHARP); // ensure
       renderTuningEditor();
       renderBoard();
       rootSel.value=state.root; scaleSel.value=state.scaleName; labelsSel.value=state.labelMode;
 
       // Keep piano crisp on resize
       var rT; window.addEventListener('resize', function(){ clearTimeout(rT); rT=setTimeout(renderPiano, 120); });
+
+      // Accessibility: allow space to click enable
+      window.addEventListener('keydown', function(e){
+        if((e.key==='AudioVolumeUp'||e.key===' ') && !audioEnableBtn.disabled){ audioEnableBtn.click(); }
+      });
     })();
   </script>
 </body>
