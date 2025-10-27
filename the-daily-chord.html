@@ -10,124 +10,70 @@
   <style>
     /* ---- Shared palette & rhythm (matches Scales/Chords) ---- */
     :root{
-      --paper:#f5f1e8;      /* paper bg */
-      --ink:#2f2a1e;        /* main text */
-      --muted:#6b6253;      /* secondary text */
-      --link:#2d5842;       /* links */
-      --link-visited:#514f7a;
-      --accent:#a08a63;     /* borders */
-      --rule:#d8d2c2;       /* inner lines */
-      --accent-soft:#999;   /* soft markers */
-      --maxw:42rem;         /* reading width */
-      --radius:14px;
-      --lh:1.6;
-      --fs-base:18px;
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+      --link:#2d5842; --link-visited:#514f7a;
+      --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
+      --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
     }
     html.theme-dark{
-      --paper:#10110f;
-      --ink:#dbd6c9;
-      --muted:#a39c8c;
-      --link:#a9d0b8;
-      --link-visited:#c0b8e0;
-      --accent:#2a2b27;
-      --rule:#2a2b27;
-      --accent-soft:#7f7a6b;
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
     }
-
     html{ font-size:var(--fs-base); }
     body{
-      margin:0; padding:0;
-      color:var(--ink); background:var(--paper);
-      line-height:var(--lh);
+      margin:0; padding:0; color:var(--ink); background:var(--paper); line-height:var(--lh);
       font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
     }
-
-    /* subtle paper texture */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
         radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
         radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
-      background-size:3px 3px, 3px 3px;
-      mix-blend-mode:multiply;
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
     }
-
     main{ max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
-
-    /* topbar + breadcrumb matches Scales/Chords */
     .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
     nav.breadcrumb{ font-size:.95rem; }
-    nav.breadcrumb a{
-      color:var(--link); text-decoration:none; text-underline-offset:2px;
-    }
-
+    nav.breadcrumb a{ color:var(--link); text-decoration:none; text-underline-offset:2px; }
     h1{ margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem); }
     .subtitle{ color:var(--muted); font-size:.95rem; margin-bottom:.8rem; }
-
     .theme-toggle{
       border:1px solid var(--accent); background:transparent; color:var(--ink);
       border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
     }
-    .theme-toggle:focus-visible{
-      outline:2px dashed var(--accent); outline-offset:2px;
-    }
-
+    .theme-toggle:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
     hr{ border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5; }
 
-    /* panel styling */
-    details.panel{
-      border:1px solid var(--accent);
-      border-radius:.6rem;
-      background: rgba(255,255,255,0.6);
-    }
+    details.panel{ border:1px solid var(--accent); border-radius:.6rem; background: rgba(255,255,255,0.6); }
     html.theme-dark details.panel{ background: rgba(0,0,0,0.1); }
-    details.panel>summary{
-      cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);
-    }
+    details.panel>summary{ cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink); }
     details.panel>summary::-webkit-details-marker{ display:none; }
     details.panel .panel-body{ padding:.6rem .8rem .9rem; }
 
-    /* compact controls (same grid as other pages) */
-    .controls{
-      display:grid; gap:8px; align-items:center;
-      grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
-      margin-bottom:8px;
-    }
+    .controls{ display:grid; gap:8px; align-items:center; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); margin-bottom:8px; }
     .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     label{ font-size:12px; opacity:.9; }
     button, input[type="date"]{
       appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
-      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
-      outline:none;
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0; outline:none;
     }
     button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
-    button:focus-visible, input[type="date"]:focus-visible{
-      outline:2px dashed var(--accent); outline-offset:2px;
-    }
+    button:focus-visible, input[type="date"]:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
 
-    /* result block */
-    .result{
-      border:1px solid var(--accent); border-radius:.6rem; padding:.9rem .9rem 1rem; background:transparent; margin-top:12px;
-    }
+    .result{ border:1px solid var(--accent); border-radius:.6rem; padding:.9rem .9rem 1rem; background:transparent; margin-top:12px; }
     .kicker{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
-    .big{
-      font-weight:700; letter-spacing:.02em;
-      font-size:clamp(2.2rem,6vw,3rem); line-height:1.08; margin:.2rem 0 .1rem;
-    }
+    .big{ font-weight:700; letter-spacing:.02em; font-size:clamp(2.2rem,6vw,3rem); line-height:1.08; margin:.2rem 0 .1rem; }
     .meta{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.35rem 0; }
     .tag{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .55rem; font-size:.8rem; color:var(--muted); }
     .mood{ color:var(--muted); font-size:.95rem; margin-top:.2rem; }
 
-    /* fretboard card */
     .fretcard{ border:1px solid var(--accent); border-radius:.6rem; padding:.9rem; background:transparent; margin-top:12px; }
     #fretboard{ overflow:auto; text-align:center; }
     .fret svg{ max-width:100%; height:auto; display:block; }
-
     .legend{ color:var(--muted); font-size:.8rem; margin-top:.5rem; text-align:center; }
 
-    /* mini SVG palette coherence (same fixes used in Chords) */
     .fb-grid line{ stroke:var(--rule); stroke-width:1; }
     .fb-grid .nut{ stroke:var(--ink); stroke-width:3; }
     .fb-grid text { fill: var(--muted); }
@@ -136,23 +82,12 @@
     .fb-note circle{ fill:var(--ink); }
     .fb-note text{ font-size:10px; font-weight:700; fill:var(--paper); }
 
-    footer{
-      margin-top:2.5rem; font-size:.95rem; color:var(--muted);
-      display:flex; gap:.75rem; align-items:center; flex-wrap:wrap
-    }
+    footer{ margin-top:2.5rem; font-size:.95rem; color:var(--muted); display:flex; gap:.75rem; align-items:center; flex-wrap:wrap }
     .btn{border:1px solid var(--accent); padding:.5rem .8rem; border-radius:.35rem; text-decoration:none}
     .note{width:100%; color:var(--muted); font-style:italic; margin-top:.35rem}
 
-    /* Hover underline animation (like index/Scales) */
     @media (prefers-reduced-motion:no-preference){
-      a{
-        position:relative;
-        background-image:linear-gradient(currentColor,currentColor);
-        background-position:0 100%;
-        background-repeat:no-repeat;
-        background-size:0% 1px;
-        transition:background-size .25s ease, color .2s ease;
-      }
+      a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; }
       a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }
     }
   </style>
@@ -199,7 +134,6 @@
     <section class="fretcard" aria-label="Fretboard for this chord">
       <div class="kicker">Fretboard</div>
       <div id="fretboard"></div>
-      <!-- <div class="legend">Strings (6→1) on the left · Fret numbers above. R = root · 3/b3 · 5 · 7/b7.</div> -->
     </section>
 
     <footer>
@@ -209,7 +143,7 @@
     </footer>
   </main>
 
-  <!-- Theme toggle (same logic as other pages) -->
+  <!-- Theme toggle -->
   <script>
     (function () {
       const KEY = 'theme-preference';
@@ -227,55 +161,137 @@
         current = current === 'dark' ? 'light' : 'dark';
         localStorage.setItem(KEY, current); apply(current);
       });
+      document.getElementById('y').textContent = new Date().getFullYear();
     })();
   </script>
 
-  <!-- Oracle logic + fretboard (American notation, robust root, dark-friendly SVG) -->
+  <!-- Oracle logic + fretboard (American notation, deterministic PRNG) -->
   <script>
-    // Day-of-year
-    function dayOfYear(d){ const s = new Date(d.getFullYear(),0,1); return Math.floor((d - s)/86400000) + 1; }
+    /* ========= Utilities ========= */
 
-    // Family by month
-    function monthFamily(m){
-      if (m>=1 && m<=3) return 'major';
-      if (m>=4 && m<=6) return 'minor';
-      if (m>=7 && m<=9) return 'diminished';
-      return 'dominant';
+    // Day-of-year (1..366)
+    function dayOfYear(d){ const s = new Date(d.getFullYear(),0,1); s.setHours(0,0,0,0); const di = Math.floor((d - s)/86400000)+1; return di; }
+
+    // ISO week number (1..53)
+    function isoWeek(d){
+      const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = dt.getUTCDay() || 7;
+      dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+      return Math.ceil((((dt - yearStart) / 86400000) + 1) / 7);
     }
 
-    // Root by weekday (0=Sun..6=Sat) — locale-agnostic
-    const ROOTS_BY_DAY = ["C","D","E","F","G","A","B"];
+    // Approx moon phase (0..1) using simple synodic cycle
+    function moonPhase(d){
+      // base reference new moon: 2000-01-06 18:14 UTC (JDN 2451550.1)
+      const msPerDay = 86400000;
+      const synodic = 29.530588853; // days
+      const jdn = (d.getTime()/msPerDay) + 2440587.5;
+      const age = (jdn - 2451550.1) / synodic;
+      const frac = age - Math.floor(age);
+      return frac; // 0=new, 0.5=full
+    }
 
-    // Pitch classes & helpers
+    // Fast 32-bit string hash (xorshift-like mix)
+    function hash32(str){
+      let h = 2166136261 >>> 0;
+      for(let i=0;i<str.length;i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+        h ^= h >>> 13; h = (h ^ (h << 7)) >>> 0;
+      }
+      // Final avalanche
+      h ^= h >>> 16; h = Math.imul(h, 2246822507);
+      h ^= h >>> 13; h = Math.imul(h, 3266489909);
+      h ^= h >>> 16;
+      return h >>> 0;
+    }
+
+    // Mulberry32 PRNG (deterministic for a seed)
+    function mulberry32(a) {
+      return function() {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        let t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+
+    function pickWeighted(rng, pairs){
+      // pairs: [{v, w}]
+      const sum = pairs.reduce((s,p)=>s+p.w,0);
+      let t = rng()*sum;
+      for(const p of pairs){ if((t-=p.w) <= 0) return p.v; }
+      return pairs[pairs.length-1].v;
+    }
+
+    /* ========= Musical data ========= */
+
     const NOTE_PC = { "C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11 };
+    const PC_TO_NAME = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; // sharps only for consistency
     const STD_TUNING = [40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 (low→high)
     const STRING_NAMES = ['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
     const DEG_LABELS = {0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
 
-    function qualityToIntervals(f){
-      if(f==='major') return [0,4,7];
-      if(f==='minor') return [0,3,7];
-      if(f==='diminished') return [0,3,6];
-      return [0,4,7,10]; // dominant -> 7
-    }
-    function familyToSymbolSuffix(f){
-      if(f==='major') return '';
-      if(f==='minor') return 'm';
-      if(f==='diminished') return 'dim';
-      return '7';
+    // Extended qualities -> chord tone intervals (mod 12)
+    const QUALITIES = {
+      'major':    { intervals:[0,4,7],        symbol:'' },
+      'minor':    { intervals:[0,3,7],        symbol:'m' },
+      'diminished':{ intervals:[0,3,6],       symbol:'dim' },
+      'dom7':     { intervals:[0,4,7,10],     symbol:'7' },
+      'maj7':     { intervals:[0,4,7,11],     symbol:'maj7' },
+      'm7':       { intervals:[0,3,7,10],     symbol:'m7' },
+      'm7b5':     { intervals:[0,3,6,10],     symbol:'m7♭5' },
+      'aug':      { intervals:[0,4,8],        symbol:'aug' },
+      'sus2':     { intervals:[0,2,7],        symbol:'sus2' },
+      'sus4':     { intervals:[0,5,7],        symbol:'sus4' },
+      'add9':     { intervals:[0,4,7,14],     symbol:'add9' },   // 14 ≡ 2
+      'six':      { intervals:[0,4,7,9],      symbol:'6' },
+      'sixNine':  { intervals:[0,4,7,9,14],   symbol:'6/9' }      // 14 ≡ 2
+    };
+
+    // Season-weighted palette (still pseudo-randomized per date)
+    function qualityForDate(rng, month){
+      const isWinter = (month===12 || month<=2);
+      const isSpring = (month>=3 && month<=5);
+      const isSummer = (month>=6 && month<=8);
+      const isAutumn = (month>=9 && month<=11);
+
+      const base = [
+        {v:'major', w: 1.2}, {v:'minor', w: 1.2}, {v:'dom7', w:1.0}, {v:'maj7', w:0.8}, {v:'m7', w:0.9},
+        {v:'m7b5', w:0.4}, {v:'diminished', w:0.4}, {v:'aug', w:0.35},
+        {v:'sus2', w:0.5}, {v:'sus4', w:0.5}, {v:'add9', w:0.6}, {v:'six', w:0.6}, {v:'sixNine', w:0.55}
+      ];
+
+      // Gentle seasonal biases
+      if(isWinter){ base.find(p=>p.v==='maj7').w += .25; base.find(p=>p.v==='m7b5').w += .15; }
+      if(isSpring){ base.find(p=>p.v==='add9').w += .25; base.find(p=>p.v==='sixNine').w += .2; }
+      if(isSummer){ base.find(p=>p.v==='dom7').w += .25; base.find(p=>p.v==='aug').w += .2; }
+      if(isAutumn){ base.find(p=>p.v==='minor').w += .25; base.find(p=>p.v==='sus4').w += .2; }
+
+      return pickWeighted(rng, base);
     }
 
-    // Simple closed-position pick (1 note per string within 5-fret window)
-    function pickVoicing(pcRoot, intervals, windowStart){
+    /* ========= Voicing / Fretboard ========= */
+
+    // Closed-ish position: 1 note por cuerda en ventana dada
+    function pickVoicing(pcRoot, intervals, windowStart, inversionBias){
       const win = 5, out = [];
+      // Reordenamos un poco los intervalos para empujar una "inversión" deseada
+      const ints = intervals.slice();
+      if (inversionBias && ints.length > 1){
+        const rot = Math.floor(inversionBias * ints.length) % ints.length;
+        for(let i=0;i<rot;i++){ ints.push(ints.shift()); }
+      }
+
       for(let s=0; s<STD_TUNING.length; s++){
         const midiOpen = STD_TUNING[s];
         let chosen = null, deg = null;
         for(let f=windowStart; f<windowStart+win && f<=20; f++){
           const pc = (midiOpen + f) % 12;
-          for(let k=0; k<intervals.length; k++){
-            if (pc === (pcRoot + (intervals[k]%12) + 12) % 12){
-              chosen = { string:s, fret:f }; deg = (intervals[k]%12); break;
+          for(let k=0; k<ints.length; k++){
+            if (pc === (pcRoot + (ints[k]%12) + 12) % 12){
+              chosen = { string:s, fret:f }; deg = (ints[k]%12); break;
             }
           }
           if(chosen) break;
@@ -285,12 +301,13 @@
       return out;
     }
 
-    // Fretboard render (dark-mode friendly)
-    function renderFretboard(rootName, family, nDay){
+    function renderFretboard(rootName, qualityKey, seedMix){
       const pcRoot = NOTE_PC[rootName] || 0;
-      const intervals = qualityToIntervals(family);
-      const start = (nDay % 12) + 1;  // slide window by day
-      const voicing = pickVoicing(pcRoot, intervals, start);
+      const intervals = QUALITIES[qualityKey].intervals;
+      // ventana semialeatoria estable (2..14)
+      const start = 2 + Math.floor(seedMix * 13);
+      const inversionBias = (seedMix * 1.618) % 1; // empujoncito áureo
+      const voicing = pickVoicing(pcRoot, intervals, start, inversionBias);
 
       const frets = 5, startFret = start, strings = 6, w = frets*44 + 100, h = strings*26 + 70;
       const x0 = 70, y0 = 40, dx = 44, dy = 26;
@@ -309,7 +326,6 @@
         const isNut = (startFret===0 && f===1);
         g.push(`<line x1="${x}" y1="${(y0 - dy/2)}" x2="${x}" y2="${(y0 + (strings-1)*dy + dy/2)}" class="${isNut?'nut':''}" />`);
       }
-      // fret numbers
       for(let c=0; c<frets; c++){
         const x = x0 + (c+0.5)*dx;
         const label = startFret + c;
@@ -332,7 +348,8 @@
       document.getElementById('fretboard').innerHTML = g.join('');
     }
 
-    // UI refs
+    /* ========= Oracle ========= */
+
     const $ = s => document.querySelector(s);
     const dateLabel = $('#dateLabel'), chordText = $('#chordText'), metaTags = $('#metaTags'), moodLine = $('#moodLine'), inputDate = $('#pickDate');
 
@@ -346,38 +363,86 @@
       });
     }
     function formatDateLong(d){
-      // English long date; adjusts to user's locale time zone automatically
       return d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     }
 
-    function computeForDate(d){
+    function seedForDate(d){
+      // Mezcla estable de varias "fuentes" temporales + luna
       const n = dayOfYear(d);
-      const root = ROOTS_BY_DAY[d.getDay()];
-      const fam = monthFamily(d.getMonth()+1);
-      const symbol = root + familyToSymbolSuffix(fam);
+      const wk = isoWeek(d);
+      const moon = moonPhase(d);
+      const tz = -d.getTimezoneOffset(); // minutos (para anclar al huso del usuario)
+      const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}|doy=${n}|wk=${wk}|moon=${moon.toFixed(5)}|tz=${tz}`;
+      return hash32(key);
+    }
 
-      // paint UI
+    function computeForDate(d){
+      // RNG determinístico por fecha
+      const seed = seedForDate(d);
+      const rng = mulberry32(seed);
+
+      // Tónica: arranca en una permutación pseudoaleatoria de 12 PCs
+      // Le metemos un corrimiento dependiente de la luna para más "vida"
+      const basePc = Math.floor(rng()*12);
+      const moonShift = Math.floor(moonPhase(d)*12) % 12;
+      const pcRoot = (basePc + moonShift) % 12;
+      const root = PC_TO_NAME[pcRoot];
+
+      // Calidad con pesos suaves por estación
+      const qualKey = qualityForDate(rng, d.getMonth()+1);
+      const qual = QUALITIES[qualKey];
+
+      // Símbolo
+      const symbol = root + qual.symbol;
+
+      // Mood generativo (energía de 0..1)
+      const energy = (rng()*0.5 + moonPhase(d)*0.5);
+      const mood = (function(){
+        if(qualKey==='diminished' || qualKey==='m7b5') return 'Veins of tension, a door half-open.';
+        if(qualKey==='aug') return 'Edges sharpened, horizons bending.';
+        if(qualKey==='maj7') return 'Clear air, long light, quiet breadth.';
+        if(qualKey==='m7') return 'Urban dusk—glow, grain, gravity.';
+        if(qualKey==='dom7') return 'Kinetic pull: orbit stable, burn inside.';
+        if(qualKey==='sixNine' || qualKey==='add9') return 'Open windows, moving lines, present future.';
+        if(qualKey==='sus2' || qualKey==='sus4') return 'Suspended thought, breath before the word.';
+        if(qualKey==='six') return 'Warm tilt toward motion.';
+        if(qualKey==='minor') return 'Inner frame, focused shadow.';
+        if(qualKey==='major') return 'Contour defined, space unfolding.';
+        return energy>0.5 ? 'Friction as compass.' : 'Silence is voltage.';
+      })();
+
+      // Metadatos
+      const doy = dayOfYear(d);
+      const invIndex = Math.floor(rng()*4); // 0..3 pseudo "inversión"
+      const windowSeed = rng();              // para ventana/inversión en diapasón
+
+      // Pintar UI
       dateLabel.textContent = formatDateLong(d);
       chordText.textContent = symbol;
-      const famLabel = ({major:'major', minor:'minor', diminished:'diminished', dominant:'dominant'}[fam]);
-      tagsRender([`Day ${n}`, `Family: ${famLabel}`]);
-      moodLine.textContent = ({
-        major:'Clarity and expansion.',
-        minor:'Introspection and inner movement.',
-        diminished:'Mystery and tension.',
-        dominant:'Decision and drive. Tension ready to resolve.'
-      }[fam]);
 
-      // fretboard
-      renderFretboard(root, fam, n);
+      const famLabel = qualKey.replace('sixNine','6/9').replace('six','6');
+      const tagSeason = ['Winter','Spring','Summer','Autumn'][Math.floor((d.getMonth()+1-1)/3)] || '';
+      tagsRender([
+        `Day ${doy}`,
+        `Quality: ${famLabel}`,
+        `Inv: ${['R','1st','2nd','3rd'][invIndex] || 'R'}`,
+        tagSeason
+      ]);
 
-      // external event hook (if needed)
+      moodLine.textContent = mood;
+
+      // Fretboard
+      renderFretboard(root, qualKey, windowSeed);
+
+      // Hook
       window.dispatchEvent(new CustomEvent('oracle-chord', { detail:{
-        date: d.toISOString().slice(0,10), dayOfYear: n, root, family: fam, symbol
+        date: d.toISOString().slice(0,10),
+        dayOfYear: doy, root, quality: qualKey, symbol
       }}));
     }
 
-    // Controls
+    /* ========= Controls ========= */
+
     document.getElementById('btnToday').addEventListener('click', () => computeForDate(new Date()));
     document.getElementById('btnRandom').addEventListener('click', () => {
       const y = (new Date()).getFullYear();
@@ -395,7 +460,7 @@
     });
     document.getElementById('btnShare').addEventListener('click', () => {
       const title = 'The Daily Chord';
-      const text = chordText.textContent + ' · ' + dateLabel.textContent;
+      const text = document.getElementById('chordText').textContent + ' · ' + document.getElementById('dateLabel').textContent;
       if(navigator.share){
         navigator.share({ title, text }).catch(() => {});
       }else{
@@ -412,7 +477,7 @@
         inputDate.value = t.toISOString().slice(0,10);
         computeForDate(t);
       }catch(err){
-        chordText.textContent = '⚠️ Initialization error';
+        document.getElementById('chordText').textContent = '⚠️ Initialization error';
         console.error(err);
       }
     })();
