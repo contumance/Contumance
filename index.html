@@ -6,6 +6,7 @@
   <title>Re:sonance — A quiet selection for curious hands.</title>
   <meta name="description" content="Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
+
   <style>
     :root{
       --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
@@ -22,7 +23,6 @@
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
 
-    /* textura sutil tipo papel */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
@@ -80,7 +80,7 @@
       margin-top:2.5rem; font-size:.95rem; color:var(--muted);
       display:flex; gap:.75rem; align-items:center; flex-wrap:wrap
     }
-    .btn{border:1px solid var(--accent); padding:.5rem .8rem; border-radius:.35rem; text-decoration:none}
+
     .note{width:100%; color:var(--muted); font-style:italic; margin-top:.35rem}
 
     @media (prefers-reduced-motion:no-preference){
@@ -93,6 +93,7 @@
     }
   </style>
 </head>
+
 <body>
   <main>
     <header class="header">
@@ -109,7 +110,6 @@
       <h2>Collection</h2>
       <ul class="index">
 
-        <!-- SCALES -->
         <li>
           <a class="item" href="the-scales-book.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
@@ -123,7 +123,6 @@
           </a>
         </li>
 
-        <!-- CHORDS -->
         <li>
           <a class="item" href="the-chords-book.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -137,7 +136,6 @@
           </a>
         </li>
 
-        <!-- DAILY CHORD / APP -->
         <li>
           <a class="item" href="the-daily-chord.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -154,33 +152,83 @@
     </nav>
 
     <footer>
-      <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="Contumance" data-color="#f5f1e8" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#FFDD00" ></script>
+      <div id="bmc-wrapper" aria-label="Buy Me a Coffee button"></div>
       <span class="note">Echoes fuel the next vibration.</span>
       <span>© <span id="y"></span> Re:sonance</span>
     </footer>
   </main>
 
   <script>
-    (function(){
-      const KEY='theme-preference';
-      const root=document.documentElement;
-      const btn=document.getElementById('themeToggle');
+  (function(){
+    const KEY='theme-preference';
+    const root=document.documentElement;
+    const btn=document.getElementById('themeToggle');
 
-      function setIcon(mode){
-        btn.textContent = mode==='dark' ? '☀︎' : '☾';
-        btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
-        btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
-      }
-      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
-      function getPreferred(){
-        const saved=localStorage.getItem(KEY);
-        if(saved==='light' || saved==='dark') return saved;
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
-      let current=getPreferred(); apply(current);
-      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); apply(current); });
-      document.getElementById('y').textContent = new Date().getFullYear();
-    })();
+    function setIcon(mode){
+      btn.textContent = mode==='dark' ? '☀︎' : '☾';
+      btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+
+    function getPreferred(){
+      const saved=localStorage.getItem(KEY);
+      if(saved==='light' || saved==='dark') return saved;
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+
+    // -------- Adaptación Buy Me a Coffee (colores dinámicos) --------
+    function cssVar(name){
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+    function toHex(color){
+      if(!color) return '#000000';
+      if(color.startsWith('#')) return color;
+      const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+      if(!m) return '#000000';
+      const [r,g,b] = m.slice(1,4).map(n=>parseInt(n,10));
+      return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+    }
+
+    function renderBmcButton(){
+      const wrap = document.getElementById('bmc-wrapper');
+      if(!wrap) return;
+      wrap.innerHTML = '';
+
+      const paper = toHex(cssVar('--paper'));
+      const ink = toHex(cssVar('--ink'));
+      const accent = toHex(cssVar('--accent'));
+      const link = toHex(cssVar('--link'));
+
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+      s.type = 'text/javascript';
+      s.dataset.name = 'bmc-button';
+      s.dataset.slug = 'Contumance';
+      s.dataset.emoji = '';
+      s.dataset.font = 'Cookie';
+      s.dataset.text = 'Buy me a coffee';
+      s.dataset.color = paper;
+      s.dataset.outlineColor = accent;
+      s.dataset.fontColor = ink;
+      s.dataset.coffeeColor = link;
+      wrap.appendChild(s);
+    }
+    // ---------------------------------------------------------------
+
+    let current=getPreferred(); 
+    apply(current);
+    renderBmcButton();
+
+    btn.addEventListener('click', ()=>{
+      current = current==='dark' ? 'light' : 'dark';
+      localStorage.setItem(KEY,current);
+      apply(current);
+      renderBmcButton(); // actualiza colores al cambiar tema
+    });
+
+    document.getElementById('y').textContent = new Date().getFullYear();
+  })();
   </script>
 </body>
 </html>
