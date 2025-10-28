@@ -107,13 +107,8 @@
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="index.html">← Back to index</a>
       </nav>
-      
-         
       <div class="row" style="gap:6px;">
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
-        
-        <!-- Sound controls -->
-        <button id="audioEnable" class="theme-toggle" title="Enable sound">🔈 Enable sound</button>
       </div>
     </div>
 
@@ -253,7 +248,6 @@
       var applyStringsBtn=document.getElementById("applyStrings");
       var pianoContainer=document.getElementById("pianoContainer");
       var pianoCaption=document.getElementById("pianoCaption");
-      var audioEnableBtn=document.getElementById("audioEnable");
       var waveSel=document.getElementById("wave");
       var volSlider=document.getElementById("volume");
 
@@ -281,7 +275,6 @@
       var AudioEngine = (function(){
         let ctx=null, master=null;
         let started=false;
-        const A4=440; // reference
         function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
         function noteToMidi(name, octave){
           const pc=noteIndex(name); if(pc<0) return 60; // fallback C4
@@ -301,7 +294,8 @@
         let currentWave = state.wave || "sine";
 
         function playFreq(freq, opts){
-          if(!started) return;
+          // Garantiza inicio en el primer gesto de usuario (pointer/keydown)
+          if(!started) start();
           resumeMaybe();
           const t=ctx.currentTime;
           const o=ctx.createOscillator();
@@ -335,13 +329,6 @@
 
         return {start, setVolume, setWave, playNote, noteToMidi};
       })();
-
-      // Unlock on button (and any first interaction)
-      audioEnableBtn.addEventListener('click', function(){
-        AudioEngine.start();
-        audioEnableBtn.textContent = '🔊 Sound on';
-        audioEnableBtn.disabled = true;
-      }, {passive:true});
 
       // ------- Tuning editor (now with octave) -------
       function renderTuningEditor(){
@@ -424,12 +411,9 @@
               var m=document.createElement('div'); m.className='marker';
               var dot=document.createElement('div'); dot.className='dot';
               dot.dataset.note=NOTES_SHARP[semitone];
-              // compute absolute octave by how many wraps from open
               var midiOpen = AudioEngine.noteToMidi(openName, openOct);
               var midiFret = midiOpen + f;
-              // back out octave for label (C-based octave)
-              var pc = (midiFret % 12 + 12) % 12;
-              var oct = Math.floor(midiFret/12) - 1; // inverse of (oct+1)*12
+              var oct = Math.floor(midiFret/12) - 1;
               dot.dataset.oct=oct;
               if(((semitone-rootIdx+12)%12)===0) dot.classList.add('root');
               var label="";
@@ -455,13 +439,8 @@
 
         // attach play handlers
         board.querySelectorAll('.dot').forEach(function(dot){
-          dot.addEventListener('pointerdown', function(e){
-            if(AudioEngine){ 
-              if(!audioEnableBtn.disabled) { /* auto-start on first touch if user taps a note */
-                AudioEngine.start(); audioEnableBtn.textContent='🔊 Sound on'; audioEnableBtn.disabled=true;
-              }
-              AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
-            }
+          dot.addEventListener('pointerdown', function(){
+            AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
             dot.classList.add('hit');
             setTimeout(()=>dot.classList.remove('hit'), 160);
           }, {passive:true});
@@ -512,11 +491,9 @@
 
         pianoCaption.textContent = state.root + " " + state.scaleName;
 
-        // helper to attach play
         function attachPlay(el, name, octave){
           el.style.cursor='pointer';
           el.addEventListener('pointerdown', function(){
-            if(!audioEnableBtn.disabled){ AudioEngine.start(); audioEnableBtn.textContent='🔊 Sound on'; audioEnableBtn.disabled=true; }
             AudioEngine.playNote(name, octave, {dur:0.5});
           }, {passive:true});
         }
@@ -535,7 +512,6 @@
           rect.setAttribute("rx","4");
           svg.appendChild(rect);
 
-          // labels
           var label = document.createElementNS(svg.namespaceURI,"text");
           label.setAttribute("x", x + whiteW/2);
           label.setAttribute("y", pad + whiteH - 8);
@@ -545,7 +521,6 @@
           label.textContent = WHITE[i];
           svg.appendChild(label);
 
-          // highlight if in scale
           if (inScaleSet.has(pc)){
             var cx = x + whiteW/2;
             var cy = pad + whiteH * 0.75;
@@ -560,7 +535,6 @@
             svg.appendChild(circle);
           }
 
-          // Click plays C4..B4
           attachPlay(rect, WHITE[i], 4);
         });
 
@@ -581,7 +555,7 @@
           rect.setAttribute("stroke-width","1");
           svg.appendChild(rect);
 
-          if (inScaleSet.has(pc)){
+        if (inScaleSet.has(pc)){
             var cx = x + blackW/2;
             var cy = y + blackH * 0.55;
             var circ = document.createElementNS(svg.namespaceURI,"circle");
@@ -595,7 +569,6 @@
             svg.appendChild(circ);
           }
 
-          // Click plays C#4..A#4
           attachPlay(rect, BLACK_NAMES[j], 4);
         });
 
@@ -623,11 +596,6 @@
 
       // Keep piano crisp on resize
       var rT; window.addEventListener('resize', function(){ clearTimeout(rT); rT=setTimeout(renderPiano, 120); });
-
-      // Accessibility: allow space to click enable
-      window.addEventListener('keydown', function(e){
-        if((e.key==='AudioVolumeUp'||e.key===' ') && !audioEnableBtn.disabled){ audioEnableBtn.click(); }
-      });
     })();
   </script>
 </body>
