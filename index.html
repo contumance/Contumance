@@ -23,6 +23,7 @@
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
 
+    /* textura sutil tipo papel */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
@@ -81,6 +82,22 @@
       display:flex; gap:.75rem; align-items:center; flex-wrap:wrap
     }
 
+    /* Fallback minimal por si el script no carga */
+    .bmc-fallback{
+      border:1px solid var(--accent);
+      padding:.55rem .85rem;
+      border-radius:.4rem;
+      text-decoration:none;
+      color:var(--ink);
+      background:transparent;
+      display:inline-flex; align-items:center; gap:.5rem;
+      line-height:1;
+    }
+    .bmc-fallback:hover, .bmc-fallback:focus-visible{
+      outline:2px dashed var(--accent); outline-offset:2px;
+      text-decoration:none;
+    }
+
     .note{width:100%; color:var(--muted); font-style:italic; margin-top:.35rem}
 
     @media (prefers-reduced-motion:no-preference){
@@ -110,6 +127,7 @@
       <h2>Collection</h2>
       <ul class="index">
 
+        <!-- SCALES -->
         <li>
           <a class="item" href="the-scales-book.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
@@ -123,6 +141,7 @@
           </a>
         </li>
 
+        <!-- CHORDS -->
         <li>
           <a class="item" href="the-chords-book.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -136,6 +155,7 @@
           </a>
         </li>
 
+        <!-- DAILY CHORD / APP -->
         <li>
           <a class="item" href="the-daily-chord.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -152,7 +172,7 @@
     </nav>
 
     <footer>
-      <div id="bmc-wrapper" aria-label="Buy Me a Coffee button"></div>
+      <div id="bmc-wrapper" aria-live="polite" aria-label="Buy Me a Coffee button area"></div>
       <span class="note">Echoes fuel the next vibration.</span>
       <span>© <span id="y"></span> Re:sonance</span>
     </footer>
@@ -177,7 +197,10 @@
       return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
     }
 
-    // -------- Adaptación Buy Me a Coffee (colores dinámicos) --------
+    /* ---------------- BMC: integración robusta ---------------- */
+    const BMC_SLUG = 'contumance'; // asegúrate que coincida con tu slug real (en minúsculas)
+    const BMC_SRC  = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+
     function cssVar(name){
       return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
@@ -186,47 +209,102 @@
       if(color.startsWith('#')) return color;
       const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
       if(!m) return '#000000';
-      const [r,g,b] = m.slice(1,4).map(n=>parseInt(n,10));
+      const [r,g,b] = m.slice(1,4).map(n=>Math.max(0,Math.min(255,parseInt(n,10))));
       return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
     }
 
-    function renderBmcButton(){
-      const wrap = document.getElementById('bmc-wrapper');
-      if(!wrap) return;
-      wrap.innerHTML = '';
-
-      const paper = toHex(cssVar('--paper'));
-      const ink = toHex(cssVar('--ink'));
-      const accent = toHex(cssVar('--accent'));
-      const link = toHex(cssVar('--link'));
-
+    function makeScript({paper, ink, accent, link}){
       const s = document.createElement('script');
-      s.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
       s.type = 'text/javascript';
+      s.src  = BMC_SRC;
       s.dataset.name = 'bmc-button';
-      s.dataset.slug = 'Contumance';
-      s.dataset.emoji = '';
-      s.dataset.font = 'Cookie';
-      s.dataset.text = 'Buy me a coffee';
-      s.dataset.color = paper;
-      s.dataset.outlineColor = accent;
-      s.dataset.fontColor = ink;
-      s.dataset.coffeeColor = link;
-      wrap.appendChild(s);
+      s.dataset.slug = BMC_SLUG;
+      s.dataset.emoji = '';              // conserva el ícono oficial
+      s.dataset.font  = 'Cookie';
+      s.dataset.text  = 'Buy me a coffee';
+      s.dataset.color = paper;           // fondo
+      s.dataset.outlineColor = accent;   // borde
+      s.dataset.fontColor    = ink;      // texto/ícono
+      s.dataset.coffeeColor  = link;     // detalle del vasito
+      return s;
     }
-    // ---------------------------------------------------------------
 
-    let current=getPreferred(); 
+    function currentThemeColors(){
+      return {
+        paper: toHex(cssVar('--paper')),
+        ink:   toHex(cssVar('--ink')),
+        accent:toHex(cssVar('--accent')),
+        link:  toHex(cssVar('--link'))
+      };
+    }
+
+    function ensureWrapper(){
+      let wrap = document.getElementById('bmc-wrapper');
+      if(!wrap){
+        wrap = document.createElement('div');
+        wrap.id='bmc-wrapper';
+        document.body.appendChild(wrap);
+      }
+      return wrap;
+    }
+
+    function hasRendered(wrap){
+      // El widget oficial inyecta un <a> con clase "bmc-button"
+      return !!wrap.querySelector('a.bmc-button, a[href*="buymeacoffee.com/'+BMC_SLUG+'"]');
+    }
+
+    let retryCount = 0;
+    function renderBmcButton(){
+      const wrap = ensureWrapper();
+      wrap.innerHTML = ''; // limpia
+      const script = makeScript(currentThemeColors());
+      wrap.appendChild(script);
+
+      // Observa si aparece el botón
+      const start = performance.now();
+      const obs = new MutationObserver(()=>{
+        if(hasRendered(wrap)){
+          obs.disconnect();
+        }
+      });
+      obs.observe(wrap, {childList:true, subtree:true});
+
+      // Timeout + reintento exponencial
+      window.setTimeout(()=>{
+        if(!hasRendered(wrap)){
+          retryCount++;
+          if(retryCount <= 3){
+            // reintenta con backoff
+            renderBmcButton();
+          }else{
+            // fallback mínimo para no perder CTA
+            wrap.innerHTML = '';
+            const a = document.createElement('a');
+            a.className = 'bmc-fallback';
+            a.href = 'https://www.buymeacoffee.com/'+BMC_SLUG;
+            a.target = '_blank'; a.rel='noopener noreferrer';
+            a.textContent = 'Buy me a coffee';
+            wrap.appendChild(a);
+          }
+        }
+      }, Math.min(1600 * Math.pow(1.5, retryCount), 5000));
+    }
+    /* ----------------------------------------------------------- */
+
+    // Inicialización tema + BMC
+    let current=getPreferred();
     apply(current);
     renderBmcButton();
 
+    // Cambia tema + re-render del botón
     btn.addEventListener('click', ()=>{
       current = current==='dark' ? 'light' : 'dark';
       localStorage.setItem(KEY,current);
       apply(current);
-      renderBmcButton(); // actualiza colores al cambiar tema
+      renderBmcButton();
     });
 
+    // Año en footer
     document.getElementById('y').textContent = new Date().getFullYear();
   })();
   </script>
