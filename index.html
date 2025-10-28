@@ -93,47 +93,49 @@ footer{
   padding:1.5rem 0;
 }
 
-/* Botón adaptativo */
+/* Botón Buy Me a Coffee adaptado al tema */
 footer .btn{
   display:inline-flex;
   align-items:center;
   gap:.5rem;
   text-decoration:none;
-  color:var(--ink);                 /* texto e ícono */
-  background:color-mix(in oklab, var(--paper) 90%, var(--accent) 10%);
-  border:1px solid var(--accent);   /* borde */
+  border:1px solid var(--accent);
   border-radius:999px;
-  padding:.45rem .9rem;
+  padding:.45rem .95rem;
   font-size:.9rem;
-  box-shadow:var(--btn-shadow);
+  font-weight:500;
   transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
 }
 
-footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 25%, var(--paper) 75%);
-  filter:brightness(1.1);
-  transform:translateY(-1px);
+/* Modo claro */
+html:not(.theme-dark) footer .btn{
+  background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
+  color:var(--ink);
+}
+html:not(.theme-dark) footer .btn:hover{
+  background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
 }
 
-footer .btn:active{transform:translateY(0)}
-footer .btn .btn-icon{width:1.2rem;height:1.2rem;stroke:currentColor}
-
-/* Modo oscuro: inversión natural */
+/* Modo oscuro */
 html.theme-dark footer .btn{
-  background:color-mix(in oklab, var(--ink) 90%, var(--accent) 10%);
+  background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
   color:var(--paper);
-  border-color:var(--accent);
 }
 html.theme-dark footer .btn:hover{
-  background:color-mix(in oklab, var(--ink) 75%, var(--accent) 25%);
-  filter:brightness(1.15);
+  background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
 }
 
-/* Frase y byline */
+/* Ícono coherente con el color del texto */
+footer .btn .btn-icon{
+  width:1.2rem;
+  height:1.2rem;
+  stroke:currentColor;
+}
+
+/* Texto complementario */
 footer .note{font-size:.85rem;color:var(--muted)}
 footer .byline{font-size:.75rem;opacity:.7}
 footer .byline em{font-style:italic;letter-spacing:.02em}
-
 
     @media (prefers-reduced-motion:no-preference){
       a{position:relative; background-image:linear-gradient(currentColor, currentColor);
