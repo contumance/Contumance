@@ -317,10 +317,36 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
         if(arr.length<n){ while(arr.length<n) arr.push(fill); }
         else if(arr.length>n){ arr.splice(n); }
       }
-      function ensureTuningLen(n){
-        ensureLen(state.tuning, n, state.tuning[state.tuning.length-1]||"E");
-        ensureLen(state.octaves, n, 3);
-      }
+      // Reemplazar la función ensureTuningLen por esta
+function ensureTuningLen(n){
+  // Si tenemos que agregar cuerdas nuevas, las vamos bajando de a una cuarta (−5 st)
+  while(state.tuning.length < n){
+    const i = state.tuning.length;
+
+    // Tomamos como base la cuerda más grave actual
+    const prevNote = state.tuning[i-1] || "E";
+    const prevOct  = (state.octaves[i-1] != null)
+      ? state.octaves[i-1]
+      : (i-1 < DEFAULT_OCTAVES_6.length ? DEFAULT_OCTAVES_6[i-1] : 2);
+
+    // MIDI de la anterior y nueva nota una cuarta abajo
+    const midiPrev = AudioEngine.noteToMidi(prevNote, prevOct); // C-1=0 … A4=69
+    const midiNew  = midiPrev - 5; // cuarta justa abajo
+
+    // Pasamos de MIDI → nota + octava
+    const pc  = ((midiNew % 12) + 12) % 12;
+    const oct = Math.floor(midiNew / 12) - 1;
+
+    state.tuning.push(NOTES_SHARP[pc]);
+    state.octaves.push(oct);
+  }
+
+  // Si hay que recortar cuerdas, recortamos ambas estructuras en tándem
+  if (state.tuning.length > n) {
+    state.tuning.splice(n);
+    state.octaves.splice(n);
+  }
+}
       function inScale(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
 
       // ------- Populate selects -------
