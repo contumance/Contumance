@@ -50,6 +50,12 @@
     html.theme-dark details.panel{background:rgba(0,0,0,.1);}
     details.panel>summary{cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);}
     details.panel>summary::-webkit-details-marker{display:none;}
+    /* show a chevron */
+    details.panel>summary::after {
+      content: "▾";
+      float: right;
+      transition: transform .2s ease;
+    }
     details.panel .panel-body{padding:.6rem .8rem .9rem;}
     .controls{display:grid; gap:8px; align-items:center; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); margin-bottom:8px;}
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
