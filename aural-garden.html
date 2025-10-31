@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aural Garden — Contumance</title>
+<meta name="description" content="Aural Garden — a quiet, e-ink-style audio-reactive garden that grows with your chords." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>✾</text></svg>">
+<style>
+  :root{
+    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
+    --link-visited:#514f7a; --accent:#a08a63; --maxw:46rem; --lh:1.6; --fs:18px;
+    --grid:12px; --card:#fff; --ink-soft:#3f3a2e;
+  }
+  html, body { height:100%; }
+  html.theme-dark{
+    --paper:#10110f; --ink:#e9e5db; --muted:#a09584; --link:#8ad1ad;
+    --link-visited:#b1aee3; --accent:#c2a97b; --card:#141513; --ink-soft:#cfc7b6;
+  }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+    line-height:var(--lh); font-size:var(--fs);
+    display:flex; flex-direction:column; min-height:100%;
+  }
+  header, footer{
+    max-width:var(--maxw); margin:0 auto; width:100%;
+    padding:calc(var(--grid)*2) calc(var(--grid)*2);
+  }
+  header h1{ margin:0 0 .25em 0; font-weight:600; letter-spacing:.2px; }
+  header p{ margin:.25em 0 0 0; color:var(--muted); }
+  main{
+    flex:1; display:flex; flex-direction:column; gap:calc(var(--grid)*2);
+    max-width:var(--maxw); width:100%; margin:0 auto; padding:0 calc(var(--grid)*2) calc(var(--grid)*3);
+  }
+  .panel{
+    background:var(--card); border:1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+    border-radius:10px; padding:calc(var(--grid)*1.5);
+  }
+  .controls{
+    display:grid; gap:var(--grid); grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+    align-items:end;
+  }
+  label{ font-size:.9rem; color:var(--muted); display:block; margin-bottom:.25rem; }
+  select, input[type="number"]{
+    width:100%; padding:.55rem .6rem; background:transparent; color:var(--ink);
+    border:1px solid color-mix(in oklab, var(--ink) 18%, transparent); border-radius:8px;
+  }
+  .row{ display:flex; gap:var(--grid); flex-wrap:wrap; align-items:center; }
+  .btn{
+    appearance:none; border:1px solid color-mix(in oklab, var(--ink) 22%, transparent);
+    background:transparent; color:var(--ink); padding:.6rem .9rem; border-radius:999px;
+    cursor:pointer; white-space:nowrap;
+  }
+  .btn[aria-pressed="true"], .btn.primary{
+    border-color:var(--accent); box-shadow:0 0 0 1px color-mix(in oklab, var(--accent) 55%, transparent) inset;
+  }
+  .hint{ font-size:.85rem; color:var(--muted); }
+  .canvas-wrap{ position:relative; aspect-ratio:16/9; width:100%; border-radius:12px; overflow:hidden;
+    border:1px dashed color-mix(in oklab, var(--ink) 20%, transparent);
+    background:
+      linear-gradient(transparent 49%, color-mix(in oklab, var(--ink) 5%, transparent) 50%) 0 0/100% 32px,
+      linear-gradient(90deg, transparent 49%, color-mix(in oklab, var(--ink) 5%, transparent) 50%) 0 0/32px 100%,
+      radial-gradient(200% 100% at 50% 100%, color-mix(in oklab, var(--ink) 4%, transparent) 0 60%, transparent 61%);
+  }
+  canvas{ display:block; width:100%; height:100%; }
+  .legend{
+    display:flex; gap:1rem; align-items:center; color:var(--muted); font-size:.9rem;
+  }
+  .dot{ inline-size:.65rem; block-size:.65rem; border-radius:999px; display:inline-block;
+    background: color-mix(in oklab, var(--ink) 55%, transparent);
+  }
+  .dot.mid{ background: color-mix(in oklab, var(--ink) 35%, transparent); }
+  .dot.high{ background: color-mix(in oklab, var(--ink) 75%, transparent); }
+  footer .meta{ color:var(--muted); font-size:.9rem; }
+  /* Minimal icon next to title */
+  .title-mark{ font-size:1.2em; margin-left:.25em; opacity:.7 }
+  a { color:var(--link); }
+  a:visited { color:var(--link-visited); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Aural Garden <span class="title-mark">✾</span></h1>
+    <p class="hint">Una visual minimal que “crece” con tus acordes. Usa el sintetizador interno o tu micrófono.</p>
+  </header>
+
+  <main>
+    <section class="panel" aria-labelledby="controls-title">
+      <h2 id="controls-title" style="margin:.2rem 0 1rem 0;font-weight:600">Setup</h2>
+      <div class="controls">
+        <div>
+          <label for="root">Root</label>
+          <select id="root">
+            <option>C</option><option>C#</option><option>D</option><option>D#</option>
+            <option>E</option><option>F</option><option>F#</option><option>G</option>
+            <option>G#</option><option>A</option><option>A#</option><option>B</option>
+          </select>
+        </div>
+        <div>
+          <label for="quality">Quality</label>
+          <select id="quality">
+            <option value="maj">Major</option>
+            <option value="min">Minor</option>
+            <option value="sus2">Sus2</option>
+            <option value="sus4">Sus4</option>
+            <option value="dim">Diminished</option>
+            <option value="aug">Augmented</option>
+            <option value="7">Dominant 7</option>
+            <option value="maj7">Major 7</option>
+            <option value="min7">Minor 7</option>
+          </select>
+        </div>
+        <div>
+          <label for="inversion">Inversion</label>
+          <select id="inversion">
+            <option value="0">Root position</option>
+            <option value="1">1st inversion</option>
+            <option value="2">2nd inversion</option>
+            <option value="3">3rd inversion</option>
+          </select>
+        </div>
+        <div>
+          <label for="duration">Duration (s)</label>
+          <input id="duration" type="number" min="0.2" step="0.1" value="3.0" />
+        </div>
+        <div>
+          <label for="gain">Loudness</label>
+          <input id="gain" type="range" min="0" max="1" step="0.01" value="0.4" />
+        </div>
+        <div class="row">
+          <button id="play" class="btn primary">Play chord</button>
+          <button id="mic" class="btn" aria-pressed="false">Mic: Off</button>
+        </div>
+        <div class="row">
+          <span class="hint">Tip: enciende el micrófono para tocar encima. Apaga “Mic” si escuchas eco.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="canvas-wrap">
+        <canvas id="garden" aria-label="Audio reactive garden"></canvas>
+      </div>
+      <div class="row" style="justify-content:space-between; margin-top:.6rem;">
+        <div class="legend">
+          <span class="dot"></span> stems (low)
+          <span class="dot mid"></span> leaves (mid)
+          <span class="dot high"></span> petals (high)
+        </div>
+        <div class="hint" id="readout">—</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="meta">Aural Garden — part of the Contumance library.</div>
+  </footer>
+
+<script>
+(() => {
+  // ---------- Utilities ----------
+  const NOTE_INDEX = {C:0,"C#":1,D:2,"D#":3,E:4,F:5,"F#":6,G:7,"G#":8,A:9,"A#":10,B:11};
+  const A4 = 440;
+  const toFreq = (midi) => A4 * Math.pow(2, (midi - 69)/12);
+  const wrap = (n, m) => ((n % m) + m) % m;
+
+  function chordIntervals(quality){
+    switch(quality){
+      case "maj":   return [0,4,7];
+      case "min":   return [0,3,7];
+      case "sus2":  return [0,2,7];
+      case "sus4":  return [0,5,7];
+      case "dim":   return [0,3,6];
+      case "aug":   return [0,4,8];
+      case "7":     return [0,4,7,10];
+      case "maj7":  return [0,4,7,11];
+      case "min7":  return [0,3,7,10];
+      default:      return [0,4,7];
+    }
+  }
+
+  function buildChord(rootName, quality, inversion){
+    const rootIdx = NOTE_INDEX[rootName];
+    const ivals = chordIntervals(quality).slice().sort((a,b)=>a-b);
+    // Apply inversion by lifting the lowest tone(s) by an octave
+    for(let i=0;i<inversion;i++){
+      ivals[i % ivals.length] += 12;
+    }
+    ivals.sort((a,b)=>a-b);
+    // Map to MIDI region around C4..C5 for pleasant playback
+    const baseMidi = 48 + rootIdx; // C3=48 baseline
+    const mids = ivals.map(iv => baseMidi + iv);
+    // Optionally spread octaves for fullness
+    while(mids[mids.length-1] > 76){ // limit too high
+      for(let j=0;j<mids.length;j++){ mids[j]-=12; }
+    }
+    return mids;
+  }
+
+  // ---------- Audio ----------
+  let ctx, master, analyser, dataArray, micStream, micNode;
+  const FFT_SIZE = 2048;
+
+  function ensureAudio(){
+    if(ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain(); master.gain.value = 0.4;
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    analyser.smoothingTimeConstant = 0.65;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    master.connect(analyser).connect(ctx.destination);
+  }
+
+  async function toggleMic(btn){
+    ensureAudio();
+    if(micStream){
+      micNode.disconnect(); micStream.getTracks().forEach(t=>t.stop());
+      micStream = null; micNode = null;
+      btn.setAttribute('aria-pressed','false'); btn.textContent = 'Mic: Off';
+      return;
+    }
+    try{
+      micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+      micNode = ctx.createMediaStreamSource(micStream);
+      micNode.connect(analyser);
+      btn.setAttribute('aria-pressed','true'); btn.textContent = 'Mic: On';
+    }catch(e){
+      alert('No se pudo acceder al micrófono.');
+    }
+  }
+
+  function playChord({root, quality, inversion, duration, gain}){
+    ensureAudio();
+    const midis = buildChord(root, quality, inversion);
+    const now = ctx.currentTime + 0.02;
+
+    const local = ctx.createGain(); local.gain.setValueAtTime(0, now);
+    local.connect(master);
+    master.gain.linearRampToValueAtTime(gain, now + 0.01);
+
+    // Envelope
+    const attack = 0.03, release = 0.4;
+    local.gain.linearRampToValueAtTime(gain, now + attack);
+    local.gain.setValueAtTime(gain, now + duration);
+    local.gain.linearRampToValueAtTime(0.0001, now + duration + release);
+
+    // Slight detune & waveform blend for softness
+    const oscList = [];
+    midis.forEach((m, idx) => {
+      const freq = toFreq(m);
+      const osc = ctx.createOscillator();
+      const gaino = ctx.createGain(); gaino.gain.value = 0.33 / midis.length;
+      // blend triangle+sine via custom periodicWave
+      const real = new Float32Array([0, 0, 0.5, 0, 0.2]);
+      const imag = new Float32Array(real.length);
+      const wave = ctx.createPeriodicWave(real, imag, {disableNormalization:true});
+      osc.setPeriodicWave(wave);
+      osc.detune.value = (idx - (midis.length-1)/2) * 3; // gentle spread
+      osc.frequency.value = freq;
+      osc.connect(gaino).connect(local);
+      osc.start(now);
+      osc.stop(now + duration + release + 0.05);
+      oscList.push(osc);
+    });
+
+    // Route analyser to master if mic is off
+    if(!micStream){
+      local.disconnect(); // re-wire: chord -> analyser -> out
+      local.connect(analyser).connect(ctx.destination);
+    }
+  }
+
+  // ---------- Visuals ----------
+  const canvas = document.getElementById('garden');
+  const readout = document.getElementById('readout');
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function resize(){
+    const r = canvas.getBoundingClientRect();
+    canvas.width = Math.floor(r.width * DPR);
+    canvas.height = Math.floor(r.height * DPR);
+  }
+  new ResizeObserver(resize).observe(canvas);
+
+  // Garden particles
+  const MAX_STEMS = 38;
+  const stems = []; // each: {x,y,h,phase,leafiness,petals}
+  const rnd = (a,b)=>a + Math.random()*(b-a);
+
+  function seedGarden(){
+    stems.length = 0;
+    const cols = Math.min(MAX_STEMS, Math.floor(canvas.width / (26*DPR)));
+    for(let i=0;i<cols;i++){
+      const x = (i+0.5)/cols * canvas.width;
+      stems.push({x, y: canvas.height-8*DPR, h: rnd(30, 60)*DPR, phase: Math.random()*Math.PI*2, leafiness: rnd(0.2,0.7), petals: rnd(0.2,0.8)});
+    }
+  }
+
+  function bandEnergy(spec, sr, fromHz, toHz){
+    const nyq = sr / 2;
+    const start = Math.max(0, Math.floor((fromHz/nyq) * spec.length));
+    const end = Math.min(spec.length-1, Math.floor((toHz/nyq) * spec.length));
+    let sum=0;
+    for(let i=start;i<=end;i++) sum += spec[i];
+    return sum / Math.max(1,(end-start));
+  }
+
+  function draw(){
+    requestAnimationFrame(draw);
+    if(!analyser) return;
+    analyser.getByteFrequencyData(dataArray);
+    const sr = ctx.sampleRate || 48000;
+
+    // Three gentle bands
+    const low  = bandEnergy(dataArray, sr, 20, 220);    // stems
+    const mid  = bandEnergy(dataArray, sr, 220, 2000);  // leaves
+    const high = bandEnergy(dataArray, sr, 2000, 8000); // petals
+    const ctx2 = canvas.getContext('2d');
+    ctx2.clearRect(0,0,canvas.width,canvas.height);
+
+    // Background slight paper lines already in CSS
+    // Draw stems/leaves/petals monochrome using ink with different alpha
+    const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#222';
+    function setAlpha(a){ ctx2.strokeStyle = ctx2.fillStyle = inkWithAlpha(ink, a); }
+    function inkWithAlpha(hexOrName, a){
+      // crude: rely on globalComposite + shadow for softness
+      // We’ll just set globalAlpha, simpler:
+      ctx2.globalAlpha = a; return hexOrName;
+    }
+
+    const t = (performance.now() / 1000);
+    const sway = Math.sin(t*0.6) * 0.5;
+
+    stems.forEach((s, idx) => {
+      const baseH = s.h + (low/255)*80*DPR; // stems grow with lows
+      const x = s.x + Math.sin(t*0.7 + s.phase)*6*DPR;
+      const y = s.y;
+
+      // Stem
+      setAlpha(0.5);
+      ctx2.lineWidth = 1.25*DPR;
+      ctx2.beginPath();
+      ctx2.moveTo(x, y);
+      // Quadratic curve for gentle sway
+      ctx2.quadraticCurveTo(x + sway*12*DPR, y - baseH*0.5, x, y - baseH);
+      ctx2.stroke();
+
+      // Leaves (mid)
+      const leafCount = 2 + Math.floor(s.leafiness*4 + (mid/255)*3);
+      setAlpha(0.25 + 0.25*(mid/255));
+      for(let i=0;i<leafCount;i++){
+        const ly = y - baseH*(0.2 + 0.7*(i/Math.max(1,leafCount-1)));
+        const lx = x + ((i%2===0)? -1:1) * (6 + (mid/255)*10)*DPR;
+        ctx2.beginPath();
+        ctx2.ellipse(lx, ly, 8*DPR, 3*DPR, (i%2?0:Math.PI/4), 0, Math.PI*2);
+        ctx2.fill();
+      }
+
+      // Petals (high)
+      const petals = 2 + Math.floor(s.petals*4 + (high/255)*4);
+      setAlpha(0.18 + 0.5*(high/255));
+      const cy = y - baseH - 6*DPR;
+      for(let p=0;p<petals;p++){
+        const ang = (p/petals)*Math.PI*2 + t*0.4;
+        const px = x + Math.cos(ang)* (4 + (high/255)*10)*DPR;
+        const py = cy + Math.sin(ang)* (2 + (high/255)*6)*DPR;
+        ctx2.beginPath();
+        ctx2.ellipse(px, py, 3.5*DPR, 2*DPR, ang, 0, Math.PI*2);
+        ctx2.fill();
+      }
+    });
+
+    // Readout
+    const rms = (low+mid+high)/3/255;
+    readout.textContent = `low ${low|0} · mid ${mid|0} · high ${high|0} · breath ${rms.toFixed(2)}`;
+    ctx2.globalAlpha = 1;
+  }
+
+  // ---------- Wire UI ----------
+  const $ = sel => document.querySelector(sel);
+  const el = {
+    root: $('#root'), quality: $('#quality'), inversion: $('#inversion'),
+    duration: $('#duration'), gain: $('#gain'),
+    play: $('#play'), mic: $('#mic')
+  };
+
+  function handlePlay(){
+    const duration = Math.max(0.2, parseFloat(el.duration.value) || 2.0);
+    const gain = parseFloat(el.gain.value) || 0.4;
+    playChord({
+      root: el.root.value,
+      quality: el.quality.value,
+      inversion: parseInt(el.inversion.value,10) || 0,
+      duration, gain
+    });
+  }
+
+  el.play.addEventListener('click', async () => {
+    ensureAudio();
+    await ctx.resume();
+    handlePlay();
+  });
+
+  el.mic.addEventListener('click', async () => {
+    ensureAudio();
+    await ctx.resume();
+    toggleMic(el.mic);
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if(e.code === 'Space'){ e.preventDefault(); handlePlay(); }
+  });
+
+  // ---------- Init ----------
+  resize(); seedGarden(); draw();
+  window.addEventListener('resize', ()=>{ resize(); seedGarden(); });
+
+})();
+</script>
+</body>
+</html>
