@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Drone Room — Re:sonance</title>
+  <meta name="description" content="The Drone Room — steady tones for improvisation and meditative practice." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
+  <style>
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
+      --link-visited:#514f7a; --accent:#a08a63; --maxw:42rem; --lh:1.6; --fs-base:18px;
+      --btn-bg: transparent; --btn-ink: var(--ink); --btn-border: var(--accent);
+      --btn-bg-hover: color-mix(in oklab, var(--accent) 14%, transparent);
+      --btn-shadow: 0 1px 0 rgba(0,0,0,.06);
+    }
+    html.theme-dark{
+      --paper:#0e0f0e; --ink:#dbd6c9; --muted:#9b9689; --link:#a9d0b8;
+      --link-visited:#c0b8e0; --accent:#242523;
+      --btn-bg: transparent; --btn-ink: var(--ink); --btn-border: var(--accent);
+      --btn-bg-hover: color-mix(in oklab, var(--accent) 25%, transparent);
+      --btn-shadow: 0 1px 0 rgba(0,0,0,.3);
+    }
+    html{font-size:var(--fs-base)}
+    body{
+      margin:0; color:var(--ink); background:var(--paper);
+      font-family:ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
+      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
+    }
+    main{max-width:var(--maxw); margin:0 auto; padding:9vh 1.25rem 4rem}
+
+    header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
+    header h1{font-weight:600; margin:0 0 .25rem 0; font-size:clamp(1.8rem,4vw,2.4rem); letter-spacing:.2px}
+    header p.desc{margin:0 0 2rem 0; color:var(--muted); font-style:italic}
+
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1
+    }
+    .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+
+    hr{border:none; border-top:1px solid var(--accent); margin:1.5rem 0; opacity:.5}
+
+    /* Panel de controles */
+    .panel{
+      display:grid; gap:.9rem;
+      grid-template-columns:1fr;
+    }
+    .row{display:grid; gap:.75rem; grid-template-columns:1fr 1fr}
+    .row.three{grid-template-columns:1fr 1fr 1fr}
+    .row.four{grid-template-columns:1fr 1fr 1fr 1fr}
+    @media(min-width:720px){
+      .panel{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr 1fr 1fr}
+      .row.three{grid-template-columns:1fr 1fr 1fr}
+      .row.four{grid-template-columns:1fr 1fr 1fr 1fr}
+    }
+
+    fieldset{
+      border:1px solid var(--accent); border-radius:.6rem; padding:.9rem; margin:0;
+      background:color-mix(in oklab, var(--paper) 92%, var(--accent) 8%);
+    }
+    legend{padding:0 .4rem; color:var(--muted); font-size:.95rem; text-transform:uppercase; letter-spacing:.06em}
+
+    label{display:flex; align-items:center; justify-content:space-between; gap:.75rem; font-size:1rem}
+    label span{color:var(--muted); font-size:.95rem}
+    select, input[type="number"], input[type="text"]{
+      font:inherit; color:inherit; background:transparent; border:1px solid var(--accent);
+      border-radius:.45rem; padding:.35rem .5rem; min-width:0;
+    }
+    input[type="range"]{width:100%}
+    .inline{display:flex; gap:.5rem; align-items:center}
+
+    .actions{display:flex; gap:.6rem; align-items:center}
+    .btn{
+      display:inline-flex; align-items:center; gap:.5rem; cursor:pointer;
+      border:1px solid var(--btn-border); border-radius:999px; padding:.6rem 1.1rem;
+      background:var(--btn-bg); color:var(--btn-ink); box-shadow:var(--btn-shadow);
+      font-weight:600; letter-spacing:.02em;
+      transition:background-color .25s ease, transform .06s ease;
+    }
+    .btn:hover{background:var(--btn-bg-hover); transform:translateY(-1px)}
+    .btn:active{transform:none}
+    .btn[aria-pressed="true"]{outline:2px dashed var(--accent); outline-offset:2px}
+
+    .readout{font-variant-numeric:tabular-nums; color:var(--muted)}
+    .muted{color:var(--muted)}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.9rem; border:1px solid var(--accent); padding:.1rem .35rem; border-radius:.35rem}
+
+    /* Footer (idéntico al index) */
+    footer{
+      display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0;
+    }
+    footer .btn{
+      display:inline-flex; align-items:center; gap:.5rem; text-decoration:none; border:1px solid var(--accent);
+      border-radius:999px; padding:.45rem .95rem; font-size:.9rem; font-weight:500;
+      transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    html:not(.theme-dark) footer .btn{ background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink); }
+    html:not(.theme-dark) footer .btn:hover{ background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%); }
+    html.theme-dark footer .btn{ background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper); }
+    html.theme-dark footer .btn:hover{ background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%); }
+    footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
+
+    @media (prefers-reduced-motion:no-preference){
+      a{position:relative; background-image:linear-gradient(currentColor, currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease}
+      a:hover, a:focus-visible{background-size:100% 1px; outline:none}
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <div>
+        <h1>The Drone Room</h1>
+        <p class="desc">Steady tones to anchor the ear. Hold a pitch, breathe, and explore.</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+    </header>
+
+    <hr>
+
+    <section aria-labelledby="controls">
+      <h2 id="controls" class="muted" style="margin:0 0 .75rem 0; letter-spacing:.06em; text-transform:uppercase; font-size:1rem;">Controls</h2>
+
+      <div class="panel">
+
+        <fieldset>
+          <legend>Pitch</legend>
+          <div class="row">
+            <label>
+              <span>Note</span>
+              <select id="note">
+                <option>C</option><option>C#</option><option>D</option><option>D#</option>
+                <option>E</option><option>F</option><option>F#</option><option>G</option>
+                <option>G#</option><option>A</option><option>A#</option><option>B</option>
+              </select>
+            </label>
+            <label>
+              <span>Octave</span>
+              <select id="oct">
+                <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+              </select>
+            </label>
+            <label>
+              <span>A4 (Hz)</span>
+              <input id="a4" type="number" min="415" max="466" step="1" value="440">
+            </label>
+          </div>
+          <div class="row three" style="margin-top:.5rem">
+            <label>
+              <span>Fine tune (¢)</span>
+              <input id="fine" type="range" min="-50" max="50" step="1" value="0">
+            </label>
+            <label>
+              <span>Wave</span>
+              <select id="wave">
+                <option value="sine" selected>Sine</option>
+                <option value="triangle">Triangle</option>
+                <option value="sawtooth">Saw</option>
+                <option value="square">Square</option>
+              </select>
+            </label>
+            <label>
+              <span>Filter</span>
+              <input id="lp" type="range" min="200" max="8000" step="1" value="2500">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Modulation</legend>
+          <div class="row three">
+            <label>
+              <span>Vibrato rate (Hz)</span>
+              <input id="vRate" type="range" min="0" max="8" step="0.1" value="0.6">
+            </label>
+            <label>
+              <span>Vibrato depth (¢)</span>
+              <input id="vDepth" type="range" min="0" max="35" step="1" value="7">
+            </label>
+            <label>
+              <span>Tremolo depth</span>
+              <input id="tDepth" type="range" min="0" max="1" step="0.01" value="0.15">
+            </label>
+          </div>
+          <div class="row three">
+            <label>
+              <span>Tremolo rate (Hz)</span>
+              <input id="tRate" type="range" min="0" max="8" step="0.1" value="0.8">
+            </label>
+            <label class="inline">
+              <span>Sub −1 oct</span>
+              <input id="sub" type="checkbox" checked>
+            </label>
+            <label class="inline">
+              <span>+ Perfect 5th</span>
+              <input id="fifth" type="checkbox">
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Output</legend>
+          <div class="row three">
+            <label>
+              <span>Volume</span>
+              <input id="vol" type="range" min="0" max="1" step="0.001" value="0.35">
+            </label>
+            <label>
+              <span>Fade in (ms)</span>
+              <input id="fadeIn" type="number" min="0" max="5000" step="50" value="800">
+            </label>
+            <label>
+              <span>Fade out (ms)</span>
+              <input id="fadeOut" type="number" min="0" max="5000" step="50" value="800">
+            </label>
+          </div>
+          <div class="actions" style="margin-top:.6rem">
+            <button id="play" class="btn" type="button" aria-pressed="false">▶ Play</button>
+            <button id="stop" class="btn" type="button">■ Stop</button>
+            <span class="readout" id="hz">— Hz</span>
+            <span class="muted" style="margin-left:auto">Shortcuts: <span class="kbd">Space</span> play/stop, <span class="kbd">↑/↓</span> octave</span>
+          </div>
+        </fieldset>
+
+      </div>
+    </section>
+
+    <hr>
+
+    <p class="muted" style="margin:0 0 1.25rem 0">
+      Tip: a sine with gentle vibrato and tremolo sits nicely under almost anything. Add the fifth for a wider bed; roll the filter down for warmth.
+    </p>
+
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         aria-label="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <script>
+  (function(){
+    // --- THEME (idéntico al index) ---
+    const KEY='theme-preference';
+    const root=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    function setIcon(mode){
+      btn.textContent = mode==='dark' ? '☀︎' : '☾';
+      btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+    function getPreferred(){
+      const saved=localStorage.getItem(KEY);
+      if(saved==='light' || saved==='dark') return saved;
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    let current=getPreferred(); applyTheme(current);
+    btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
+    document.getElementById('y').textContent = new Date().getFullYear();
+  })();
+
+  // --- DRONE ENGINE ---
+  (function(){
+    const els = {
+      note: document.getElementById('note'),
+      oct: document.getElementById('oct'),
+      a4: document.getElementById('a4'),
+      fine: document.getElementById('fine'),
+      wave: document.getElementById('wave'),
+      lp: document.getElementById('lp'),
+      vRate: document.getElementById('vRate'),
+      vDepth: document.getElementById('vDepth'),
+      tRate: document.getElementById('tRate'),
+      tDepth: document.getElementById('tDepth'),
+      sub: document.getElementById('sub'),
+      fifth: document.getElementById('fifth'),
+      vol: document.getElementById('vol'),
+      fadeIn: document.getElementById('fadeIn'),
+      fadeOut: document.getElementById('fadeOut'),
+      play: document.getElementById('play'),
+      stop: document.getElementById('stop'),
+      hz: document.getElementById('hz'),
+      octSel: document.getElementById('oct')
+    };
+
+    const STORE_KEY='drone-room:v1';
+    const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+    // Load saved state
+    try{
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      Object.entries(saved).forEach(([k,v])=>{
+        if(els[k]){
+          if(els[k].type==='checkbox') els[k].checked = !!v;
+          else els[k].value = v;
+        }
+      });
+    }catch{}
+
+    function save(){
+      const data = {};
+      Object.entries(els).forEach(([k,el])=>{
+        if(!el || !('value' in el)) return;
+        data[k] = el.type==='checkbox' ? el.checked : el.value;
+      });
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }catch{}
+    }
+
+    let ctx, master, tremGain, lp, vLFO, tLFO, vDepthGain, mainGain;
+    let voices = []; // [{osc, gain}]
+    let running = false;
+
+    function midiFromNote(noteName, octave){
+      const i = notes.indexOf(noteName);
+      return (octave+1)*12 + i; // MIDI number: C-1=0
+    }
+    function hzFromMidi(m, a4=440, fineCents=0){
+      const semisFromA4 = m - 69;
+      const base = a4 * Math.pow(2, semisFromA4/12);
+      const cents = Math.pow(2, fineCents/1200);
+      return base * cents;
+    }
+
+    function setReadout(hz){
+      els.hz.textContent = hz ? hz.toFixed(2)+' Hz' : '— Hz';
+    }
+
+    function init(){
+      if(ctx) return;
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value = 0.0;
+      mainGain = ctx.createGain(); // for tremolo input
+      tremGain = ctx.createGain(); tremGain.gain.value = 1.0;
+
+      lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value = parseFloat(els.lp.value);
+
+      // Tremolo LFO (amplitude)
+      tLFO = ctx.createOscillator(); tLFO.type='sine'; tLFO.frequency.value = parseFloat(els.tRate.value);
+      const tDepth = ctx.createGain(); tDepth.gain.value = parseFloat(els.tDepth.value);
+      tLFO.connect(tDepth).connect(tremGain.gain);
+
+      // Vibrato LFO (frequency cents)
+      vLFO = ctx.createOscillator(); vLFO.type='sine'; vLFO.frequency.value = parseFloat(els.vRate.value);
+      vDepthGain = ctx.createGain(); vDepthGain.gain.value = 0; // applied per-voice via detune
+
+      // graph: voices -> mainGain -> tremGain -> lp -> master -> destination
+      mainGain.connect(tremGain); tremGain.connect(lp); lp.connect(master); master.connect(ctx.destination);
+
+      tLFO.start(); vLFO.start();
+    }
+
+    function createVoice(freq, type){
+      const osc = ctx.createOscillator();
+      osc.type = type;
+      osc.frequency.value = freq;
+
+      // Vibrato applies via detune: vLFO (±depth cents) -> osc.detune
+      vLFO.connect(vDepthGain);
+      vDepthGain.connect(osc.detune);
+
+      const g = ctx.createGain(); g.gain.value = 1.0;
+      osc.connect(g).connect(mainGain);
+      return {osc, gain:g};
+    }
+
+    function build(){
+      // Cleanup
+      voices.forEach(v=>{ try{v.osc.stop(); v.osc.disconnect();}catch{} });
+      voices = [];
+
+      const n = els.note.value;
+      const o = parseInt(els.oct.value,10);
+      const a4 = parseFloat(els.a4.value);
+      const fine = parseFloat(els.fine.value);
+      const wave = els.wave.value;
+
+      const baseMidi = midiFromNote(n,o);
+      const baseHz = hzFromMidi(baseMidi, a4, fine);
+
+      setReadout(baseHz);
+
+      // main voice
+      voices.push( createVoice(baseHz, wave) );
+
+      // sub octave
+      if(els.sub.checked){
+        voices.push( createVoice(baseHz/2, wave) );
+      }
+      // perfect fifth (7 semitones)
+      if(els.fifth.checked){
+        voices.push( createVoice(baseHz * Math.pow(2,7/12), wave) );
+      }
+
+      // update filter / lfo depths
+      lp.frequency.setTargetAtTime(parseFloat(els.lp.value), ctx.currentTime, 0.01);
+      vLFO.frequency.setTargetAtTime(parseFloat(els.vRate.value), ctx.currentTime, 0.01);
+      // convert cents depth -> detune gain in cents
+      vDepthGain.gain.setTargetAtTime(parseFloat(els.vDepth.value), ctx.currentTime, 0.01);
+      tLFO.frequency.setTargetAtTime(parseFloat(els.tRate.value), ctx.currentTime, 0.01);
+      tremGain.gain.setTargetAtTime(1 - parseFloat(els.tDepth.value), ctx.currentTime, 0.01);
+    }
+
+    function start(){
+      init();
+      build();
+      const vol = parseFloat(els.vol.value);
+      const ms = Math.max(0, parseInt(els.fadeIn.value,10) || 0)/1000;
+
+      // start all oscillators aligned
+      const t0 = ctx.currentTime + 0.01;
+      voices.forEach(v=>v.osc.start(t0));
+
+      master.gain.cancelScheduledValues(0);
+      master.gain.setValueAtTime(master.gain.value, t0);
+      master.gain.linearRampToValueAtTime(vol, t0 + ms);
+
+      running = true;
+      els.play.setAttribute('aria-pressed','true');
+      els.play.textContent = '⏸ Pause';
+    }
+
+    function stop(){
+      if(!ctx) return;
+      const ms = Math.max(0, parseInt(els.fadeOut.value,10) || 0)/1000;
+      const t0 = ctx.currentTime + 0.01;
+      master.gain.cancelScheduledValues(0);
+      master.gain.setValueAtTime(master.gain.value, t0);
+      master.gain.linearRampToValueAtTime(0, t0 + ms);
+
+      // stop oscillators after fade
+      const stopAt = t0 + ms + 0.05;
+      voices.forEach(v=>{ try{ v.osc.stop(stopAt); }catch{} });
+      setTimeout(()=>{ voices=[]; }, (ms*1000)+80);
+
+      running = false;
+      els.play.setAttribute('aria-pressed','false');
+      els.play.textContent = '▶ Play';
+    }
+
+    function toggle(){
+      if(!running) start(); else stop();
+    }
+
+    // Bindings
+    [
+      'note','oct','a4','fine','wave','lp','vRate','vDepth','tRate','tDepth','sub','fifth','vol','fadeIn','fadeOut'
+    ].forEach(id=>{
+      els[id].addEventListener(els[id].type==='checkbox' ? 'change':'input', ()=>{
+        save();
+        if(running){
+          // live updates without glitch: rebuild voices smoothly
+          const wasVol = master.gain.value;
+          build();
+          master.gain.setTargetAtTime(parseFloat(els.vol.value), ctx.currentTime, 0.02);
+        }else if(id==='note'||id==='oct'||id==='a4'||id==='fine'){
+          // update readout even when stopped
+          const m = midiFromNote(els.note.value, parseInt(els.oct.value,10));
+          const hz = hzFromMidi(m, parseFloat(els.a4.value), parseFloat(els.fine.value));
+          setReadout(hz);
+        }
+      });
+    });
+
+    els.play.addEventListener('click', toggle);
+    els.stop.addEventListener('click', stop);
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.code==='Space'){ e.preventDefault(); toggle(); }
+      if(e.key==='ArrowUp'){ e.preventDefault(); els.oct.value = String(Math.min(5, parseInt(els.oct.value,10)+1)); save(); if(running) build(); }
+      if(e.key==='ArrowDown'){ e.preventDefault(); els.oct.value = String(Math.max(1, parseInt(els.oct.value,10)-1)); save(); if(running) build(); }
+    });
+
+    // Prime readout
+    (function prime(){
+      const m = midiFromNote(els.note.value, parseInt(els.oct.value,10));
+      setReadout( hzFromMidi(m, parseFloat(els.a4.value), parseFloat(els.fine.value)) );
+    })();
+
+    // iOS: resume context on first user gesture
+    document.addEventListener('click', ()=>{ if(ctx && ctx.state==='suspended') ctx.resume(); }, {once:true});
+  })();
+  </script>
+</body>
+</html>
