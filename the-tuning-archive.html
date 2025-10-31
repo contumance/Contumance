@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Tuning Archive — Contumance</title>
+  <meta name="description" content="The Tuning Archive — interactive database of alternative guitar tunings with e-ink aesthetics." />
+  <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+  <style>
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+      --link:#2d5842; --link-visited:#514f7a;
+      --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
+      --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
+      --hit:#d9c8a6;
+    }
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
+      --hit:#2a2a22;
+    }
+    html{font-size:var(--fs-base)}
+    body{
+      margin:0; padding:0; color:var(--ink); background:var(--paper);
+      font-family:ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
+    }
+    main{max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem;}
+    nav.breadcrumb{font-size:.95rem}
+    nav.breadcrumb a{color:var(--link); text-decoration:none; text-underline-offset:2px;}
+    h1{margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem);}
+    .subtitle{color:var(--muted); font-size:.95rem; margin-bottom:.8rem;}
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
+    }
+    .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px;}
+    hr{border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5;}
+
+    details.panel{border:1px solid var(--accent); border-radius:.6rem; background:rgba(255,255,255,.6);}
+    html.theme-dark details.panel{background:rgba(0,0,0,.1);}
+    details.panel>summary{cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);}
+    details.panel>summary::-webkit-details-marker{display:none;}
+    details.panel>summary::after{content:"▾"; float:right; transition:transform .2s ease;}
+    details.panel[open]>summary::after{transform:rotate(180deg);}
+    details.panel .panel-body{padding:.6rem .8rem .9rem;}
+
+    .controls{display:grid; gap:8px; align-items:center; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); margin-bottom:8px;}
+    .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    label{font-size:12px; opacity:.9;}
+    select,button,input[type="number"],input[type="text"],input[type="search"],input[type="range"],textarea{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0;
+    }
+    button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+
+    /* Grid de resultados */
+    .results{display:grid; gap:10px; grid-template-columns:1fr;}
+    .card{border:1px solid var(--accent); border-radius:.6rem; padding:.65rem .75rem; display:grid; gap:.35rem;}
+    .card h3{margin:0; font-size:1rem;}
+    .meta{color:var(--muted); font-size:.85rem}
+    .pill{display:inline-block; border:1px solid var(--accent); padding:.1rem .45rem; border-radius:999px; font-size:.72rem; margin-right:.25rem}
+
+    /* Tuning editor */
+    .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
+    .tuning .string-card{border:1px solid var(--accent); border-radius:.6rem; background:transparent; padding:8px;}
+    .octv{display:flex; align-items:center; gap:6px; font-size:12px; opacity:.9}
+
+    /* Fretboard compacto (12 trastes) */
+    .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent; margin-top:10px;}
+    .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(12,1fr); position:relative; width:100%;}
+    .string{display:contents;}
+    .nut,.fret{border-right:1px solid var(--rule); position:relative;}
+    .nut{display:flex; align-items:center; justify-content:center; font-size:12px; background:rgba(0,0,0,.04);}
+    html.theme-dark .nut{background:rgba(255,255,255,.06);}
+    .open-note{display:flex; align-items:center; justify-content:center; font-size:12px;}
+    .cell{position:relative; display:flex; align-items:center; justify-content:center;}
+    .fret-number{position:absolute; bottom:2px; right:6px; font-size:10px; opacity:.35;}
+    .marker{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+    .dot{width:22px; height:22px; border-radius:999px; border:1.5px solid var(--accent-soft); background:transparent; display:flex; align-items:center; justify-content:center; font-size:10px; transition:transform .05s ease, background-color .12s ease;}
+    .dot.root{background:var(--ink); color:var(--paper); border-color:var(--ink); font-weight:600;}
+    .hit{animation:hit .18s ease;}
+    @keyframes hit{ from{ background-color:var(--hit);} to{ background-color:transparent;} }
+    .pos-marker{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:6px; height:6px; border-radius:999px; background:#bbb; opacity:.5;}
+    .pos-marker.double{display:grid; grid-template-columns:1fr 1fr; gap:8px; width:auto; height:auto; background:transparent;}
+    .pos-marker.double i{width:6px; height:6px; background:#bbb; opacity:.5; border-radius:999px; display:block;}
+
+    /* Footer base */
+    footer{display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0;}
+    footer .btn{display:inline-flex; align-items:center; gap:.5rem; text-decoration:none; border:1px solid var(--accent);
+      border-radius:999px; padding:.45rem .95rem; font-size:.9rem; font-weight:500; transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;}
+    html:not(.theme-dark) footer .btn{background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink);}
+    html:not(.theme-dark) footer .btn:hover{background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);}
+    html.theme-dark footer .btn{background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper);}
+    html.theme-dark footer .btn:hover{background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);}
+    footer .btn .btn-icon{width:1.2rem; height:1.2rem; stroke:currentColor;}
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
+
+    @media (prefers-reduced-motion:no-preference){
+      a{position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease;}
+      a:hover, a:focus-visible{background-size:100% 1px; outline:none;}
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">← Back to index</a>
+      </nav>
+      <div class="row" style="gap:6px;">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+      </div>
+    </div>
+
+    <header>
+      <h1>The Tuning Archive</h1>
+      <div class="subtitle">Alternative tunings for curious hands — searchable, playable, collectible.</div>
+    </header>
+
+    <!-- BUSCADOR / FILTROS -->
+    <details class="panel" open>
+      <summary>Browse</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Search controls">
+          <div class="row">
+            <label for="q">Search</label>
+            <input id="q" type="search" placeholder="DADGAD, Open C, Baritone..." />
+          </div>
+          <div class="row">
+            <label for="stringsFilter">Strings</label>
+            <select id="stringsFilter">
+              <option value="any">Any</option>
+              <option>4</option><option>5</option><option selected>6</option>
+              <option>7</option><option>8</option><option>9</option><option>10</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="tagFilter">Tag</label>
+            <select id="tagFilter">
+              <option value="any" selected>Any</option>
+              <option>Open</option><option>Drop</option><option>Modal</option>
+              <option>Baritone</option><option>Extended</option>
+              <option>Metal</option><option>Folk</option><option>Slide</option><option>Experimental</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="sortBy">Sort</label>
+            <select id="sortBy">
+              <option value="name">Name (A–Z)</option>
+              <option value="lowest">Lowest pitch</option>
+              <option value="strings">Strings (asc)</option>
+            </select>
+          </div>
+          <div class="row">
+            <button id="resetFilters" type="button">Reset</button>
+          </div>
+        </div>
+        <div id="results" class="results" aria-live="polite"></div>
+      </div>
+    </details>
+
+    <!-- EDITOR / PREVIEW -->
+    <details class="panel" open>
+      <summary>Selected tuning</summary>
+      <div class="panel-body">
+        <div class="controls">
+          <div class="row">
+            <label for="currentName">Name</label>
+            <input id="currentName" type="text" placeholder="Name of tuning" />
+          </div>
+          <div class="row">
+            <label for="transpose">Transpose (semitones)</label>
+            <input id="transpose" type="range" min="-12" max="12" value="0" step="1" style="width:160px">
+            <span id="transposeVal" aria-live="polite" style="min-width:3ch;text-align:center">0</span>
+          </div>
+          <div class="row">
+            <button id="playOpen" type="button" class="primary">Play open strings</button>
+            <button id="saveToArchive" type="button">Save to My Archive</button>
+            <button id="exportArchive" type="button">Export JSON</button>
+            <button id="importArchive" type="button">Import JSON</button>
+          </div>
+        </div>
+
+        <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
+
+        <section class="fretboard-wrap" aria-label="Fretboard preview (12 frets)">
+          <div id="fretboard" class="fretboard">
+            <div id="board" class="board" role="grid" aria-label="Fretboard"></div>
+          </div>
+        </section>
+
+        <p class="meta">Tip: use ± in each string to shift notes; use Octave ± to match registers. Transpose shifts all strings at once (for pitch-down baritone use −2..−5, etc.).</p>
+      </div>
+    </details>
+
+    <!-- MI ARCHIVO -->
+    <details class="panel">
+      <summary>My Archive (local only)</summary>
+      <div class="panel-body">
+        <div id="mine" class="results"></div>
+        <div class="row"><button id="clearMine" type="button">Clear my archive</button></div>
+      </div>
+    </details>
+
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         aria-label="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <!-- Theme toggle -->
+  <script>
+    (function(){
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
+      function setIcon(){ btn.textContent='◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark',mode==='dark'); setIcon(); }
+      function getPreferred(){
+        const saved=localStorage.getItem(KEY);
+        if(saved==='light'||saved==='dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+      }
+      let current=getPreferred(); apply(current);
+      btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+    })();
+  </script>
+
+  <!-- App -->
+  <script>
+  (function(){
+    // ===== Notes & helpers =====
+    var NOTES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    function idx(n){ return NOTES.indexOf(n); }
+    function cycle(n, st){ let i=idx(n); if(i<0) i=0; i=(i+st+12)%12; return NOTES[i]; }
+    function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
+    function noteToMidi(name, octave){ const pc=idx(name); return (octave+1)*12 + (pc<0?0:pc); }
+
+    // ===== Built-in library (seed) =====
+    // Notas van de aguda (1ª) a grave (última) para encajar con tu UI previa.
+    const LIB = [
+      {name:"Standard E", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard"]},
+      {name:"Drop D", strings:6, notes:["E","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Rock","Metal"]},
+      {name:"DADGAD", strings:6, notes:["D","A","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Folk"]},
+      {name:"Open D (DADF#AD)", strings:6, notes:["D","A","F#","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide"]},
+      {name:"Open G (DGDGBD)", strings:6, notes:["D","B","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk"]},
+      {name:"Open C (CEGCEG)", strings:6, notes:["G","E","C","G","E","C"], oct:[4,4,3,3,3,2], tags:["Open","Slide","Experimental"]},
+      {name:"Baritone B (BEADF#B)", strings:6, notes:["B","F#","D","A","E","B"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"]},
+      {name:"Baritone A (AEADGB)", strings:6, notes:["B","G","D","A","E","A"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"]},
+      {name:"7-string standard (BEADGBE)", strings:7, notes:["E","B","G","D","A","E","B"], oct:[4,3,3,3,2,2,1], tags:["Extended","Metal"]},
+      {name:"8-string standard (F#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","F#"], oct:[4,3,3,3,2,2,1,1], tags:["Extended","Metal"]},
+      {name:"Open Dm (DADFAD)", strings:6, notes:["D","A","F","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal"]},
+      {name:"Csus2 (CGCGCD)", strings:6, notes:["D","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Modal","Open","Post-rock"]},
+      {name:"Nashville high", strings:6, notes:["E","B","G#","E","B","E"].map(n=>n.replace("G#","G#")), oct:[5,4,4,4,4,3], tags:["Studio","Experimental"]},
+    ];
+
+    // ===== State & persistence =====
+    const LS_MINE = "tuning_archive_mine_v1";
+    const LS_CURRENT = "tuning_archive_current_v1";
+    let mine = [];
+    try{ mine = JSON.parse(localStorage.getItem(LS_MINE) || "[]"); if(!Array.isArray(mine)) mine=[]; }catch(e){ mine=[]; }
+
+    let current = {name:"Standard E", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard"], transpose:0};
+    try{ const c = JSON.parse(localStorage.getItem(LS_CURRENT)||"null"); if(c) current = c; }catch(e){}
+
+    function saveMine(){ localStorage.setItem(LS_MINE, JSON.stringify(mine)); }
+    function saveCurrent(){ localStorage.setItem(LS_CURRENT, JSON.stringify(current)); }
+
+    // ===== DOM =====
+    const q = document.getElementById('q');
+    const stringsFilter = document.getElementById('stringsFilter');
+    const tagFilter = document.getElementById('tagFilter');
+    const sortBy = document.getElementById('sortBy');
+    const results = document.getElementById('results');
+    const resetFilters = document.getElementById('resetFilters');
+
+    const currentName = document.getElementById('currentName');
+    const transpose = document.getElementById('transpose');
+    const transposeVal = document.getElementById('transposeVal');
+    const playOpen = document.getElementById('playOpen');
+    const saveToArchive = document.getElementById('saveToArchive');
+    const exportArchive = document.getElementById('exportArchive');
+    const importArchive = document.getElementById('importArchive');
+    const mineWrap = document.getElementById('mine');
+    const clearMine = document.getElementById('clearMine');
+
+    const tuningPanel = document.getElementById('tuningPanel');
+    const board = document.getElementById('board');
+
+    // ===== Audio engine =====
+    const Audio = (function(){
+      let ctx=null, master=null, started=false, wave="sine", vol=0.7;
+      function start(){ if(started) return; ctx=new (window.AudioContext||window.webkitAudioContext)(); master=ctx.createGain(); master.gain.value=vol; master.connect(ctx.destination); started=true; }
+      function resume(){ if(ctx && ctx.state==="suspended") ctx.resume(); }
+      function play(freq, dur=0.6, vel=0.9){
+        if(!started) start(); resume();
+        const t=ctx.currentTime;
+        const o=ctx.createOscillator(); o.type=wave; o.frequency.setValueAtTime(freq, t);
+        const g=ctx.createGain(); g.gain.setValueAtTime(0,t);
+        g.gain.linearRampToValueAtTime(vel, t+0.01);
+        g.gain.linearRampToValueAtTime(vel*0.75, t+0.1);
+        o.connect(g); g.connect(master); o.start(t);
+        const end=t+dur;
+        g.gain.setTargetAtTime(0.0001, end, 0.18);
+        o.stop(end+0.6);
+      }
+      return {
+        playNote:(name,oct,dur)=>play(midiToFreq(noteToMidi(name,oct)), dur),
+        setVolume:(v)=>{vol=v; if(master) master.gain.value=v;}
+      };
+    })();
+
+    // ===== Rendering: results =====
+    function matches(item){
+      const text = (q.value||"").trim().toLowerCase();
+      const strSel = stringsFilter.value;
+      const tagSel = tagFilter.value;
+
+      if(strSel!=="any" && +strSel !== +item.strings) return false;
+      if(tagSel!=="any" && !(item.tags||[]).map(t=>t.toLowerCase()).includes(tagSel.toLowerCase())) return false;
+
+      if(text){
+        const hay = [item.name, (item.tags||[]).join(" "), item.notes.join("")].join(" ").toLowerCase();
+        if(!hay.includes(text)) return false;
+      }
+      return true;
+    }
+
+    function sortItems(arr){
+      const s = sortBy.value;
+      if(s==="name"){ arr.sort((a,b)=>a.name.localeCompare(b.name)); }
+      else if(s==="strings"){ arr.sort((a,b)=>a.strings-b.strings || a.name.localeCompare(b.name)); }
+      else if(s==="lowest"){
+        function lowMidi(t){
+          // última cuerda = más grave (según definimos)
+          const n = t.notes[t.notes.length-1]; const o = (t.oct && t.oct[t.oct.length-1]) ?? 2;
+          return noteToMidi(n, o);
+        }
+        arr.sort((a,b)=>lowMidi(a)-lowMidi(b));
+      }
+      return arr;
+    }
+
+    function renderResults(){
+      const all = LIB.slice();
+      const arr = sortItems(all.filter(matches));
+      if(!arr.length){ results.innerHTML = '<div class="meta">No results.</div>'; return; }
+      results.innerHTML = arr.map((t,i)=>{
+        const tags = (t.tags||[]).map(x=>`<span class="pill">${x}</span>`).join(" ");
+        const sig = t.notes.join(" – ");
+        return `<article class="card">
+          <h3>${t.name}</h3>
+          <div class="meta">${t.strings} strings · <code>${sig}</code></div>
+          <div>${tags}</div>
+          <div class="row">
+            <button data-pick="${i}" type="button">Load</button>
+            <button data-aud="${i}" type="button">Audition</button>
+          </div>
+        </article>`;
+      }).join("");
+      results.querySelectorAll('button[data-pick]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const t = sortItems(LIB.filter(matches))[+btn.dataset.pick];
+          loadCurrent(t);
+        },{passive:true});
+      });
+      results.querySelectorAll('button[data-aud]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const t = sortItems(LIB.filter(matches))[+btn.dataset.aud];
+          audition(t);
+        },{passive:true});
+      });
+    }
+
+    function audition(t){
+      // reproduce de grave a aguda
+      const notes = t.notes.slice().reverse();
+      const octs = (t.oct||[]).slice().reverse();
+      let delay = 0;
+      notes.forEach((n,ix)=>{
+        const o = octs[ix] ?? 2;
+        setTimeout(()=>Audio.playNote(n,o,0.45), delay);
+        delay += 180;
+      });
+    }
+
+    q.addEventListener('input', renderResults);
+    stringsFilter.addEventListener('change', renderResults);
+    tagFilter.addEventListener('change', renderResults);
+    sortBy.addEventListener('change', renderResults);
+    resetFilters.addEventListener('click', ()=>{
+      q.value=""; stringsFilter.value="any"; tagFilter.value="any"; sortBy.value="name"; renderResults();
+    });
+
+    // ===== Current tuning editor =====
+    function ensureLenParallel(n){
+      if(!Array.isArray(current.notes)) current.notes=[];
+      if(!Array.isArray(current.oct)) current.oct=[];
+      while(current.notes.length < n){
+        // bajar por cuartas desde la más grave actual
+        if(current.notes.length===0){ current.notes.push("E"); current.oct.push(4); }
+        else {
+          const i = current.notes.length-1;
+          let pc = idx(current.notes[i]); if(pc<0) pc=4; // E
+          let o = current.oct[i] ?? 3;
+          pc -= 5; if(pc<0){ pc+=12; o-=1; }
+          current.notes.push(NOTES[pc]); current.oct.push(o);
+        }
+      }
+      if(current.notes.length>n){ current.notes.splice(n); current.oct.splice(n); }
+      current.strings = n;
+    }
+
+    function renderTuningEditor(){
+      ensureLenParallel(current.strings);
+      currentName.value = current.name || "Custom tuning";
+      transpose.value = current.transpose || 0; transposeVal.textContent = String(current.transpose||0);
+
+      let html="";
+      for(let i=0;i<current.notes.length;i++){
+        const n = current.notes[i]; const oct = current.oct[i] ?? 3;
+        const opts = NOTES.map(x=>`<option value="${x}" ${x===n?'selected':''}>${x}</option>`).join("");
+        html += `
+        <div class="string-card">
+          <div style="font-size:12px; opacity:.8; margin-bottom:6px;">String ${i+1}</div>
+          <div class="row" style="gap:6px; flex-wrap:nowrap;">
+            <button data-act="down" data-i="${i}" title="− semitone">−</button>
+            <div class="open-note" style="min-width:40px; text-align:center">${n}</div>
+            <button data-act="up" data-i="${i}" title="+ semitone">+</button>
+            <select data-act="set" data-i="${i}" style="flex:1; min-width:0;">${opts}</select>
+          </div>
+          <div class="octv">
+            <label>Octave</label>
+            <button data-act="octDown" data-i="${i}" title="Octave -1">−</button>
+            <span id="oct${i}" style="min-width:1.5ch; text-align:center;">${oct}</span>
+            <button data-act="octUp" data-i="${i}" title="Octave +1">+</button>
+          </div>
+        </div>`;
+      }
+      tuningPanel.innerHTML = html;
+
+      tuningPanel.querySelectorAll('button').forEach(btn=>{
+        const i = +btn.dataset.i; const act = btn.dataset.act;
+        btn.addEventListener('click',()=>{
+          if(act==='up'||act==='down'){
+            current.notes[i] = cycle(current.notes[i], act==='up'?+1:-1);
+          }else if(act==='octUp'){ current.oct[i] = Math.min(8, (current.oct[i]??3)+1); }
+          else if(act==='octDown'){ current.oct[i] = Math.max(-2, (current.oct[i]??3)-1); }
+          saveCurrent(); renderTuningEditor(); renderBoard();
+        },{passive:true});
+      });
+      tuningPanel.querySelectorAll('select').forEach(sel=>{
+        sel.addEventListener('change',()=>{ const i=+sel.dataset.i; current.notes[i]=sel.value; saveCurrent(); renderBoard(); });
+      });
+    }
+
+    currentName.addEventListener('input', ()=>{ current.name=currentName.value||"Custom tuning"; saveCurrent(); });
+    transpose.addEventListener('input', ()=>{ current.transpose=+transpose.value; transposeVal.textContent=transpose.value; saveCurrent(); renderBoard(); });
+
+    playOpen.addEventListener('click', ()=>{
+      // de grave a aguda
+      const notes = current.notes.slice().reverse();
+      const octs = current.oct.slice().reverse();
+      let delay=0;
+      notes.forEach((n,ix)=>{
+        const o = octs[ix] ?? 2;
+        const t = noteWithTranspose(n, current.transpose);
+        setTimeout(()=>Audio.playNote(t, oForTranspose(n,o,current.transpose), 0.5), delay);
+        delay+=180;
+      });
+    });
+
+    saveToArchive.addEventListener('click', ()=>{
+      const entry = JSON.parse(JSON.stringify(current));
+      // pequeño normalizador
+      entry.name = currentName.value || current.name || "Custom tuning";
+      if(!Array.isArray(entry.tags)) entry.tags=[];
+      mine.push(entry); saveMine(); renderMine();
+    });
+
+    exportArchive.addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(mine,null,2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'my-tuning-archive.json';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    });
+
+    importArchive.addEventListener('click', ()=>{
+      const txt = prompt("Paste your JSON (array of tunings):","");
+      if(!txt) return;
+      try{
+        const arr = JSON.parse(txt);
+        if(Array.isArray(arr)){ mine = arr; saveMine(); renderMine(); alert("Imported ✔"); }
+        else alert("Invalid JSON: expected array");
+      }catch(e){ alert("Invalid JSON"); }
+    });
+
+    clearMine.addEventListener('click', ()=>{
+      if(confirm("Clear your local archive?")){ mine=[]; saveMine(); renderMine(); }
+    });
+
+    function renderMine(){
+      if(!mine.length){ mineWrap.innerHTML='<div class="meta">Empty.</div>'; return; }
+      mineWrap.innerHTML = mine.map((t,idx)=>{
+        const sig = (t.notes||[]).join(" – ");
+        const tags = (t.tags||[]).map(x=>`<span class="pill">${x}</span>`).join(" ");
+        return `<article class="card">
+          <h3>${t.name||'Untitled'}</h3>
+          <div class="meta">${t.strings||'?'} strings · <code>${sig}</code></div>
+          <div>${tags}</div>
+          <div class="row">
+            <button data-load-m="${idx}" type="button">Load</button>
+            <button data-del-m="${idx}" type="button">Delete</button>
+          </div>
+        </article>`;
+      }).join("");
+      mineWrap.querySelectorAll('button[data-load-m]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const t = mine[+b.dataset.loadM];
+          loadCurrent(t);
+        },{passive:true});
+      });
+      mineWrap.querySelectorAll('button[data-del-m]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const i = +b.dataset.delM;
+          mine.splice(i,1); saveMine(); renderMine();
+        },{passive:true});
+      });
+    }
+
+    function loadCurrent(t){
+      // clonar y normalizar
+      current = {
+        name: t.name||"Custom tuning",
+        strings: +t.strings || (t.notes?t.notes.length:6),
+        notes: (t.notes||[]).slice(),
+        oct: (t.oct||[]).slice(),
+        tags: (t.tags||[]).slice(),
+        transpose: +t.transpose||0
+      };
+      saveCurrent();
+      renderTuningEditor();
+      renderBoard();
+      window.scrollTo({top:document.body.scrollHeight/4, behavior:'smooth'});
+    }
+
+    // ===== Fretboard (12 trastes): sólo muestra notas al aire y puntos en 3,5,7,9,12
+    const FRETS = 12;
+    function noteWithTranspose(n, st){ return cycle(n, st); }
+    function oForTranspose(name, oct, st){
+      // cada +12 semitonos = +1 octava; −12 = −1
+      let o = oct;
+      if(st>=12) o += Math.floor(st/12);
+      if(st<=-12) o += Math.ceil(st/12);
+      return o;
+    }
+
+    function renderBoard(){
+      board.innerHTML="";
+      const markerCols=new Set([3,5,7,9,12]);
+
+      for(let s=0;s<current.strings;s++){
+        const open = noteWithTranspose(current.notes[s], current.transpose);
+        const openOct = oForTranspose(current.notes[s], current.oct[s] ?? 3, current.transpose);
+
+        const stringRow = document.createElement('div'); stringRow.className='string';
+
+        const nut = document.createElement('div'); nut.className='nut open-note';
+        if(s>0) nut.style.borderTop='1px solid var(--rule)';
+        const label = document.createElement('span'); label.textContent = open; nut.appendChild(label);
+
+        // dot clickeable en la cejilla
+        const m0 = document.createElement('div'); m0.className='marker';
+        const d0 = document.createElement('div'); d0.className='dot root'; d0.textContent=open;
+        d0.style.pointerEvents='auto'; d0.tabIndex=0; d0.dataset.note=open; d0.dataset.oct=openOct;
+        m0.appendChild(d0); nut.appendChild(m0);
+        stringRow.appendChild(nut);
+
+        d0.addEventListener('pointerdown', ()=>{ Audio.playNote(d0.dataset.note, +d0.dataset.oct, 0.5); d0.classList.add('hit'); setTimeout(()=>d0.classList.remove('hit'),160); }, {passive:true});
+        d0.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ Audio.playNote(d0.dataset.note, +d0.dataset.oct, 0.5); d0.classList.add('hit'); setTimeout(()=>d0.classList.remove('hit'),160);} });
+
+        for(let f=1; f<=FRETS; f++){
+          const cell = document.createElement('div'); cell.className='fret cell';
+          if(s>0) cell.style.borderTop='1px solid var(--rule)';
+          if(s===current.strings-1){
+            const num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
+            if(markerCols.has(f)){
+              const pm=document.createElement('div');
+              if(f===12){ pm.className='pos-marker double'; const i1=document.createElement('i'); const i2=document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
+              else { pm.className='pos-marker'; }
+              cell.appendChild(pm);
+            }
+          }
+          stringRow.appendChild(cell);
+        }
+        board.appendChild(stringRow);
+      }
+    }
+
+    // ===== Init =====
+    document.getElementById('y').textContent = new Date().getFullYear();
+    renderResults();
+    renderMine();
+    loadCurrent(current); // render editor + board
+  })();
+  </script>
+</body>
+</html>
