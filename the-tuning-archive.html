@@ -260,21 +260,86 @@
 
     // ===== Built-in library (seed) =====
     // Notas van de aguda (1ª) a grave (última) para encajar con tu UI previa.
-    const LIB = [
-      {name:"Standard E", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard"]},
-      {name:"Drop D", strings:6, notes:["E","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Rock","Metal"]},
-      {name:"DADGAD", strings:6, notes:["D","A","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Folk"]},
-      {name:"Open D (DADF#AD)", strings:6, notes:["D","A","F#","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide"]},
-      {name:"Open G (DGDGBD)", strings:6, notes:["D","B","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk"]},
-      {name:"Open C (CEGCEG)", strings:6, notes:["G","E","C","G","E","C"], oct:[4,4,3,3,3,2], tags:["Open","Slide","Experimental"]},
-      {name:"Baritone B (BEADF#B)", strings:6, notes:["B","F#","D","A","E","B"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"]},
-      {name:"Baritone A (AEADGB)", strings:6, notes:["B","G","D","A","E","A"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"]},
-      {name:"7-string standard (BEADGBE)", strings:7, notes:["E","B","G","D","A","E","B"], oct:[4,3,3,3,2,2,1], tags:["Extended","Metal"]},
-      {name:"8-string standard (F#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","F#"], oct:[4,3,3,3,2,2,1,1], tags:["Extended","Metal"]},
-      {name:"Open Dm (DADFAD)", strings:6, notes:["D","A","F","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal"]},
-      {name:"Csus2 (CGCGCD)", strings:6, notes:["D","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Modal","Open","Post-rock"]},
-      {name:"Nashville high", strings:6, notes:["E","B","G#","E","B","E"].map(n=>n.replace("G#","G#")), oct:[5,4,4,4,4,3], tags:["Studio","Experimental"]},
-    ];
+const LIB = [
+  // — Standard & half/whole-step downs —
+  { name:"E Standard", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard","General"] },
+  { name:"D# (Eb) Standard", strings:6, notes:["D#","A#","F#","C#","G#","D#"], oct:[4,3,3,3,2,2], tags:["Standard","Half-step-down","Rock"] },
+  { name:"D Standard", strings:6, notes:["D","A","F","C","G","D"], oct:[4,3,3,3,2,2], tags:["Standard","Whole-step-down","Rock"] },
+  { name:"C# Standard", strings:6, notes:["C#","G#","E","B","F#","C#"], oct:[4,3,3,3,2,1], tags:["Standard","Baritone-lean","Metal"] },
+  { name:"C Standard", strings:6, notes:["C","G","D#","A#","F","C"], oct:[4,3,3,3,2,1], tags:["Standard","Baritone","Metal"] },
+
+  // — Drop tunings (6-string) —
+  { name:"Drop D", strings:6, notes:["E","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Rock","Metal"] },
+  { name:"Drop C#", strings:6, notes:["D#","A#","F#","C#","G#","C#"], oct:[4,3,3,3,2,2], tags:["Drop","Rock"] },
+  { name:"Drop C", strings:6, notes:["D","A","F","C","G","C"], oct:[4,3,3,3,2,2], tags:["Drop","Metal"] },
+  { name:"Drop B", strings:6, notes:["C#","G#","E","B","F#","B"], oct:[4,3,3,3,2,2], tags:["Drop","Metal","Baritone"] },
+  { name:"Drop A#", strings:6, notes:["C","G","D#","A#","F","A#"], oct:[4,3,3,3,2,1], tags:["Drop","Baritone","Metal"] },
+  { name:"Drop A", strings:6, notes:["B","F#","D","A","E","A"], oct:[4,3,3,3,2,1], tags:["Drop","Baritone","Metal"] },
+
+  // — Open tunings (6-string) —
+  { name:"Open D (DADF#AD)", strings:6, notes:["D","A","F#","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk","Blues"] },
+  { name:"Open E (EBEG#BE)", strings:6, notes:["E","B","G#","E","B","E"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Blues","Rock"] },
+  { name:"Open G (DGDGBD)", strings:6, notes:["D","B","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk","Blues"] },
+  { name:"Open A (EAC#EAE)", strings:6, notes:["E","A","C#","E","A","E"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Country"] },
+  { name:"Open C (CGCGCE)", strings:6, notes:["E","C","G","C","G","C"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Experimental"] },
+  { name:"Open C Variant (CGCGCG)", strings:6, notes:["G","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Open","Drone","Experimental"] },
+  { name:"Open Dm (DADFAD)", strings:6, notes:["D","A","F","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Folk"] },
+  { name:"Open Gm (DGDGBbD → A#)", strings:6, notes:["D","A#","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Blues"] },
+
+  // — Modal / Folk / Post-rock —
+  { name:"DADGAD", strings:6, notes:["D","A","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Modal","Folk","Celtic"] },
+  { name:"CGDGAD", strings:6, notes:["D","A","G","D","G","C"], oct:[4,3,3,3,2,2], tags:["Modal","Post-rock","Ambient"] },
+  { name:"Csus2 (CGCGCD)", strings:6, notes:["D","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Modal","Open","Post-rock"] },
+  { name:"FACFCF", strings:6, notes:["F","C","F","C","A","F"], oct:[4,3,3,3,2,2], tags:["Modal","Experimental","Drone"] },
+  { name:"EBEEBE", strings:6, notes:["E","B","E","E","B","E"], oct:[4,3,4,3,2,2], tags:["Post-rock","Symmetric","Ambient"] },
+  { name:"EAEAC#E", strings:6, notes:["E","C#","A","E","A","E"], oct:[4,4,3,3,2,2], tags:["Modal","Alt-rock","Open-like"] },
+  { name:"CGDAEG", strings:6, notes:["G","E","A","D","G","C"], oct:[4,4,3,3,2,2], tags:["Modal","Extended-intervals","Experimental"] },
+
+  // — Baritone (6-string low registers) —
+  { name:"B Standard (BEADF#B)", strings:6, notes:["B","F#","D","A","E","B"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"] },
+  { name:"A# Standard", strings:6, notes:["A#","F","C","G","D#","A#"].map(x=>x.replace("A#","A#").replace("D#","D#")), oct:[3,3,3,3,2,1], tags:["Baritone"] },
+  { name:"A Standard", strings:6, notes:["A","E","C#","G#","D","A"], oct:[3,3,3,2,2,1], tags:["Baritone","Metal"] },
+  { name:"G# Standard", strings:6, notes:["G#","D#","B","F#","C#","G#"], oct:[3,3,2,2,2,1], tags:["Baritone","Experimental"] },
+
+  // — Symmetric / Drone / Alternate-intervals —
+  { name:"EAEAEA", strings:6, notes:["A","E","A","E","A","E"], oct:[4,3,3,3,2,2], tags:["Drone","Experimental","Ambient"] },
+  { name:"DADADA", strings:6, notes:["A","D","A","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drone","Experimental"] },
+  { name:"DGDGDG", strings:6, notes:["D","G","D","G","D","G"], oct:[4,3,3,3,2,2], tags:["Drone","Symmetric"] },
+  { name:"AAAAAA", strings:6, notes:["A","A","A","A","A","A"], oct:[4,3,3,3,2,2], tags:["Drone","Noise","Experimental"] },
+
+  // — Systematic tunings —
+  { name:"All Fourths (EADGCF)", strings:6, notes:["F","C","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Alternate","Jazz","Logic"] },
+  { name:"All Fifths (CGDAEB)", strings:6, notes:["B","E","A","D","G","C"], oct:[4,3,3,3,2,2], tags:["Alternate","Mandolin","Experimental"] },
+  { name:"Major Thirds (C-E-G# repeated)", strings:6, notes:["C","G#","E","C","G#","E"], oct:[4,4,3,3,3,2], tags:["Alternate","Chords","Theoretical"] },
+
+  // — Nashville / Studio —
+  { name:"Nashville High (E std split)", strings:6, notes:["E","B","G#","E","B","E"].map(n=>n.replace("G#","G#")), oct:[5,4,4,4,4,3], tags:["Studio","Nashville","Sparkle"] },
+
+  // — 7-string (aguda→grave; última = 7ª grave) —
+  { name:"7-string Standard (BEADGBE)", strings:7, notes:["E","B","G","D","A","E","B"], oct:[4,3,3,3,2,2,1], tags:["Extended","Metal"] },
+  { name:"7-string Drop A", strings:7, notes:["E","B","G","D","A","E","A"], oct:[4,3,3,3,2,2,1], tags:["Drop","Extended","Metal"] },
+  { name:"7-string Drop G#", strings:7, notes:["E","B","G","D","A","E","G#"], oct:[4,3,3,3,2,2,1], tags:["Drop","Extended","Djent"] },
+  { name:"7-string Open D (add low A)", strings:7, notes:["D","A","F#","D","A","D","A"], oct:[4,3,3,3,2,2,1], tags:["Open","Extended","Slide"] },
+
+  // — 8-string —
+  { name:"8-string Standard (F#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","F#"], oct:[4,3,3,3,2,2,1,1], tags:["Extended","Metal","Djent"] },
+  { name:"8-string Drop E (EBEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","E"], oct:[4,3,3,3,2,2,1,1], tags:["Drop","Extended","Djent"] },
+  { name:"8-string Drop D# (D#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","D#"], oct:[4,3,3,3,2,2,1,1], tags:["Drop","Extended"] },
+  { name:"8-string Open D-ish", strings:8, notes:["D","A","F#","D","A","D","A","E"], oct:[4,3,3,3,2,2,1,1], tags:["Open","Extended","Experimental"] },
+
+  // — Extra open / modal flavors —
+  { name:"C6 (C-A-C-G-C-E)", strings:6, notes:["E","C","G","C","A","C"], oct:[4,3,3,3,2,2], tags:["Modal","Open","Country"] },
+  { name:"Double Drop D (DADGBD)", strings:6, notes:["D","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Folk","Rock"] },
+  { name:"Open E5 (EBEGBE)", strings:6, notes:["E","B","G","E","B","E"], oct:[4,3,3,3,2,2], tags:["Open","Rock","Powerchord"] },
+  { name:"Open D5 (DADAD A)", strings:6, notes:["D","A","D","A","D","A"], oct:[4,3,3,3,2,2], tags:["Open","Drone","Slide"] },
+  { name:"CGCGGC", strings:6, notes:["C","G","G","C","G","C"], oct:[4,3,3,3,2,2], tags:["Open","Post-rock","Ambient"] },
+  { name:"CGDGBD", strings:6, notes:["D","B","G","D","G","C"], oct:[4,3,3,3,2,2], tags:["Folk","Open-variant"] },
+
+  // — Odd / Experimental add-ons —
+  { name:"CFA#FCE", strings:6, notes:["E","C","F","A#","F","C"], oct:[4,3,3,3,2,2], tags:["Experimental","Ambient"] },
+  { name:"EADFCE#", strings:6, notes:["C#","E","F","D","A","E"], oct:[4,4,3,3,2,2], tags:["Experimental","Alt-voicings"] },
+  { name:"EADGAD", strings:6, notes:["D","A","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Modal","Alt-rock"] }
+];
 
     // ===== State & persistence =====
     const LS_MINE = "tuning_archive_mine_v1";
