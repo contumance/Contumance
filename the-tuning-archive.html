@@ -64,12 +64,13 @@
     }
     button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
 
-    /* Grid de resultados */
     .results{display:grid; gap:10px; grid-template-columns:1fr;}
     .card{border:1px solid var(--accent); border-radius:.6rem; padding:.65rem .75rem; display:grid; gap:.35rem;}
     .card h3{margin:0; font-size:1rem;}
     .meta{color:var(--muted); font-size:.85rem}
     .pill{display:inline-block; border:1px solid var(--accent); padding:.1rem .45rem; border-radius:999px; font-size:.72rem; margin-right:.25rem}
+    .meta.tech { display:flex; align-items:center; gap:.5rem; }
+    .meta.tech svg { width:14px; height:14px; opacity:.65; }
 
     /* Tuning editor */
     .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
@@ -137,7 +138,7 @@
         <div class="controls" role="group" aria-label="Search controls">
           <div class="row">
             <label for="q">Search</label>
-            <input id="q" type="search" placeholder="DADGAD, Open C, Baritone..." />
+            <input id="q" type="search" placeholder="DADGAD, Open C, Drop A, 7-string..." />
           </div>
           <div class="row">
             <label for="stringsFilter">Strings</label>
@@ -149,12 +150,7 @@
           </div>
           <div class="row">
             <label for="tagFilter">Tag</label>
-            <select id="tagFilter">
-              <option value="any" selected>Any</option>
-              <option>Open</option><option>Drop</option><option>Modal</option>
-              <option>Baritone</option><option>Extended</option>
-              <option>Metal</option><option>Folk</option><option>Slide</option><option>Experimental</option>
-            </select>
+            <select id="tagFilter"><option value="any" selected>Any</option></select>
           </div>
           <div class="row">
             <label for="sortBy">Sort</label>
@@ -202,7 +198,7 @@
           </div>
         </section>
 
-        <p class="meta">Tip: use ± in each string to shift notes; use Octave ± to match registers. Transpose shifts all strings at once (for pitch-down baritone use −2..−5, etc.).</p>
+        <p class="meta">Tip: use ± on each string to shift notes; Octave ± to match registers. Transpose shifts all strings globally.</p>
       </div>
     </details>
 
@@ -258,88 +254,92 @@
     function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
     function noteToMidi(name, octave){ const pc=idx(name); return (octave+1)*12 + (pc<0?0:pc); }
 
-    // ===== Built-in library (seed) =====
-    // Notas van de aguda (1ª) a grave (última) para encajar con tu UI previa.
-const LIB = [
-  // — Standard & half/whole-step downs —
-  { name:"E Standard", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard","General"] },
-  { name:"D# (Eb) Standard", strings:6, notes:["D#","A#","F#","C#","G#","D#"], oct:[4,3,3,3,2,2], tags:["Standard","Half-step-down","Rock"] },
-  { name:"D Standard", strings:6, notes:["D","A","F","C","G","D"], oct:[4,3,3,3,2,2], tags:["Standard","Whole-step-down","Rock"] },
-  { name:"C# Standard", strings:6, notes:["C#","G#","E","B","F#","C#"], oct:[4,3,3,3,2,1], tags:["Standard","Baritone-lean","Metal"] },
-  { name:"C Standard", strings:6, notes:["C","G","D#","A#","F","C"], oct:[4,3,3,3,2,1], tags:["Standard","Baritone","Metal"] },
+    // ===== Built-in library (with scale & gauges) =====
+    const LIB = [
+      // — Standard & half/whole-step —
+      { name:"E Standard", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2],
+        tags:["Standard","General"], scale:'25.5" / 648 mm', gauges:".009–.042 (light) · .010–.046 (regular)" },
+      { name:"D# (Eb) Standard", strings:6, notes:["D#","A#","F#","C#","G#","D#"], oct:[4,3,3,3,2,2],
+        tags:["Standard","Half-step-down","Rock"], scale:'25.5" (24.75" ok)', gauges:".010–.046 · .011–.049 (tighter)" },
+      { name:"D Standard", strings:6, notes:["D","A","F","C","G","D"], oct:[4,3,3,3,2,2],
+        tags:["Standard","Whole-step-down","Rock"], scale:'25.5"–26.5"', gauges:".011–.052 · .011–.054" },
+      { name:"C# Standard", strings:6, notes:["C#","G#","E","B","F#","C#"], oct:[4,3,3,3,2,1],
+        tags:["Standard","Baritone-lean","Metal"], scale:'25.5"–26.5"', gauges:".011–.056 · .012–.056" },
+      { name:"C Standard", strings:6, notes:["C","G","D#","A#","F","C"], oct:[4,3,3,3,2,1],
+        tags:["Standard","Baritone","Metal"], scale:'26.5" (27" ideal)', gauges:".012–.060 · .013–.062" },
 
-  // — Drop tunings (6-string) —
-  { name:"Drop D", strings:6, notes:["E","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Rock","Metal"] },
-  { name:"Drop C#", strings:6, notes:["D#","A#","F#","C#","G#","C#"], oct:[4,3,3,3,2,2], tags:["Drop","Rock"] },
-  { name:"Drop C", strings:6, notes:["D","A","F","C","G","C"], oct:[4,3,3,3,2,2], tags:["Drop","Metal"] },
-  { name:"Drop B", strings:6, notes:["C#","G#","E","B","F#","B"], oct:[4,3,3,3,2,2], tags:["Drop","Metal","Baritone"] },
-  { name:"Drop A#", strings:6, notes:["C","G","D#","A#","F","A#"], oct:[4,3,3,3,2,1], tags:["Drop","Baritone","Metal"] },
-  { name:"Drop A", strings:6, notes:["B","F#","D","A","E","A"], oct:[4,3,3,3,2,1], tags:["Drop","Baritone","Metal"] },
+      // — Drop (6) —
+      { name:"Drop D", strings:6, notes:["E","B","G","D","A","D"], oct:[4,3,3,3,2,2],
+        tags:["Drop","Rock","Metal"], scale:'25.5"', gauges:".010–.046 · 0.052 en 6ª si querés más firmeza" },
+      { name:"Drop C#", strings:6, notes:["D#","A#","F#","C#","G#","C#"], oct:[4,3,3,3,2,2],
+        tags:["Drop","Rock"], scale:'25.5"–26.5"', gauges:".011–.052 · .011–.056" },
+      { name:"Drop C", strings:6, notes:["D","A","F","C","G","C"], oct:[4,3,3,3,2,2],
+        tags:["Drop","Metal"], scale:'25.5"–26.5"', gauges:".011–.056 · .012–.060 (baritone feel)" },
+      { name:"Drop B", strings:6, notes:["C#","G#","E","B","F#","B"], oct:[4,3,3,3,2,2],
+        tags:["Drop","Metal","Baritone"], scale:'26.5" (27" ideal)', gauges:".012–.060 · .013–.064" },
+      { name:"Drop A", strings:6, notes:["B","F#","D","A","E","A"], oct:[4,3,3,3,2,1],
+        tags:["Drop","Baritone","Metal"], scale:'27"–28"', gauges:".013–.068 · .014–.070" },
 
-  // — Open tunings (6-string) —
-  { name:"Open D (DADF#AD)", strings:6, notes:["D","A","F#","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk","Blues"] },
-  { name:"Open E (EBEG#BE)", strings:6, notes:["E","B","G#","E","B","E"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Blues","Rock"] },
-  { name:"Open G (DGDGBD)", strings:6, notes:["D","B","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Folk","Blues"] },
-  { name:"Open A (EAC#EAE)", strings:6, notes:["E","A","C#","E","A","E"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Country"] },
-  { name:"Open C (CGCGCE)", strings:6, notes:["E","C","G","C","G","C"], oct:[4,3,3,3,2,2], tags:["Open","Slide","Experimental"] },
-  { name:"Open C Variant (CGCGCG)", strings:6, notes:["G","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Open","Drone","Experimental"] },
-  { name:"Open Dm (DADFAD)", strings:6, notes:["D","A","F","D","A","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Folk"] },
-  { name:"Open Gm (DGDGBbD → A#)", strings:6, notes:["D","A#","G","D","G","D"], oct:[4,3,3,3,2,2], tags:["Open","Modal","Blues"] },
+      // — Open (6) —
+      { name:"Open D (DADF#AD)", strings:6, notes:["D","A","F#","D","A","D"], oct:[4,3,3,3,2,2],
+        tags:["Open","Slide","Folk"], scale:'25.5" o 24.75"', gauges:".011–.049 (electric) · .012–.054 (acoustic)" },
+      { name:"Open E (EBEG#BE)", strings:6, notes:["E","B","G#","E","B","E"], oct:[4,3,3,3,2,2],
+        tags:["Open","Slide","Blues","Rock"], scale:'25.5"', gauges:".011–.049 · .010–.052" },
+      { name:"Open G (DGDGBD)", strings:6, notes:["D","B","G","D","G","D"], oct:[4,3,3,3,2,2],
+        tags:["Open","Slide","Folk","Blues"], scale:'25.5" o 24.75"', gauges:".011–.049 · .012–.052" },
+      { name:"Open A (EAC#EAE)", strings:6, notes:["E","A","C#","E","A","E"], oct:[4,3,3,3,2,2],
+        tags:["Open","Slide","Country"], scale:'25.5"', gauges:".011–.049" },
+      { name:"Open C (CGCGCE)", strings:6, notes:["E","C","G","C","G","C"], oct:[4,3,3,3,2,2],
+        tags:["Open","Slide","Experimental"], scale:'25.5"', gauges:".011–.052 · .012–.054" },
+      { name:"Open Dm (DADFAD)", strings:6, notes:["D","A","F","D","A","D"], oct:[4,3,3,3,2,2],
+        tags:["Open","Modal","Folk"], scale:'25.5"', gauges:".011–.049 · .012–.052" },
 
-  // — Modal / Folk / Post-rock —
-  { name:"DADGAD", strings:6, notes:["D","A","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Modal","Folk","Celtic"] },
-  { name:"CGDGAD", strings:6, notes:["D","A","G","D","G","C"], oct:[4,3,3,3,2,2], tags:["Modal","Post-rock","Ambient"] },
-  { name:"Csus2 (CGCGCD)", strings:6, notes:["D","C","G","C","G","C"], oct:[4,4,3,3,3,2], tags:["Modal","Open","Post-rock"] },
-  { name:"FACFCF", strings:6, notes:["F","C","F","C","A","F"], oct:[4,3,3,3,2,2], tags:["Modal","Experimental","Drone"] },
-  { name:"EBEEBE", strings:6, notes:["E","B","E","E","B","E"], oct:[4,3,4,3,2,2], tags:["Post-rock","Symmetric","Ambient"] },
-  { name:"EAEAC#E", strings:6, notes:["E","C#","A","E","A","E"], oct:[4,4,3,3,2,2], tags:["Modal","Alt-rock","Open-like"] },
-  { name:"CGDAEG", strings:6, notes:["G","E","A","D","G","C"], oct:[4,4,3,3,2,2], tags:["Modal","Extended-intervals","Experimental"] },
+      // — Modal / Folk / Post-rock —
+      { name:"DADGAD", strings:6, notes:["D","A","G","D","A","D"], oct:[4,3,3,3,2,2],
+        tags:["Modal","Folk","Celtic"], scale:'25.5"', gauges:".011–.049 · .012–.052" },
+      { name:"CGDGAD", strings:6, notes:["D","A","G","D","G","C"], oct:[4,3,3,3,2,2],
+        tags:["Modal","Post-rock","Ambient"], scale:'25.5"', gauges:".011–.049 · .012–.052" },
+      { name:"EBEEBE", strings:6, notes:["E","B","E","E","B","E"], oct:[4,3,4,3,2,2],
+        tags:["Post-rock","Symmetric","Ambient"], scale:'25.5"', gauges:".011–.049 · .012–.052" },
+      { name:"EAEAC#E", strings:6, notes:["E","C#","A","E","A","E"], oct:[4,4,3,3,2,2],
+        tags:["Modal","Alt-rock"], scale:'25.5"', gauges:".011–.049" },
 
-  // — Baritone (6-string low registers) —
-  { name:"B Standard (BEADF#B)", strings:6, notes:["B","F#","D","A","E","B"], oct:[3,3,3,3,2,1], tags:["Baritone","Metal"] },
-  { name:"A# Standard", strings:6, notes:["A#","F","C","G","D#","A#"].map(x=>x.replace("A#","A#").replace("D#","D#")), oct:[3,3,3,3,2,1], tags:["Baritone"] },
-  { name:"A Standard", strings:6, notes:["A","E","C#","G#","D","A"], oct:[3,3,3,2,2,1], tags:["Baritone","Metal"] },
-  { name:"G# Standard", strings:6, notes:["G#","D#","B","F#","C#","G#"], oct:[3,3,2,2,2,1], tags:["Baritone","Experimental"] },
+      // — Baritone (6) —
+      { name:"B Standard (BEADF#B)", strings:6, notes:["B","F#","D","A","E","B"], oct:[3,3,3,3,2,1],
+        tags:["Baritone","Metal"], scale:'26.5"–27"', gauges:".013–.068" },
+      { name:"A Standard", strings:6, notes:["A","E","C#","G#","D","A"], oct:[3,3,3,2,2,1],
+        tags:["Baritone","Metal"], scale:'27"–28"', gauges:".013–.068 · .014–.070" },
 
-  // — Symmetric / Drone / Alternate-intervals —
-  { name:"EAEAEA", strings:6, notes:["A","E","A","E","A","E"], oct:[4,3,3,3,2,2], tags:["Drone","Experimental","Ambient"] },
-  { name:"DADADA", strings:6, notes:["A","D","A","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drone","Experimental"] },
-  { name:"DGDGDG", strings:6, notes:["D","G","D","G","D","G"], oct:[4,3,3,3,2,2], tags:["Drone","Symmetric"] },
-  { name:"AAAAAA", strings:6, notes:["A","A","A","A","A","A"], oct:[4,3,3,3,2,2], tags:["Drone","Noise","Experimental"] },
+      // — Symmetric / Drone —
+      { name:"EAEAEA", strings:6, notes:["A","E","A","E","A","E"], oct:[4,3,3,3,2,2],
+        tags:["Drone","Experimental","Ambient"], scale:'25.5"+', gauges:".012–.054 · .012–.056" },
+      { name:"DADADA", strings:6, notes:["A","D","A","D","A","D"], oct:[4,3,3,3,2,2],
+        tags:["Drone","Experimental"], scale:'25.5"+', gauges:".012–.054 · .013–.056" },
 
-  // — Systematic tunings —
-  { name:"All Fourths (EADGCF)", strings:6, notes:["F","C","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Alternate","Jazz","Logic"] },
-  { name:"All Fifths (CGDAEB)", strings:6, notes:["B","E","A","D","G","C"], oct:[4,3,3,3,2,2], tags:["Alternate","Mandolin","Experimental"] },
-  { name:"Major Thirds (C-E-G# repeated)", strings:6, notes:["C","G#","E","C","G#","E"], oct:[4,4,3,3,3,2], tags:["Alternate","Chords","Theoretical"] },
+      // — Systematic —
+      { name:"All Fourths (EADGCF)", strings:6, notes:["F","C","G","D","A","E"], oct:[4,3,3,3,2,2],
+        tags:["Alternate","Jazz","Logic"], scale:'25.5"', gauges:".010–.046 · .011–.049" },
+      { name:"All Fifths (CGDAEB)", strings:6, notes:["B","E","A","D","G","C"], oct:[4,3,3,3,2,2],
+        tags:["Alternate","Experimental"], scale:'25.5"', gauges:".010–.046 (ajustar según feel)" },
+      { name:"Major Thirds (C–E–G# repeated)", strings:6, notes:["C","G#","E","C","G#","E"], oct:[4,4,3,3,3,2],
+        tags:["Alternate","Chords","Theoretical"], scale:'25.5"', gauges:".010–.046 · .011–.049" },
 
-  // — Nashville / Studio —
-  { name:"Nashville High (E std split)", strings:6, notes:["E","B","G#","E","B","E"].map(n=>n.replace("G#","G#")), oct:[5,4,4,4,4,3], tags:["Studio","Nashville","Sparkle"] },
+      // — Nashville / Studio —
+      { name:"Nashville High", strings:6, notes:["E","B","G#","E","B","E"], oct:[5,4,4,4,4,3],
+        tags:["Studio","Nashville","Sparkle"], scale:'25.5"', gauges:"Mitad alta de 12 cuerdas (aprox .010 .014 .009 .012 .018 .027)" },
 
-  // — 7-string (aguda→grave; última = 7ª grave) —
-  { name:"7-string Standard (BEADGBE)", strings:7, notes:["E","B","G","D","A","E","B"], oct:[4,3,3,3,2,2,1], tags:["Extended","Metal"] },
-  { name:"7-string Drop A", strings:7, notes:["E","B","G","D","A","E","A"], oct:[4,3,3,3,2,2,1], tags:["Drop","Extended","Metal"] },
-  { name:"7-string Drop G#", strings:7, notes:["E","B","G","D","A","E","G#"], oct:[4,3,3,3,2,2,1], tags:["Drop","Extended","Djent"] },
-  { name:"7-string Open D (add low A)", strings:7, notes:["D","A","F#","D","A","D","A"], oct:[4,3,3,3,2,2,1], tags:["Open","Extended","Slide"] },
+      // — 7-string —
+      { name:"7-string Standard (BEADGBE)", strings:7, notes:["E","B","G","D","A","E","B"], oct:[4,3,3,3,2,2,1],
+        tags:["Extended","Metal"], scale:'26.5"–27"', gauges:".010–.059 · .011–.064" },
+      { name:"7-string Drop A", strings:7, notes:["E","B","G","D","A","E","A"], oct:[4,3,3,3,2,2,1],
+        tags:["Drop","Extended","Metal"], scale:'26.5"–27"', gauges:".010–.062 · .011–.064 (6ª/7ª más gruesas)" },
 
-  // — 8-string —
-  { name:"8-string Standard (F#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","F#"], oct:[4,3,3,3,2,2,1,1], tags:["Extended","Metal","Djent"] },
-  { name:"8-string Drop E (EBEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","E"], oct:[4,3,3,3,2,2,1,1], tags:["Drop","Extended","Djent"] },
-  { name:"8-string Drop D# (D#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","D#"], oct:[4,3,3,3,2,2,1,1], tags:["Drop","Extended"] },
-  { name:"8-string Open D-ish", strings:8, notes:["D","A","F#","D","A","D","A","E"], oct:[4,3,3,3,2,2,1,1], tags:["Open","Extended","Experimental"] },
-
-  // — Extra open / modal flavors —
-  { name:"C6 (C-A-C-G-C-E)", strings:6, notes:["E","C","G","C","A","C"], oct:[4,3,3,3,2,2], tags:["Modal","Open","Country"] },
-  { name:"Double Drop D (DADGBD)", strings:6, notes:["D","B","G","D","A","D"], oct:[4,3,3,3,2,2], tags:["Drop","Folk","Rock"] },
-  { name:"Open E5 (EBEGBE)", strings:6, notes:["E","B","G","E","B","E"], oct:[4,3,3,3,2,2], tags:["Open","Rock","Powerchord"] },
-  { name:"Open D5 (DADAD A)", strings:6, notes:["D","A","D","A","D","A"], oct:[4,3,3,3,2,2], tags:["Open","Drone","Slide"] },
-  { name:"CGCGGC", strings:6, notes:["C","G","G","C","G","C"], oct:[4,3,3,3,2,2], tags:["Open","Post-rock","Ambient"] },
-  { name:"CGDGBD", strings:6, notes:["D","B","G","D","G","C"], oct:[4,3,3,3,2,2], tags:["Folk","Open-variant"] },
-
-  // — Odd / Experimental add-ons —
-  { name:"CFA#FCE", strings:6, notes:["E","C","F","A#","F","C"], oct:[4,3,3,3,2,2], tags:["Experimental","Ambient"] },
-  { name:"EADFCE#", strings:6, notes:["C#","E","F","D","A","E"], oct:[4,4,3,3,2,2], tags:["Experimental","Alt-voicings"] },
-  { name:"EADGAD", strings:6, notes:["D","A","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Modal","Alt-rock"] }
-];
+      // — 8-string —
+      { name:"8-string Standard (F#BEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","F#"], oct:[4,3,3,3,2,2,1,1],
+        tags:["Extended","Metal","Djent"], scale:'27"–28"', gauges:".010–.074 · .011–.080" },
+      { name:"8-string Drop E (EBEADGBE)", strings:8, notes:["E","B","G","D","A","E","B","E"], oct:[4,3,3,3,2,2,1,1],
+        tags:["Drop","Extended","Djent"], scale:'27"–28"', gauges:".010–.074 · .011–.080" }
+    ];
 
     // ===== State & persistence =====
     const LS_MINE = "tuning_archive_mine_v1";
@@ -347,7 +347,7 @@ const LIB = [
     let mine = [];
     try{ mine = JSON.parse(localStorage.getItem(LS_MINE) || "[]"); if(!Array.isArray(mine)) mine=[]; }catch(e){ mine=[]; }
 
-    let current = {name:"Standard E", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard"], transpose:0};
+    let current = {name:"E Standard", strings:6, notes:["E","B","G","D","A","E"], oct:[4,3,3,3,2,2], tags:["Standard"], transpose:0};
     try{ const c = JSON.parse(localStorage.getItem(LS_CURRENT)||"null"); if(c) current = c; }catch(e){}
 
     function saveMine(){ localStorage.setItem(LS_MINE, JSON.stringify(mine)); }
@@ -397,7 +397,18 @@ const LIB = [
       };
     })();
 
-    // ===== Rendering: results =====
+    // ===== Filters & sort =====
+    function fillTagFilterFromLIB(){
+      const select = document.getElementById('tagFilter');
+      if(!select) return;
+      const set = new Set();
+      LIB.forEach(t => (t.tags||[]).forEach(tag => set.add(tag)));
+      const tags = Array.from(set).sort((a,b)=>a.localeCompare(b));
+      select.innerHTML = ['<option value="any" selected>Any</option>']
+        .concat(tags.map(t=>`<option>${t}</option>`)).join('');
+    }
+    fillTagFilterFromLIB();
+
     function matches(item){
       const text = (q.value||"").trim().toLowerCase();
       const strSel = stringsFilter.value;
@@ -419,7 +430,6 @@ const LIB = [
       else if(s==="strings"){ arr.sort((a,b)=>a.strings-b.strings || a.name.localeCompare(b.name)); }
       else if(s==="lowest"){
         function lowMidi(t){
-          // última cuerda = más grave (según definimos)
           const n = t.notes[t.notes.length-1]; const o = (t.oct && t.oct[t.oct.length-1]) ?? 2;
           return noteToMidi(n, o);
         }
@@ -428,16 +438,47 @@ const LIB = [
       return arr;
     }
 
+    function audition(t){
+      const notes = t.notes.slice().reverse();
+      const octs = (t.oct||[]).slice().reverse();
+      let delay = 0;
+      notes.forEach((n,ix)=>{
+        const o = octs[ix] ?? 2;
+        setTimeout(()=>Audio.playNote(n,o,0.45), delay);
+        delay += 180;
+      });
+    }
+
     function renderResults(){
       const all = LIB.slice();
       const arr = sortItems(all.filter(matches));
       if(!arr.length){ results.innerHTML = '<div class="meta">No results.</div>'; return; }
+
       results.innerHTML = arr.map((t,i)=>{
         const tags = (t.tags||[]).map(x=>`<span class="pill">${x}</span>`).join(" ");
         const sig = t.notes.join(" – ");
+
+        const scaleInfo = t.scale ? `
+          <div class="meta tech">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M3 7h18v4H3z"/><path d="M6 7v4M9 7v4M12 7v4M15 7v4M18 7v4"/>
+            </svg>
+            <span><strong>Scale:</strong> ${t.scale}</span>
+          </div>` : "";
+
+        const gaugeInfo = t.gauges ? `
+          <div class="meta tech">
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <path d="M4 12h16"/><circle cx="6" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>
+            </svg>
+            <span><strong>Strings:</strong> ${t.gauges}</span>
+          </div>` : "";
+
         return `<article class="card">
           <h3>${t.name}</h3>
           <div class="meta">${t.strings} strings · <code>${sig}</code></div>
+          ${scaleInfo}
+          ${gaugeInfo}
           <div>${tags}</div>
           <div class="row">
             <button data-pick="${i}" type="button">Load</button>
@@ -445,6 +486,7 @@ const LIB = [
           </div>
         </article>`;
       }).join("");
+
       results.querySelectorAll('button[data-pick]').forEach(btn=>{
         btn.addEventListener('click',()=>{
           const t = sortItems(LIB.filter(matches))[+btn.dataset.pick];
@@ -456,18 +498,6 @@ const LIB = [
           const t = sortItems(LIB.filter(matches))[+btn.dataset.aud];
           audition(t);
         },{passive:true});
-      });
-    }
-
-    function audition(t){
-      // reproduce de grave a aguda
-      const notes = t.notes.slice().reverse();
-      const octs = (t.oct||[]).slice().reverse();
-      let delay = 0;
-      notes.forEach((n,ix)=>{
-        const o = octs[ix] ?? 2;
-        setTimeout(()=>Audio.playNote(n,o,0.45), delay);
-        delay += 180;
       });
     }
 
@@ -484,7 +514,6 @@ const LIB = [
       if(!Array.isArray(current.notes)) current.notes=[];
       if(!Array.isArray(current.oct)) current.oct=[];
       while(current.notes.length < n){
-        // bajar por cuartas desde la más grave actual
         if(current.notes.length===0){ current.notes.push("E"); current.oct.push(4); }
         else {
           const i = current.notes.length-1;
@@ -545,21 +574,20 @@ const LIB = [
     transpose.addEventListener('input', ()=>{ current.transpose=+transpose.value; transposeVal.textContent=transpose.value; saveCurrent(); renderBoard(); });
 
     playOpen.addEventListener('click', ()=>{
-      // de grave a aguda
       const notes = current.notes.slice().reverse();
       const octs = current.oct.slice().reverse();
       let delay=0;
       notes.forEach((n,ix)=>{
         const o = octs[ix] ?? 2;
-        const t = noteWithTranspose(n, current.transpose);
-        setTimeout(()=>Audio.playNote(t, oForTranspose(n,o,current.transpose), 0.5), delay);
+        const t = cycle(n, current.transpose);
+        const o2 = o + (current.transpose>=12?Math.floor(current.transpose/12): (current.transpose<=-12?Math.ceil(current.transpose/12):0));
+        setTimeout(()=>Audio.playNote(t, o2, 0.5), delay);
         delay+=180;
       });
     });
 
     saveToArchive.addEventListener('click', ()=>{
       const entry = JSON.parse(JSON.stringify(current));
-      // pequeño normalizador
       entry.name = currentName.value || current.name || "Custom tuning";
       if(!Array.isArray(entry.tags)) entry.tags=[];
       mine.push(entry); saveMine(); renderMine();
@@ -593,9 +621,12 @@ const LIB = [
       mineWrap.innerHTML = mine.map((t,idx)=>{
         const sig = (t.notes||[]).join(" – ");
         const tags = (t.tags||[]).map(x=>`<span class="pill">${x}</span>`).join(" ");
+        const sc = t.scale? `<div class="meta"><strong>Scale:</strong> ${t.scale}</div>`:"";
+        const gg = t.gauges? `<div class="meta"><strong>Strings:</strong> ${t.gauges}</div>`:"";
         return `<article class="card">
           <h3>${t.name||'Untitled'}</h3>
           <div class="meta">${t.strings||'?'} strings · <code>${sig}</code></div>
+          ${sc}${gg}
           <div>${tags}</div>
           <div class="row">
             <button data-load-m="${idx}" type="button">Load</button>
@@ -618,7 +649,6 @@ const LIB = [
     }
 
     function loadCurrent(t){
-      // clonar y normalizar
       current = {
         name: t.name||"Custom tuning",
         strings: +t.strings || (t.notes?t.notes.length:6),
@@ -633,24 +663,17 @@ const LIB = [
       window.scrollTo({top:document.body.scrollHeight/4, behavior:'smooth'});
     }
 
-    // ===== Fretboard (12 trastes): sólo muestra notas al aire y puntos en 3,5,7,9,12
+    // ===== Fretboard (12 frets) - root dots at nut only (preview) =====
     const FRETS = 12;
-    function noteWithTranspose(n, st){ return cycle(n, st); }
-    function oForTranspose(name, oct, st){
-      // cada +12 semitonos = +1 octava; −12 = −1
-      let o = oct;
-      if(st>=12) o += Math.floor(st/12);
-      if(st<=-12) o += Math.ceil(st/12);
-      return o;
-    }
-
     function renderBoard(){
       board.innerHTML="";
       const markerCols=new Set([3,5,7,9,12]);
 
       for(let s=0;s<current.strings;s++){
-        const open = noteWithTranspose(current.notes[s], current.transpose);
-        const openOct = oForTranspose(current.notes[s], current.oct[s] ?? 3, current.transpose);
+        const open = cycle(current.notes[s], current.transpose);
+        const baseOct = current.oct[s] ?? 3;
+        const oAdj = (current.transpose>=12?Math.floor(current.transpose/12): (current.transpose<=-12?Math.ceil(current.transpose/12):0));
+        const openOct = baseOct + oAdj;
 
         const stringRow = document.createElement('div'); stringRow.className='string';
 
@@ -658,7 +681,6 @@ const LIB = [
         if(s>0) nut.style.borderTop='1px solid var(--rule)';
         const label = document.createElement('span'); label.textContent = open; nut.appendChild(label);
 
-        // dot clickeable en la cejilla
         const m0 = document.createElement('div'); m0.className='marker';
         const d0 = document.createElement('div'); d0.className='dot root'; d0.textContent=open;
         d0.style.pointerEvents='auto'; d0.tabIndex=0; d0.dataset.note=open; d0.dataset.oct=openOct;
@@ -690,7 +712,7 @@ const LIB = [
     document.getElementById('y').textContent = new Date().getFullYear();
     renderResults();
     renderMine();
-    loadCurrent(current); // render editor + board
+    loadCurrent(current);
   })();
   </script>
 </body>
