@@ -3,30 +3,23 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Re:sonance — Floating Icons</title>
+<title>Re:sonance — A quiet selection for curious hands.</title>
+<meta name="description" content="Re:sonance — A quiet selection for curious hands." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
+
 <style>
-  /* ===== Tokens alineados con tu index ===== */
   :root{
-    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
-    --accent:#a08a63; --fs:18px;
-
-    --size: min(92vmin, 720px); /* lienzo cuadrado */
-    --halo: color-mix(in oklab, var(--accent) 22%, transparent);
+    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --accent:#a08a63;
+    --maxw:46rem; --lh:1.6; --fs:18px;
   }
-  html.theme-dark{
-    --paper:#0e0f0e; --ink:#dbd6c9; --muted:#9b9689; --link:#a9d0b8;
-    --accent:#242523; --halo: color-mix(in oklab, var(--link) 30%, transparent);
-  }
-
-  html{font-size:var(--fs)}
+  html{ font-size:var(--fs); }
   body{
-    margin:0; color:var(--ink); background:var(--paper);
+    margin:0; background:var(--paper); color:var(--ink);
     font-family: ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    display:grid; place-items:center; min-height:100svh; overflow:hidden;
+    line-height:var(--lh); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    min-height:100svh; display:grid; place-items:center; overflow:hidden;
   }
-  /* grano sutil */
+  /* Grano/ruido sutil tipo papel */
   body::before{
     content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
     background-image:
@@ -35,248 +28,40 @@
     background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
   }
 
-  /* Controles (esquina, solo íconos) */
-  .controls{
-    position: fixed; top: clamp(8px, 2vmin, 16px); right: clamp(8px, 2vmin, 16px);
-    display:flex; gap:.5rem; z-index:20;
-  }
-  .btn{
-    border:1px solid var(--accent); background:transparent; color:var(--ink);
-    border-radius:.45rem; padding:.4rem .55rem; cursor:pointer; font-size:1rem; line-height:1;
-    transition: background-color .25s ease, transform .06s ease;
-  }
-  .btn:hover{ transform: translateY(-1px) }
-  .btn:active{ transform: translateY(0) }
-  .btn:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px }
-
-  /* ===== Escena cuadrada ===== */
-  .stage{
-    width:var(--size); aspect-ratio:1/1; position:relative; border-radius:16px; overflow:hidden;
-    display:grid; place-items:center; isolation:isolate;
-    background:
-      radial-gradient(60% 60% at 50% 46%, color-mix(in oklab, var(--paper) 94%, var(--accent) 6%), var(--paper) 70%),
-      radial-gradient(120% 100% at 50% 120%, color-mix(in oklab, #000 8%, transparent 92%), transparent 60%);
-    box-shadow:
-      inset 0 0 80px 0 color-mix(in oklab, var(--accent) 10%, transparent),
-      0 1px 0 rgba(0,0,0,.06);
-  }
-  /* luz barrida sutil */
-  .stage::after{
-    content:""; position:absolute; inset:-20%;
-    background: conic-gradient(from 0turn, transparent 0 70%, var(--halo) 82%, transparent 100%);
-    mix-blend-mode:soft-light; opacity:.55; animation: sweep 28s linear infinite;
-    pointer-events:none;
+  main{
+    width:100%; max-width:var(--maxw); padding:10vh 1.25rem;
+    display:grid; place-items:center; text-align:center;
   }
 
-  /* Centro: marca */
-  .center{
-    position:relative; z-index:5; text-align:center;
-    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--halo) 70%, transparent));
-  }
-  .center h1{
+  h1{
     margin:0; font-weight:600; letter-spacing:.2px;
-    font-size:clamp(2rem, 7vmin, 3.2rem); line-height:1.05;
-  }
-  .center .underline{
-    height:10px; margin:.18rem auto 0; width:min(52%, 340px);
-    background: linear-gradient(90deg, color-mix(in oklab, var(--ink) 18%, transparent), transparent 70%);
-    opacity:.7; filter: blur(.15px);
+    font-size:clamp(2.2rem, 7vw, 4rem); line-height:1.04;
+    /* leve “letterpress” para sensación de tinta en papel */
+    text-shadow: 0 .5px 0 color-mix(in oklab, var(--ink) 12%, transparent);
   }
 
-  /* ===== Iconos flotantes (sin rotación) ===== */
-  .cloud{
-    position:absolute; inset:0; margin:auto; width:100%; height:100%;
-    z-index:3; pointer-events:none; /* los links siguen siendo clicables, pero evitamos roces en el contenedor */
+  .rule{
+    width:min(340px, 60%); height:1px; margin:.85rem auto 1.25rem;
+    background: color-mix(in oklab, var(--accent) 38%, transparent);
+    opacity:.6;
   }
-  .app{
-    --x: 0px; --y: 0px; --s: 1;
-    position:absolute; left:50%; top:50%;
-    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s));
-    will-change: transform, filter;
-    transition: filter .2s ease, transform .12s ease;
-    pointer-events:auto; text-decoration:none; color:var(--link);
+
+  p.desc{
+    margin:0; color:var(--muted); font-style:italic;
+    font-size:clamp(1rem, 2.6vw, 1.15rem);
   }
-  .app:hover{ filter: brightness(1.05) drop-shadow(0 2px 6px color-mix(in oklab, var(--halo) 80%, transparent)); transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(calc(var(--s) * 1.04)); }
 
-  .icon-wrap{
-    display:grid; place-items:center; width:2.6rem; height:2.6rem; border-radius:999px;
-    background: color-mix(in oklab, var(--paper) 80%, var(--accent) 20%);
-    border:1px solid var(--accent);
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--paper) 60%, transparent);
-  }
-  .icon{ width:1.35rem; height:1.35rem; display:block }
-
-  /* Posiciones base (círculo irregular) */
-  /* distancias en px relativas al centro, sin rotación */
-  .app.scales { --x: -210px; --y: -70px;  --s: 1.00; animation: driftA 8s ease-in-out infinite }
-  .app.chords { --x:  190px; --y: -40px;  --s: 1.00; animation: driftB 9.2s ease-in-out infinite .2s }
-  .app.daily  { --x:  -40px; --y: -220px; --s: 1.00; animation: driftC 10.5s ease-in-out infinite .4s }
-  .app.drone  { --x:  -10px; --y:  215px; --s: 1.00; animation: driftA 11.5s ease-in-out infinite .1s }
-  .app.interv { --x: -200px; --y:  80px;  --s: 1.00; animation: driftB 12.6s ease-in-out infinite .3s }
-  .app.aural  { --x:  130px; --y:  180px; --s: 1.00; animation: driftC 13.4s ease-in-out infinite .5s }
-  .app.tuning { --x:   70px; --y: -170px; --s: 1.00; animation: driftA 14.2s ease-in-out infinite .7s }
-
-  /* Estados globales */
-  .paused .stage::after,
-  .paused .app{ animation-play-state: paused !important }
-
-  /* Motion safety */
+  /* Motion safety (por si en el futuro se añade algo animado) */
   @media (prefers-reduced-motion: reduce){
-    .stage::after, .app{ animation:none !important }
-  }
-
-  /* ===== Animaciones ===== */
-  @keyframes sweep{ to{ transform: rotate(1turn) } }
-  /* Pequeños desplazamientos en 2D, sin rotación */
-  @keyframes driftA{
-    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
-    50%     { transform: translate(calc(-50% + var(--x) + 8px), calc(-50% + var(--y) - 10px)) scale(var(--s)) }
-  }
-  @keyframes driftB{
-    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
-    50%     { transform: translate(calc(-50% + var(--x) - 12px), calc(-50% + var(--y) + 7px)) scale(var(--s)) }
-  }
-  @keyframes driftC{
-    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
-    50%     { transform: translate(calc(-50% + var(--x) + 6px), calc(-50% + var(--y) + 9px)) scale(var(--s)) }
+    * { animation: none !important; transition: none !important; }
   }
 </style>
 </head>
 <body>
-
-  <!-- Controles -->
-  <div class="controls">
-    <button class="btn" id="pauseBtn" aria-label="Pause">❚❚</button>
-    <button class="btn" id="themeToggle" aria-label="Toggle theme">☾</button>
-  </div>
-
-  <!-- Escena -->
-  <section class="stage" id="stage" aria-label="Re:sonance floating icons">
-    <div class="center">
-      <h1>Re:sonance</h1>
-      <div class="underline" aria-hidden="true"></div>
-    </div>
-
-    <!-- Nube de iconos (flotando, sin girar) -->
-    <div class="cloud" aria-hidden="false">
-      <!-- Scales -->
-      <a class="app scales" href="the-scales-book.html" title="The Scales Book">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-            <circle cx="5" cy="16" r="1.6"></circle>
-            <circle cx="9.5" cy="13.2" r="1.6"></circle>
-            <circle cx="14" cy="10.6" r="1.6"></circle>
-            <circle cx="18.5" cy="8" r="1.6"></circle>
-          </svg>
-        </span>
-      </a>
-
-      <!-- Chords -->
-      <a class="app chords" href="the-chords-book.html" title="The Chords Book">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="6" cy="17" r="2.4"></circle>
-            <circle cx="18" cy="17" r="2.4"></circle>
-            <circle cx="12" cy="7" r="2.4"></circle>
-            <path d="M7.9 16.2 L10.4 8.8 M16.1 16.2 L13.6 8.8" />
-          </svg>
-        </span>
-      </a>
-
-      <!-- Daily Chord -->
-      <a class="app daily" href="the-daily-chord.html" title="The Daily Chord">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3.5" y="6" width="17" height="13" rx="1.8"></rect>
-            <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
-            <path d="M12 13.1 v-1.7 M12 13.1 l1.15 1.15 M12 13.1 l-1.15 1.15 M12 13.1 v1.7" />
-          </svg>
-        </span>
-      </a>
-
-      <!-- Drone Room -->
-      <a class="app drone" href="the-drone-room.html" title="The Drone Room">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="7"></circle>
-            <path d="M12 5 v2 M12 17 v2 M5 12 h2 M17 12 h2"/>
-          </svg>
-        </span>
-      </a>
-
-      <!-- Intervals Garden -->
-      <a class="app interv" href="the-intervals-garden.html" title="The Intervals Garden">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="12" r="2.2"></circle>
-            <circle cx="16" cy="8" r="2.2"></circle>
-            <path d="M9.8 11.2 C12 9 14 9 15.4 8.6"/>
-          </svg>
-        </span>
-      </a>
-
-      <!-- Aural Garden -->
-      <a class="app aural" href="the-aural-garden.html" title="Aural Garden">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 14c2-6 14-6 16 0"/>
-            <path d="M6 16c1.4-3 10.6-3 12 0"/>
-            <circle cx="12" cy="18" r="1.2" />
-          </svg>
-        </span>
-      </a>
-
-      <!-- Tuning Archive -->
-      <a class="app tuning" href="the-tuning-archive.html" title="The Tuning Archive">
-        <span class="icon-wrap">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 18h16M6 14h12M8 10h8M10 6h4"/>
-            <circle cx="12" cy="6" r=".8"/>
-          </svg>
-        </span>
-      </a>
-    </div>
-  </section>
-
-<script>
-  (function(){
-    const KEY='theme-preference';
-    const root=document.documentElement;
-    const stage=document.getElementById('stage');
-    const themeBtn=document.getElementById('themeToggle');
-    const pauseBtn=document.getElementById('pauseBtn');
-
-    // Theme
-    function setIcon(mode){
-      themeBtn.textContent = mode==='dark' ? '☀︎' : '☾';
-      themeBtn.setAttribute('aria-label', mode==='dark' ? 'Light' : 'Dark');
-    }
-    function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
-    function getPreferred(){
-      const saved=localStorage.getItem(KEY);
-      if(saved==='light' || saved==='dark') return saved;
-      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-    }
-    let current=getPreferred(); applyTheme(current);
-    themeBtn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
-
-    // Pause/Play
-    let paused=false;
-    function togglePause(){
-      paused=!paused;
-      stage.classList.toggle('paused', paused);
-      pauseBtn.textContent = paused ? '▶︎' : '❚❚';
-      pauseBtn.setAttribute('aria-label', paused ? 'Play' : 'Pause');
-    }
-    pauseBtn.addEventListener('click', togglePause);
-
-    // Atajos: T = theme, P = pause
-    window.addEventListener('keydown', (e)=>{
-      const k=e.key.toLowerCase();
-      if(k==='t'){ themeBtn.click(); }
-      if(k==='p'){ togglePause(); }
-    });
-  })();
-</script>
+  <main>
+    <h1>Re:sonance</h1>
+    <div class="rule" aria-hidden="true"></div>
+    <p class="desc">A quiet selection for curious hands.</p>
+  </main>
 </body>
 </html>
