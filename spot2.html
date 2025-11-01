@@ -3,309 +3,240 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Re:sonance — Library Intro</title>
-<meta name="description" content="Re:sonance — A quiet library of sound. Paper, notes, and subtle motion for a bookish intro." />
+<title>Re:sonance — Floating Icons</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
 <style>
-  /* ========= Tokens (alineados con tu index) ========= */
+  /* ===== Tokens alineados con tu index ===== */
   :root{
     --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
-    --link-visited:#514f7a; --accent:#a08a63; --fs:18px; --lh:1.6;
+    --accent:#a08a63; --fs:18px;
 
-    /* Escena */
-    --size: min(92vmin, 720px);      /* cuadrado responsivo */
-    --grain-ink: rgba(0,0,0,.06);
-    --tape: color-mix(in oklab, var(--paper) 70%, var(--accent) 30%);
-    --ring: color-mix(in oklab, var(--ink) 20%, transparent);
+    --size: min(92vmin, 720px); /* lienzo cuadrado */
+    --halo: color-mix(in oklab, var(--accent) 22%, transparent);
   }
   html.theme-dark{
     --paper:#0e0f0e; --ink:#dbd6c9; --muted:#9b9689; --link:#a9d0b8;
-    --link-visited:#c0b8e0; --accent:#242523;
-    --grain-ink: rgba(255,255,255,.05);
-    --tape: color-mix(in oklab, var(--ink) 65%, var(--paper) 35%);
-    --ring: color-mix(in oklab, var(--ink) 35%, transparent);
+    --accent:#242523; --halo: color-mix(in oklab, var(--link) 30%, transparent);
   }
 
   html{font-size:var(--fs)}
   body{
     margin:0; color:var(--ink); background:var(--paper);
     font-family: ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
-    line-height:var(--lh); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
     display:grid; place-items:center; min-height:100svh; overflow:hidden;
   }
-
-  /* Textura general leve (grano) */
+  /* grano sutil */
   body::before{
-    content:""; position:fixed; inset:0; pointer-events:none;
+    content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
     background-image:
-      radial-gradient(circle at 25% 15%, #000 .45px, transparent .45px),
-      radial-gradient(circle at 75% 85%, #000 .45px, transparent .45px);
-    background-size:3px 3px, 3px 3px;
-    opacity:.05; mix-blend-mode:multiply;
+      radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+      radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+    background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
   }
 
-  /* ========= Controles ========= */
+  /* Controles (esquina, solo íconos) */
   .controls{
     position: fixed; top: clamp(8px, 2vmin, 16px); right: clamp(8px, 2vmin, 16px);
     display:flex; gap:.5rem; z-index:20;
   }
   .btn{
     border:1px solid var(--accent); background:transparent; color:var(--ink);
-    border-radius:.45rem; padding:.4rem .65rem; cursor:pointer; font-size:1rem; line-height:1;
+    border-radius:.45rem; padding:.4rem .55rem; cursor:pointer; font-size:1rem; line-height:1;
     transition: background-color .25s ease, transform .06s ease;
   }
   .btn:hover{ transform: translateY(-1px) }
   .btn:active{ transform: translateY(0) }
   .btn:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px }
 
-  /* ========= Escena cuadrada con papel ========= */
+  /* ===== Escena cuadrada ===== */
   .stage{
     width:var(--size); aspect-ratio:1/1; position:relative; border-radius:16px; overflow:hidden;
+    display:grid; place-items:center; isolation:isolate;
+    background:
+      radial-gradient(60% 60% at 50% 46%, color-mix(in oklab, var(--paper) 94%, var(--accent) 6%), var(--paper) 70%),
+      radial-gradient(120% 100% at 50% 120%, color-mix(in oklab, #000 8%, transparent 92%), transparent 60%);
     box-shadow:
-      0 12px 30px rgba(0,0,0,.08),
+      inset 0 0 80px 0 color-mix(in oklab, var(--accent) 10%, transparent),
       0 1px 0 rgba(0,0,0,.06);
-    background:
-      /* fibra y papel */
-      linear-gradient(180deg, color-mix(in oklab, var(--paper) 96%, var(--accent) 4%), var(--paper)) 0 0/100% 100%,
-      /* líneas tenues tipo hoja */
-      repeating-linear-gradient(180deg,
-        color-mix(in oklab, var(--accent) 18%, transparent) 0 32px,
-        color-mix(in oklab, var(--accent) 18%, transparent) 1px 32px,
-        transparent 33px 64px);
-    isolation:isolate;
   }
-  /* Borde de libro: lomo sutil a la izquierda */
-  .stage::before{
-    content:""; position:absolute; inset:0; width:14px; left:0; top:0; bottom:0;
-    background:
-      linear-gradient(90deg,
-        color-mix(in oklab, var(--accent) 18%, transparent),
-        transparent 40%);
-    filter: blur(.2px);
-    opacity:.65; pointer-events:none;
-  }
-  /* Luz que recorre la hoja (muy sutil) */
+  /* luz barrida sutil */
   .stage::after{
     content:""; position:absolute; inset:-20%;
-    background: conic-gradient(from 0turn,
-      transparent 0 70%,
-      color-mix(in oklab, var(--ring) 100%, transparent) 82%,
-      transparent 100%);
-    mix-blend-mode:soft-light; opacity:.5;
-    animation: sweep 26s linear infinite;
+    background: conic-gradient(from 0turn, transparent 0 70%, var(--halo) 82%, transparent 100%);
+    mix-blend-mode:soft-light; opacity:.55; animation: sweep 28s linear infinite;
     pointer-events:none;
   }
 
-  /* ========= Cabecera “a mano” ========= */
-  .header{
-    position:absolute; inset:0; display:grid; place-items:center; z-index:10;
-    padding:7% 6% 6%;
+  /* Centro: marca */
+  .center{
+    position:relative; z-index:5; text-align:center;
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--halo) 70%, transparent));
   }
-  .logo{
-    text-align:center; max-width:78%;
-    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--ring) 60%, transparent));
-  }
-  .logo h1{
+  .center h1{
     margin:0; font-weight:600; letter-spacing:.2px;
-    font-size:clamp(2rem, 6.2vmin, 3.2rem); line-height:1.05; position:relative;
+    font-size:clamp(2rem, 7vmin, 3.2rem); line-height:1.05;
   }
-  .pencil-underline{
-    height:10px; margin:.2rem auto 0; width:min(56%, 340px);
-    background:
-      radial-gradient(8px 8px at 0 50%, transparent 55%, color-mix(in oklab, var(--ink) 12%, transparent) 56%, transparent 60%) left center/12px 10px no-repeat,
-      linear-gradient(90deg, color-mix(in oklab, var(--ink) 22%, transparent), transparent 70%);
+  .center .underline{
+    height:10px; margin:.18rem auto 0; width:min(52%, 340px);
+    background: linear-gradient(90deg, color-mix(in oklab, var(--ink) 18%, transparent), transparent 70%);
     opacity:.7; filter: blur(.15px);
-    animation: scribble 1.8s ease both .15s;
-  }
-  .claim{
-    margin:.6rem auto 0; color:var(--muted); font-style:italic; max-width:40ch;
-    font-size:clamp(.95rem, 1.8vmin, 1.05rem);
   }
 
-  /* ========= Fichas / index cards ========= */
-  .cards{
-    position:absolute; inset:0; z-index:8; pointer-events:none;
+  /* ===== Iconos flotantes (sin rotación) ===== */
+  .cloud{
+    position:absolute; inset:0; margin:auto; width:100%; height:100%;
+    z-index:3; pointer-events:none; /* los links siguen siendo clicables, pero evitamos roces en el contenedor */
   }
-  .card{
-    --r: 6px;
-    position:absolute; width: 190px; max-width:42%;
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--paper) 96%, var(--accent) 4%), var(--paper));
-    border:1px solid color-mix(in oklab, var(--accent) 45%, transparent);
-    border-radius: var(--r);
-    box-shadow:
-      0 .5px 0 rgba(0,0,0,.06),
-      0 10px 18px rgba(0,0,0,.06),
-      inset 0 1px 0 rgba(255,255,255,.08);
-    padding: .75rem .85rem;
-    pointer-events:auto;
-    transform-origin: 50% 50%;
-    transition: transform .15s ease, filter .2s ease;
-    backdrop-filter: blur(.6px);
+  .app{
+    --x: 0px; --y: 0px; --s: 1;
+    position:absolute; left:50%; top:50%;
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s));
+    will-change: transform, filter;
+    transition: filter .2s ease, transform .12s ease;
+    pointer-events:auto; text-decoration:none; color:var(--link);
   }
-  .card:hover{ transform: translateY(-2px) rotate(var(--tilt, -1deg)); filter: brightness(1.02) }
+  .app:hover{ filter: brightness(1.05) drop-shadow(0 2px 6px color-mix(in oklab, var(--halo) 80%, transparent)); transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(calc(var(--s) * 1.04)); }
 
-  /* “Cinta” adhesiva */
-  .tape{
-    position:absolute; left:50%; transform: translate(-50%,-50%) rotate(var(--twist, -4deg));
-    top:-4px; width:58px; height:16px; background: var(--tape); opacity:.7;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08);
-    clip-path: polygon(0 10%, 8% 0, 92% 0, 100% 10%, 100% 90%, 92% 100%, 8% 100%, 0 90%);
-    filter: saturate(.9);
+  .icon-wrap{
+    display:grid; place-items:center; width:2.6rem; height:2.6rem; border-radius:999px;
+    background: color-mix(in oklab, var(--paper) 80%, var(--accent) 20%);
+    border:1px solid var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--paper) 60%, transparent);
   }
+  .icon{ width:1.35rem; height:1.35rem; display:block }
 
-  .card h3{
-    margin:.1rem 0 .15rem; font-size:1.02rem; line-height:1.25;
-  }
-  .card p{ margin:0; color:var(--muted); font-size:.92rem }
-  .card a{
-    color:var(--link); text-decoration:none; text-underline-offset:2px;
-  }
-  .card a:visited{ color:var(--link-visited) }
+  /* Posiciones base (círculo irregular) */
+  /* distancias en px relativas al centro, sin rotación */
+  .app.scales { --x: -210px; --y: -70px;  --s: 1.00; animation: driftA 8s ease-in-out infinite }
+  .app.chords { --x:  190px; --y: -40px;  --s: 1.00; animation: driftB 9.2s ease-in-out infinite .2s }
+  .app.daily  { --x:  -40px; --y: -220px; --s: 1.00; animation: driftC 10.5s ease-in-out infinite .4s }
+  .app.drone  { --x:  -10px; --y:  215px; --s: 1.00; animation: driftA 11.5s ease-in-out infinite .1s }
+  .app.interv { --x: -200px; --y:  80px;  --s: 1.00; animation: driftB 12.6s ease-in-out infinite .3s }
+  .app.aural  { --x:  130px; --y:  180px; --s: 1.00; animation: driftC 13.4s ease-in-out infinite .5s }
+  .app.tuning { --x:   70px; --y: -170px; --s: 1.00; animation: driftA 14.2s ease-in-out infinite .7s }
 
-  /* Posiciones y micro-animación de papel (muy sutil) */
-  .card[data-id="scales"]{ left:8%;  top:15%; --tilt:-0.8deg; animation: floatA 7s ease-in-out infinite }
-  .card[data-id="chords"]{ right:6%; top:24%; --tilt: 1deg;  animation: floatB 9s ease-in-out infinite }
-  .card[data-id="daily"] { left:12%; bottom:14%; --tilt:-1.2deg; animation: floatA 8.6s ease-in-out infinite }
-  .card[data-id="drone"] { right:10%; bottom:12%; --tilt:.6deg;  animation: floatC 10.2s ease-in-out infinite }
-  .card[data-id="intervals"]{ left:50%; transform:translateX(-50%); top:52%; --tilt:.2deg; animation: floatB 12s ease-in-out infinite }
-  .card[data-id="aural"]{ right:50%; transform:translateX(50%); top:64%; --tilt:-.2deg; animation: floatA 11s ease-in-out infinite }
-  .card[data-id="tuning"]{ left:50%; transform:translateX(-50%); top:78%; --tilt:.4deg; animation: floatC 13s ease-in-out infinite }
-
-  /* ========= Anotaciones en el margen ========= */
-  .margin-notes{
-    position:absolute; inset:0; z-index:6; pointer-events:none;
-  }
-  .note{
-    position:absolute; font-size:.9rem; color:color-mix(in oklab, var(--ink) 85%, transparent);
-    opacity:.85; transform-origin:left top; filter: blur(.1px);
-  }
-  .note em{ font-style:italic; }
-  .arrow{
-    position:absolute; width:160px; height:60px; opacity:.45;
-  }
-  .arrow path{
-    fill:none; stroke: currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round;
-    stroke-dasharray: 3 3;
-  }
-  /* Colocación */
-  .note.n1{ left:6%; top:8%; transform: rotate(-2deg) }
-  .note.n2{ right:6%; top:12%; transform: rotate(1deg) }
-  .note.n3{ left:8%; bottom:10%; transform: rotate(-1deg) }
-  .arrow.a1{ left:18%; top:20% }
-  .arrow.a2{ right:18%; top:30% }
-  .arrow.a3{ left:18%; bottom:16% }
-
-  /* ========= Invitación ========= */
-  .invite{
-    position:fixed; left:50%; bottom: clamp(10px, 2.5vmin, 20px);
-    transform:translateX(-50%); color:var(--muted); text-align:center; max-width:72ch;
-    padding:.4rem .7rem; border:1px dashed color-mix(in oklab, var(--accent) 55%, transparent);
-    background: color-mix(in oklab, var(--paper) 72%, transparent);
-    border-radius:.55rem; font-size:.95rem; backdrop-filter: blur(2px); z-index:30;
-  }
-
-  /* Estados */
+  /* Estados globales */
   .paused .stage::after,
-  .paused .card{ animation-play-state: paused !important }
+  .paused .app{ animation-play-state: paused !important }
 
   /* Motion safety */
   @media (prefers-reduced-motion: reduce){
-    .stage::after, .card{ animation:none !important }
+    .stage::after, .app{ animation:none !important }
   }
 
-  /* ========= Animaciones ========= */
+  /* ===== Animaciones ===== */
   @keyframes sweep{ to{ transform: rotate(1turn) } }
-  @keyframes scribble{
-    0%{ transform: scaleX(0); opacity:0 }
-    60%{ opacity:.8 }
-    100%{ transform: scaleX(1); opacity:.7 }
+  /* Pequeños desplazamientos en 2D, sin rotación */
+  @keyframes driftA{
+    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
+    50%     { transform: translate(calc(-50% + var(--x) + 8px), calc(-50% + var(--y) - 10px)) scale(var(--s)) }
   }
-  @keyframes floatA{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-2.5px) rotate(var(--tilt)) } }
-  @keyframes floatB{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-3.5px) rotate(var(--tilt)) } }
-  @keyframes floatC{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-2px) rotate(var(--tilt)) } }
+  @keyframes driftB{
+    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
+    50%     { transform: translate(calc(-50% + var(--x) - 12px), calc(-50% + var(--y) + 7px)) scale(var(--s)) }
+  }
+  @keyframes driftC{
+    0%,100%{ transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(var(--s)) }
+    50%     { transform: translate(calc(-50% + var(--x) + 6px), calc(-50% + var(--y) + 9px)) scale(var(--s)) }
+  }
 </style>
 </head>
 <body>
 
   <!-- Controles -->
   <div class="controls">
-    <button class="btn" id="pauseBtn" title="Pause/Play animation" aria-label="Pause animation">❚❚ Pause</button>
-    <button class="btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">☾</button>
+    <button class="btn" id="pauseBtn" aria-label="Pause">❚❚</button>
+    <button class="btn" id="themeToggle" aria-label="Toggle theme">☾</button>
   </div>
 
-  <!-- Escena principal -->
-  <section class="stage" id="stage" aria-label="Re:sonance library intro">
-    <div class="header">
-      <div class="logo">
-        <h1>Re:sonance</h1>
-        <div class="pencil-underline" aria-hidden="true"></div>
-        <p class="claim">A quiet library of sound, color, and subtle motion.</p>
-      </div>
+  <!-- Escena -->
+  <section class="stage" id="stage" aria-label="Re:sonance floating icons">
+    <div class="center">
+      <h1>Re:sonance</h1>
+      <div class="underline" aria-hidden="true"></div>
     </div>
 
-    <!-- Fichas / Index cards -->
-    <div class="cards">
-      <article class="card" data-id="scales" style="--twist:-6deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-scales-book.html">The Scales Book</a></h3>
-        <p>Paths that guide the hand toward unseen colors.</p>
-      </article>
+    <!-- Nube de iconos (flotando, sin girar) -->
+    <div class="cloud" aria-hidden="false">
+      <!-- Scales -->
+      <a class="app scales" href="the-scales-book.html" title="The Scales Book">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+            <circle cx="5" cy="16" r="1.6"></circle>
+            <circle cx="9.5" cy="13.2" r="1.6"></circle>
+            <circle cx="14" cy="10.6" r="1.6"></circle>
+            <circle cx="18.5" cy="8" r="1.6"></circle>
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="chords" style="--twist:5deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-chords-book.html">The Chords Book</a></h3>
-        <p>Forms of resonance across the strings.</p>
-      </article>
+      <!-- Chords -->
+      <a class="app chords" href="the-chords-book.html" title="The Chords Book">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="17" r="2.4"></circle>
+            <circle cx="18" cy="17" r="2.4"></circle>
+            <circle cx="12" cy="7" r="2.4"></circle>
+            <path d="M7.9 16.2 L10.4 8.8 M16.1 16.2 L13.6 8.8" />
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="daily" style="--twist:-3deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-daily-chord.html">The Daily Chord</a></h3>
-        <p>Each day, a chord — seen anew.</p>
-      </article>
+      <!-- Daily Chord -->
+      <a class="app daily" href="the-daily-chord.html" title="The Daily Chord">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="6" width="17" height="13" rx="1.8"></rect>
+            <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
+            <path d="M12 13.1 v-1.7 M12 13.1 l1.15 1.15 M12 13.1 l-1.15 1.15 M12 13.1 v1.7" />
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="drone" style="--twist:4deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-drone-room.html">The Drone Room</a></h3>
-        <p>Sustained tones to improvise and explore.</p>
-      </article>
+      <!-- Drone Room -->
+      <a class="app drone" href="the-drone-room.html" title="The Drone Room">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="7"></circle>
+            <path d="M12 5 v2 M12 17 v2 M5 12 h2 M17 12 h2"/>
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="intervals" style="--twist:2deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-intervals-garden.html">The Intervals Garden</a></h3>
-        <p>Where distances become colors.</p>
-      </article>
+      <!-- Intervals Garden -->
+      <a class="app interv" href="the-intervals-garden.html" title="The Intervals Garden">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="12" r="2.2"></circle>
+            <circle cx="16" cy="8" r="2.2"></circle>
+            <path d="M9.8 11.2 C12 9 14 9 15.4 8.6"/>
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="aural" style="--twist:-2deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-aural-garden.html">Aural Garden</a></h3>
-        <p>Reactive blooms from chords and sound.</p>
-      </article>
+      <!-- Aural Garden -->
+      <a class="app aural" href="the-aural-garden.html" title="Aural Garden">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14c2-6 14-6 16 0"/>
+            <path d="M6 16c1.4-3 10.6-3 12 0"/>
+            <circle cx="12" cy="18" r="1.2" />
+          </svg>
+        </span>
+      </a>
 
-      <article class="card" data-id="tuning" style="--twist:3deg">
-        <div class="tape" aria-hidden="true"></div>
-        <h3><a href="the-tuning-archive.html">The Tuning Archive</a></h3>
-        <p>Alternate tunings — playable, comparable.</p>
-      </article>
-    </div>
-
-    <!-- Anotaciones y flechas en margen -->
-    <div class="margin-notes" aria-hidden="true">
-      <div class="note n1">try the <em>drone room</em> with headphones →</div>
-      <svg class="arrow a1" viewBox="0 0 160 60"><path d="M5,40 C60,10 110,10 150,28 M145,20 l8,8 -8,8"/></svg>
-
-      <div class="note n2">scales + chords = colors</div>
-      <svg class="arrow a2" viewBox="0 0 160 60"><path d="M155,18 C90,34 60,40 18,46 M22,38 l-8,8 10,6"/></svg>
-
-      <div class="note n3">tuning archive ↓ for alt tunings</div>
-      <svg class="arrow a3" viewBox="0 0 160 60"><path d="M10,10 C50,40 90,52 150,54 M142,46 l8,8 -10,2"/></svg>
+      <!-- Tuning Archive -->
+      <a class="app tuning" href="the-tuning-archive.html" title="The Tuning Archive">
+        <span class="icon-wrap">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 18h16M6 14h12M8 10h8M10 6h4"/>
+            <circle cx="12" cy="6" r=".8"/>
+          </svg>
+        </span>
+      </a>
     </div>
   </section>
-
-  <!-- Invitación -->
-  <p class="invite">
-    Explorá la librería: escalas, acordes, drones e intervalos. Herramientas mínimas para escuchar más hondo — <strong>probalo</strong>.
-  </p>
 
 <script>
   (function(){
@@ -318,8 +249,7 @@
     // Theme
     function setIcon(mode){
       themeBtn.textContent = mode==='dark' ? '☀︎' : '☾';
-      themeBtn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
-      themeBtn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      themeBtn.setAttribute('aria-label', mode==='dark' ? 'Light' : 'Dark');
     }
     function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
     function getPreferred(){
@@ -330,13 +260,13 @@
     let current=getPreferred(); applyTheme(current);
     themeBtn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
 
-    // Pause/Play (para congelar en el frame ideal)
+    // Pause/Play
     let paused=false;
     function togglePause(){
       paused=!paused;
       stage.classList.toggle('paused', paused);
-      pauseBtn.textContent = paused ? '▶︎ Play' : '❚❚ Pause';
-      pauseBtn.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+      pauseBtn.textContent = paused ? '▶︎' : '❚❚';
+      pauseBtn.setAttribute('aria-label', paused ? 'Play' : 'Pause');
     }
     pauseBtn.addEventListener('click', togglePause);
 
