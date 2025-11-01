@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Re:sonance — Library Intro</title>
+<meta name="description" content="Re:sonance — A quiet library of sound. Paper, notes, and subtle motion for a bookish intro." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
+<style>
+  /* ========= Tokens (alineados con tu index) ========= */
+  :root{
+    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
+    --link-visited:#514f7a; --accent:#a08a63; --fs:18px; --lh:1.6;
+
+    /* Escena */
+    --size: min(92vmin, 720px);      /* cuadrado responsivo */
+    --grain-ink: rgba(0,0,0,.06);
+    --tape: color-mix(in oklab, var(--paper) 70%, var(--accent) 30%);
+    --ring: color-mix(in oklab, var(--ink) 20%, transparent);
+  }
+  html.theme-dark{
+    --paper:#0e0f0e; --ink:#dbd6c9; --muted:#9b9689; --link:#a9d0b8;
+    --link-visited:#c0b8e0; --accent:#242523;
+    --grain-ink: rgba(255,255,255,.05);
+    --tape: color-mix(in oklab, var(--ink) 65%, var(--paper) 35%);
+    --ring: color-mix(in oklab, var(--ink) 35%, transparent);
+  }
+
+  html{font-size:var(--fs)}
+  body{
+    margin:0; color:var(--ink); background:var(--paper);
+    font-family: ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
+    line-height:var(--lh); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    display:grid; place-items:center; min-height:100svh; overflow:hidden;
+  }
+
+  /* Textura general leve (grano) */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background-image:
+      radial-gradient(circle at 25% 15%, #000 .45px, transparent .45px),
+      radial-gradient(circle at 75% 85%, #000 .45px, transparent .45px);
+    background-size:3px 3px, 3px 3px;
+    opacity:.05; mix-blend-mode:multiply;
+  }
+
+  /* ========= Controles ========= */
+  .controls{
+    position: fixed; top: clamp(8px, 2vmin, 16px); right: clamp(8px, 2vmin, 16px);
+    display:flex; gap:.5rem; z-index:20;
+  }
+  .btn{
+    border:1px solid var(--accent); background:transparent; color:var(--ink);
+    border-radius:.45rem; padding:.4rem .65rem; cursor:pointer; font-size:1rem; line-height:1;
+    transition: background-color .25s ease, transform .06s ease;
+  }
+  .btn:hover{ transform: translateY(-1px) }
+  .btn:active{ transform: translateY(0) }
+  .btn:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px }
+
+  /* ========= Escena cuadrada con papel ========= */
+  .stage{
+    width:var(--size); aspect-ratio:1/1; position:relative; border-radius:16px; overflow:hidden;
+    box-shadow:
+      0 12px 30px rgba(0,0,0,.08),
+      0 1px 0 rgba(0,0,0,.06);
+    background:
+      /* fibra y papel */
+      linear-gradient(180deg, color-mix(in oklab, var(--paper) 96%, var(--accent) 4%), var(--paper)) 0 0/100% 100%,
+      /* líneas tenues tipo hoja */
+      repeating-linear-gradient(180deg,
+        color-mix(in oklab, var(--accent) 18%, transparent) 0 32px,
+        color-mix(in oklab, var(--accent) 18%, transparent) 1px 32px,
+        transparent 33px 64px);
+    isolation:isolate;
+  }
+  /* Borde de libro: lomo sutil a la izquierda */
+  .stage::before{
+    content:""; position:absolute; inset:0; width:14px; left:0; top:0; bottom:0;
+    background:
+      linear-gradient(90deg,
+        color-mix(in oklab, var(--accent) 18%, transparent),
+        transparent 40%);
+    filter: blur(.2px);
+    opacity:.65; pointer-events:none;
+  }
+  /* Luz que recorre la hoja (muy sutil) */
+  .stage::after{
+    content:""; position:absolute; inset:-20%;
+    background: conic-gradient(from 0turn,
+      transparent 0 70%,
+      color-mix(in oklab, var(--ring) 100%, transparent) 82%,
+      transparent 100%);
+    mix-blend-mode:soft-light; opacity:.5;
+    animation: sweep 26s linear infinite;
+    pointer-events:none;
+  }
+
+  /* ========= Cabecera “a mano” ========= */
+  .header{
+    position:absolute; inset:0; display:grid; place-items:center; z-index:10;
+    padding:7% 6% 6%;
+  }
+  .logo{
+    text-align:center; max-width:78%;
+    filter: drop-shadow(0 0 10px color-mix(in oklab, var(--ring) 60%, transparent));
+  }
+  .logo h1{
+    margin:0; font-weight:600; letter-spacing:.2px;
+    font-size:clamp(2rem, 6.2vmin, 3.2rem); line-height:1.05; position:relative;
+  }
+  .pencil-underline{
+    height:10px; margin:.2rem auto 0; width:min(56%, 340px);
+    background:
+      radial-gradient(8px 8px at 0 50%, transparent 55%, color-mix(in oklab, var(--ink) 12%, transparent) 56%, transparent 60%) left center/12px 10px no-repeat,
+      linear-gradient(90deg, color-mix(in oklab, var(--ink) 22%, transparent), transparent 70%);
+    opacity:.7; filter: blur(.15px);
+    animation: scribble 1.8s ease both .15s;
+  }
+  .claim{
+    margin:.6rem auto 0; color:var(--muted); font-style:italic; max-width:40ch;
+    font-size:clamp(.95rem, 1.8vmin, 1.05rem);
+  }
+
+  /* ========= Fichas / index cards ========= */
+  .cards{
+    position:absolute; inset:0; z-index:8; pointer-events:none;
+  }
+  .card{
+    --r: 6px;
+    position:absolute; width: 190px; max-width:42%;
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--paper) 96%, var(--accent) 4%), var(--paper));
+    border:1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+    border-radius: var(--r);
+    box-shadow:
+      0 .5px 0 rgba(0,0,0,.06),
+      0 10px 18px rgba(0,0,0,.06),
+      inset 0 1px 0 rgba(255,255,255,.08);
+    padding: .75rem .85rem;
+    pointer-events:auto;
+    transform-origin: 50% 50%;
+    transition: transform .15s ease, filter .2s ease;
+    backdrop-filter: blur(.6px);
+  }
+  .card:hover{ transform: translateY(-2px) rotate(var(--tilt, -1deg)); filter: brightness(1.02) }
+
+  /* “Cinta” adhesiva */
+  .tape{
+    position:absolute; left:50%; transform: translate(-50%,-50%) rotate(var(--twist, -4deg));
+    top:-4px; width:58px; height:16px; background: var(--tape); opacity:.7;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
+    clip-path: polygon(0 10%, 8% 0, 92% 0, 100% 10%, 100% 90%, 92% 100%, 8% 100%, 0 90%);
+    filter: saturate(.9);
+  }
+
+  .card h3{
+    margin:.1rem 0 .15rem; font-size:1.02rem; line-height:1.25;
+  }
+  .card p{ margin:0; color:var(--muted); font-size:.92rem }
+  .card a{
+    color:var(--link); text-decoration:none; text-underline-offset:2px;
+  }
+  .card a:visited{ color:var(--link-visited) }
+
+  /* Posiciones y micro-animación de papel (muy sutil) */
+  .card[data-id="scales"]{ left:8%;  top:15%; --tilt:-0.8deg; animation: floatA 7s ease-in-out infinite }
+  .card[data-id="chords"]{ right:6%; top:24%; --tilt: 1deg;  animation: floatB 9s ease-in-out infinite }
+  .card[data-id="daily"] { left:12%; bottom:14%; --tilt:-1.2deg; animation: floatA 8.6s ease-in-out infinite }
+  .card[data-id="drone"] { right:10%; bottom:12%; --tilt:.6deg;  animation: floatC 10.2s ease-in-out infinite }
+  .card[data-id="intervals"]{ left:50%; transform:translateX(-50%); top:52%; --tilt:.2deg; animation: floatB 12s ease-in-out infinite }
+  .card[data-id="aural"]{ right:50%; transform:translateX(50%); top:64%; --tilt:-.2deg; animation: floatA 11s ease-in-out infinite }
+  .card[data-id="tuning"]{ left:50%; transform:translateX(-50%); top:78%; --tilt:.4deg; animation: floatC 13s ease-in-out infinite }
+
+  /* ========= Anotaciones en el margen ========= */
+  .margin-notes{
+    position:absolute; inset:0; z-index:6; pointer-events:none;
+  }
+  .note{
+    position:absolute; font-size:.9rem; color:color-mix(in oklab, var(--ink) 85%, transparent);
+    opacity:.85; transform-origin:left top; filter: blur(.1px);
+  }
+  .note em{ font-style:italic; }
+  .arrow{
+    position:absolute; width:160px; height:60px; opacity:.45;
+  }
+  .arrow path{
+    fill:none; stroke: currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray: 3 3;
+  }
+  /* Colocación */
+  .note.n1{ left:6%; top:8%; transform: rotate(-2deg) }
+  .note.n2{ right:6%; top:12%; transform: rotate(1deg) }
+  .note.n3{ left:8%; bottom:10%; transform: rotate(-1deg) }
+  .arrow.a1{ left:18%; top:20% }
+  .arrow.a2{ right:18%; top:30% }
+  .arrow.a3{ left:18%; bottom:16% }
+
+  /* ========= Invitación ========= */
+  .invite{
+    position:fixed; left:50%; bottom: clamp(10px, 2.5vmin, 20px);
+    transform:translateX(-50%); color:var(--muted); text-align:center; max-width:72ch;
+    padding:.4rem .7rem; border:1px dashed color-mix(in oklab, var(--accent) 55%, transparent);
+    background: color-mix(in oklab, var(--paper) 72%, transparent);
+    border-radius:.55rem; font-size:.95rem; backdrop-filter: blur(2px); z-index:30;
+  }
+
+  /* Estados */
+  .paused .stage::after,
+  .paused .card{ animation-play-state: paused !important }
+
+  /* Motion safety */
+  @media (prefers-reduced-motion: reduce){
+    .stage::after, .card{ animation:none !important }
+  }
+
+  /* ========= Animaciones ========= */
+  @keyframes sweep{ to{ transform: rotate(1turn) } }
+  @keyframes scribble{
+    0%{ transform: scaleX(0); opacity:0 }
+    60%{ opacity:.8 }
+    100%{ transform: scaleX(1); opacity:.7 }
+  }
+  @keyframes floatA{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-2.5px) rotate(var(--tilt)) } }
+  @keyframes floatB{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-3.5px) rotate(var(--tilt)) } }
+  @keyframes floatC{ 0%,100%{ transform: translateY(0) rotate(var(--tilt)) } 50%{ transform: translateY(-2px) rotate(var(--tilt)) } }
+</style>
+</head>
+<body>
+
+  <!-- Controles -->
+  <div class="controls">
+    <button class="btn" id="pauseBtn" title="Pause/Play animation" aria-label="Pause animation">❚❚ Pause</button>
+    <button class="btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">☾</button>
+  </div>
+
+  <!-- Escena principal -->
+  <section class="stage" id="stage" aria-label="Re:sonance library intro">
+    <div class="header">
+      <div class="logo">
+        <h1>Re:sonance</h1>
+        <div class="pencil-underline" aria-hidden="true"></div>
+        <p class="claim">A quiet library of sound, color, and subtle motion.</p>
+      </div>
+    </div>
+
+    <!-- Fichas / Index cards -->
+    <div class="cards">
+      <article class="card" data-id="scales" style="--twist:-6deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-scales-book.html">The Scales Book</a></h3>
+        <p>Paths that guide the hand toward unseen colors.</p>
+      </article>
+
+      <article class="card" data-id="chords" style="--twist:5deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-chords-book.html">The Chords Book</a></h3>
+        <p>Forms of resonance across the strings.</p>
+      </article>
+
+      <article class="card" data-id="daily" style="--twist:-3deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-daily-chord.html">The Daily Chord</a></h3>
+        <p>Each day, a chord — seen anew.</p>
+      </article>
+
+      <article class="card" data-id="drone" style="--twist:4deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-drone-room.html">The Drone Room</a></h3>
+        <p>Sustained tones to improvise and explore.</p>
+      </article>
+
+      <article class="card" data-id="intervals" style="--twist:2deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-intervals-garden.html">The Intervals Garden</a></h3>
+        <p>Where distances become colors.</p>
+      </article>
+
+      <article class="card" data-id="aural" style="--twist:-2deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-aural-garden.html">Aural Garden</a></h3>
+        <p>Reactive blooms from chords and sound.</p>
+      </article>
+
+      <article class="card" data-id="tuning" style="--twist:3deg">
+        <div class="tape" aria-hidden="true"></div>
+        <h3><a href="the-tuning-archive.html">The Tuning Archive</a></h3>
+        <p>Alternate tunings — playable, comparable.</p>
+      </article>
+    </div>
+
+    <!-- Anotaciones y flechas en margen -->
+    <div class="margin-notes" aria-hidden="true">
+      <div class="note n1">try the <em>drone room</em> with headphones →</div>
+      <svg class="arrow a1" viewBox="0 0 160 60"><path d="M5,40 C60,10 110,10 150,28 M145,20 l8,8 -8,8"/></svg>
+
+      <div class="note n2">scales + chords = colors</div>
+      <svg class="arrow a2" viewBox="0 0 160 60"><path d="M155,18 C90,34 60,40 18,46 M22,38 l-8,8 10,6"/></svg>
+
+      <div class="note n3">tuning archive ↓ for alt tunings</div>
+      <svg class="arrow a3" viewBox="0 0 160 60"><path d="M10,10 C50,40 90,52 150,54 M142,46 l8,8 -10,2"/></svg>
+    </div>
+  </section>
+
+  <!-- Invitación -->
+  <p class="invite">
+    Explorá la librería: escalas, acordes, drones e intervalos. Herramientas mínimas para escuchar más hondo — <strong>probalo</strong>.
+  </p>
+
+<script>
+  (function(){
+    const KEY='theme-preference';
+    const root=document.documentElement;
+    const stage=document.getElementById('stage');
+    const themeBtn=document.getElementById('themeToggle');
+    const pauseBtn=document.getElementById('pauseBtn');
+
+    // Theme
+    function setIcon(mode){
+      themeBtn.textContent = mode==='dark' ? '☀︎' : '☾';
+      themeBtn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      themeBtn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+    function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+    function getPreferred(){
+      const saved=localStorage.getItem(KEY);
+      if(saved==='light' || saved==='dark') return saved;
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    let current=getPreferred(); applyTheme(current);
+    themeBtn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
+
+    // Pause/Play (para congelar en el frame ideal)
+    let paused=false;
+    function togglePause(){
+      paused=!paused;
+      stage.classList.toggle('paused', paused);
+      pauseBtn.textContent = paused ? '▶︎ Play' : '❚❚ Pause';
+      pauseBtn.setAttribute('aria-label', paused ? 'Play animation' : 'Pause animation');
+    }
+    pauseBtn.addEventListener('click', togglePause);
+
+    // Atajos: T = theme, P = pause
+    window.addEventListener('keydown', (e)=>{
+      const k=e.key.toLowerCase();
+      if(k==='t'){ themeBtn.click(); }
+      if(k==='p'){ togglePause(); }
+    });
+  })();
+</script>
+</body>
+</html>
