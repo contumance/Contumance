@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Re:sonance — Project Presentation</title>
+  <meta name="description" content="Re:sonance — An experimental library of sound, color, and quiet motion. Project overview and navigation." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
+  <style>
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253; --link:#2d5842;
+      --link-visited:#514f7a; --accent:#a08a63; --maxw:46rem; --lh:1.6; --fs-base:18px;
+      --btn-bg: transparent; --btn-ink: var(--ink); --btn-border: var(--accent);
+      --btn-bg-hover: color-mix(in oklab, var(--accent) 14%, transparent);
+      --btn-shadow: 0 1px 0 rgba(0,0,0,.06);
+      --ring: color-mix(in oklab, var(--link) 55%, transparent);
+    }
+    html.theme-dark{
+      --paper:#0e0f0e; --ink:#dbd6c9; --muted:#9b9689; --link:#a9d0b8;
+      --link-visited:#c0b8e0; --accent:#242523;
+      --btn-bg: transparent; --btn-ink: var(--ink); --btn-border: var(--accent);
+      --btn-bg-hover: color-mix(in oklab, var(--accent) 25%, transparent);
+      --btn-shadow: 0 1px 0 rgba(0,0,0,.3);
+      --ring: color-mix(in oklab, var(--link) 55%, transparent);
+    }
+    html{font-size:var(--fs-base)}
+    body{
+      margin:0; color:var(--ink); background:var(--paper);
+      font-family:ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
+      line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+    /* textura sutil tipo papel */
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 .5px, transparent .5px),
+        radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
+    }
+
+    main{max-width:var(--maxw); margin:0 auto; padding:10vh 1.25rem 4rem}
+
+    header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
+    header h1{
+      font-weight:600; margin:0 0 .25rem 0;
+      font-size:clamp(2rem,5vw,3rem); letter-spacing:.2px;
+      line-height:1.1; position:relative;
+    }
+    header h1 .accent{
+      display:inline-block; position:relative;
+      background-image:linear-gradient(currentColor,currentColor);
+      background-position:0 100%; background-size:100% 1px; background-repeat:no-repeat;
+    }
+    header p.desc{margin:.25rem 0 2rem; color:var(--muted); font-style:italic}
+
+    .controls{display:flex; gap:.5rem; align-items:center}
+    .theme-toggle,.demo-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .6rem; cursor:pointer; font-size:1.05rem; line-height:1;
+      transition:background-color .25s ease, color .25s ease, transform .06s ease;
+    }
+    .theme-toggle:focus-visible,.demo-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+    .theme-toggle:hover,.demo-toggle:hover{transform:translateY(-1px)}
+    .theme-toggle:active,.demo-toggle:active{transform:translateY(0)}
+
+    hr{border:none; border-top:1px solid var(--accent); margin:1.5rem 0 2rem; opacity:.5}
+
+    .intro{
+      color:var(--muted);
+      margin:0 0 2rem 0;
+      max-width:42rem;
+    }
+    .ticker{
+      display:inline-block; white-space:nowrap; overflow:hidden; vertical-align:bottom;
+      mask:linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+    }
+    .ticker span{display:inline-block; padding-left:1rem}
+
+    nav h2{
+      font-size:.95rem; font-weight:600; text-transform:uppercase; color:var(--muted);
+      margin:0 0 .6rem 0; letter-spacing:.08em
+    }
+    ul.index{list-style:none; padding:0; margin:0; position:relative}
+    ul.index li{padding:0; position:relative; border-top:1px dotted var(--accent)}
+    ul.index li:first-child{border-top:none}
+
+    a{color:var(--link); text-decoration:none; text-underline-offset:2px}
+    a:visited{color:var(--link-visited)}
+
+    .item{
+      display:grid;
+      grid-template-columns: 1.6rem 1fr;
+      grid-template-areas:
+        "icon title"
+        "icon meta";
+      column-gap:.75rem; row-gap:.2rem;
+      align-items:center; padding:.95rem 0; width:100%;
+      position:relative;
+    }
+    .item:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+    .item:hover .title,.item:focus-visible .title{text-decoration:underline}
+
+    .icon{grid-area:icon; width:1.15rem; height:1.15rem; color:currentColor; opacity:.95}
+    .title{grid-area:title; line-height:1.25}
+    .meta{grid-area:meta; color:var(--muted); font-size:.95rem; margin-top:.15rem}
+
+    /* Spotlight (para el video: resalta item activo) */
+    .spotlight{
+      box-shadow: 0 0 0 0 var(--ring);
+      border-radius:.5rem;
+      transition: box-shadow .6s ease, transform .6s ease;
+    }
+    li.active .spotlight{
+      box-shadow: 0 0 0 .55rem var(--ring);
+      transform: translateX(2px);
+    }
+
+    /* Footer */
+    footer{display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.75rem 0}
+    footer .btn{
+      display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+      border:1px solid var(--accent); border-radius:999px; padding:.45rem .95rem;
+      font-size:.9rem; font-weight:500;
+      transition:background-color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    html:not(.theme-dark) footer .btn{
+      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink);
+    }
+    html:not(.theme-dark) footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+    }
+    html.theme-dark footer .btn{
+      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper);
+    }
+    html.theme-dark footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+    }
+    footer .btn .btn-icon{width:1.2rem; height:1.2rem; stroke:currentColor}
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
+
+    /* Animaciones sutiles y coreografía inicial */
+    @media (prefers-reduced-motion:no-preference){
+      @keyframes fadeUp { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+      @keyframes breathe { 0%,100%{background-size:0% 1px} 50%{background-size:100% 1px} }
+      @keyframes floaty { 0%,100%{ transform:translateY(0)} 50%{ transform:translateY(-2px)} }
+      @keyframes slideTicker { from{ transform:translateX(0)} to{ transform:translateX(-50%)} }
+
+      header h1{animation:fadeUp .8s ease both}
+      header h1 .accent{animation:breathe 6s ease-in-out infinite}
+      .intro{animation:fadeUp 1s ease .2s both}
+      .icon{animation:floaty 6s ease-in-out infinite; animation-delay:.2s}
+      ul.index li{transition:transform .14s ease}
+      ul.index li:hover{transform:translateX(2px)}
+      .ticker span{animation:slideTicker 18s linear infinite}
+    }
+
+    /* Orden de entrada (stagger) */
+    .stagger > * { opacity:0; transform:translateY(6px) }
+    .stagger.ready > * { opacity:1; transform:none; transition:opacity .6s ease, transform .6s ease }
+    .stagger.ready > *:nth-child(1){ transition-delay:.05s }
+    .stagger.ready > *:nth-child(2){ transition-delay:.15s }
+    .stagger.ready > *:nth-child(3){ transition-delay:.25s }
+    .stagger.ready > *:nth-child(4){ transition-delay:.35s }
+    .stagger.ready > *:nth-child(5){ transition-delay:.45s }
+    .stagger.ready > *:nth-child(6){ transition-delay:.55s }
+    .stagger.ready > *:nth-child(7){ transition-delay:.65s }
+    .stagger.ready > *:nth-child(8){ transition-delay:.75s }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <div>
+        <h1>Re:sonance <span class="accent">— a quiet selection</span></h1>
+        <p class="desc">For curious hands and listening minds.</p>
+      </div>
+      <div class="controls">
+        <button class="demo-toggle" id="demoToggle" type="button" aria-label="Toggle demo spotlight" title="Toggle demo spotlight">▶︎ Demo</button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+      </div>
+    </header>
+
+    <p class="intro">
+      <span class="ticker"><span>Scales, chords, drones, intervals, and gardens of color • minimal e-ink aesthetics • dark & light • subtle motion •</span><span>Scales, chords, drones, intervals, and gardens of color • minimal e-ink aesthetics • dark & light • subtle motion •</span></span>
+    </p>
+
+    <hr>
+
+    <nav aria-label="Project pages">
+      <h2>Collection</h2>
+      <ul class="index stagger" id="indexList">
+
+        <!-- SCALES -->
+        <li>
+          <a class="item spotlight" href="the-scales-book.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+              <circle cx="5" cy="16" r="1.6"></circle>
+              <circle cx="9.5" cy="13.2" r="1.6"></circle>
+              <circle cx="14" cy="10.6" r="1.6"></circle>
+              <circle cx="18.5" cy="8" r="1.6"></circle>
+            </svg>
+            <span class="title">The Scales Book</span>
+            <span class="meta">Paths that guide the hand toward unseen colors.</span>
+          </a>
+        </li>
+
+        <!-- CHORDS -->
+        <li>
+          <a class="item spotlight" href="the-chords-book.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="6" cy="17" r="2.4"></circle>
+              <circle cx="18" cy="17" r="2.4"></circle>
+              <circle cx="12" cy="7" r="2.4"></circle>
+              <path d="M7.9 16.2 L10.4 8.8 M16.1 16.2 L13.6 8.8" />
+            </svg>
+            <span class="title">The Chords Book</span>
+            <span class="meta">Forms of resonance across the strings.</span>
+          </a>
+        </li>
+
+        <!-- DAILY CHORD -->
+        <li>
+          <a class="item spotlight" href="the-daily-chord.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3.5" y="6" width="17" height="13" rx="1.8"></rect>
+              <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
+              <path d="M12 13.1 v-1.7 M12 13.1 l1.15 1.15 M12 13.1 l-1.15 1.15 M12 13.1 v1.7" />
+            </svg>
+            <span class="title">The Daily Chord</span>
+            <span class="meta">Each day, a chord — seen anew.</span>
+          </a>
+        </li>
+
+        <!-- DRONE ROOM -->
+        <li>
+          <a class="item spotlight" href="the-drone-room.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="7"></circle>
+              <path d="M12 5 v2 M12 17 v2 M5 12 h2 M17 12 h2"/>
+            </svg>
+            <span class="title">The Drone Room</span>
+            <span class="meta">Sustained tones to improvise and explore.</span>
+          </a>
+        </li>
+
+        <!-- INTERVALS GARDEN -->
+        <li>
+          <a class="item spotlight" href="the-intervals-garden.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="12" r="2.2"></circle>
+              <circle cx="16" cy="8" r="2.2"></circle>
+              <path d="M9.8 11.2 C12 9 14 9 15.4 8.6"/>
+            </svg>
+            <span class="title">The Intervals Garden</span>
+            <span class="meta">Where distances become colors.</span>
+          </a>
+        </li>
+
+        <!-- AURAL GARDEN -->
+        <li>
+          <a class="item spotlight" href="the-aural-garden.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 14c2-6 14-6 16 0"/>
+              <path d="M6 16c1.4-3 10.6-3 12 0"/>
+              <circle cx="12" cy="18" r="1.2" />
+            </svg>
+            <span class="title">Aural Garden</span>
+            <span class="meta">Reactive blooms from chords and sound.</span>
+          </a>
+        </li>
+
+        <!-- TUNING ARCHIVE -->
+        <li>
+          <a class="item spotlight" href="the-tuning-archive.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 18h16M6 14h12M8 10h8M10 6h4"/>
+              <circle cx="12" cy="6" r=".8"/>
+            </svg>
+            <span class="title">The Tuning Archive</span>
+            <span class="meta">Alternate tunings — playable, comparable, practical.</span>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         aria-label="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
+      const demo=document.getElementById('demoToggle');
+      const list=document.getElementById('indexList');
+      const items=[...list.querySelectorAll('li')];
+      const supportsReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Helper: theme
+      function setIcon(mode){
+        btn.textContent = mode==='dark' ? '☀︎' : '☾';
+        btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+      function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved=localStorage.getItem(KEY);
+        if(saved==='light' || saved==='dark') return saved;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      let current=getPreferred(); applyTheme(current);
+      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
+
+      // Año
+      document.getElementById('y').textContent = new Date().getFullYear();
+
+      // Entradas con "stagger"
+      requestAnimationFrame(()=>{ list.classList.add('ready'); list.classList.add('stagger'); list.classList.add('ready'); });
+
+      // Demo spotlight para grabar video
+      let i = -1;
+      let timer = null;
+      let running = false;
+
+      function tick(){
+        // limpiar
+        items.forEach(li => li.classList.remove('active'));
+        // avanzar
+        i = (i + 1) % items.length;
+        items[i].classList.add('active');
+      }
+      function start(){
+        if (running || supportsReduced) return;
+        running = true;
+        demo.textContent = '❚❚ Demo';
+        tick();
+        timer = setInterval(tick, 1800); // ritmo agradable para captura
+      }
+      function stop(){
+        running = false;
+        demo.textContent = '▶︎ Demo';
+        clearInterval(timer);
+        items.forEach(li => li.classList.remove('active'));
+      }
+      demo.addEventListener('click', ()=> running ? stop() : start());
+
+      // Autostart suave para quienes no tienen reduced-motion
+      if(!supportsReduced){ setTimeout(start, 900); }
+
+      // Acceso rápido: tecla "D" pausar/seguir durante grabación
+      window.addEventListener('keydown', (e)=>{
+        if(e.key.toLowerCase()==='d'){ running ? stop() : start(); }
+        if(e.key.toLowerCase()==='t'){ btn.click(); } // 't' cambia tema en vivo
+      });
+    })();
+  </script>
+</body>
+</html>
