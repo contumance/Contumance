@@ -159,7 +159,6 @@
 
         <div class="stage">
           <div class="circle-wrap">
-            <div class="circle-guides" aria-hidden="true"></div>
             <canvas id="canvas"></canvas>
           </div>
         </div>
@@ -218,35 +217,40 @@
 
   // Sencillo motor de síntesis con opción de duraciones largas (drones)
   const ENV = { attack:0.01, decay:0.1, sustain:0.0, release:0.2 };
-  function playNote(freq, gainScale, durSec){
-    if (!audioCtx) return;
-    const t0 = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    const mod = audioCtx.createOscillator();
-    const modGain = audioCtx.createGain();
+  // Reemplazar función playNote existente por esta:
+function playNote(freq, gainScale, durSec){
+  if (!audioCtx) return;
+  const t0 = audioCtx.currentTime;
 
-    // Color tímbrico suave y estable para drones
-    osc.type = 'sine';
-    mod.type = 'sine';
-    mod.frequency.value = Math.max(0.1, freq*0.33);
-    modGain.gain.value = 5; // leve vibrato/ensanchamiento
-    mod.connect(modGain);
-    modGain.connect(osc.frequency);
+  const osc = audioCtx.createOscillator();
+  const g   = audioCtx.createGain();
+  const lp  = audioCtx.createBiquadFilter();
 
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(0.9 * gainScale, t0 + ENV.attack);
-    // Mantener nivel mientras dura el "drone"
-    const holdEnd = t0 + Math.max(ENV.attack + ENV.decay, durSec);
-    g.gain.setValueAtTime(0.9 * gainScale * (1-ENV.sustain), holdEnd);
-    g.gain.linearRampToValueAtTime(0.0001, holdEnd + ENV.release);
+  // timbre claro sin FM: la nota se distingue mejor
+  osc.type = 'sine';                // si querés, probá 'triangle'
+  lp.type  = 'lowpass';
+  lp.frequency.value = Math.max(1500, freq * 3); // suaviza agudos sin perder pitch
 
-    osc.connect(g); g.connect(masterGain);
-    mod.start(); osc.start();
+  // Envolvente (corta o larga según durSec)
+  const A = 0.008, D = 0.06, R = 0.18;
+  const hold = Math.max(0.08, durSec); // usa la duración del nodo (drone)
+  const peak = Math.min(1, Math.max(0.05, gainScale));
 
-    const stopAt = holdEnd + ENV.release + 0.02;
-    osc.stop(stopAt); mod.stop(stopAt);
-  }
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(peak, t0 + A);
+  g.gain.linearRampToValueAtTime(peak * 0.85, t0 + A + D);
+  g.gain.setValueAtTime(peak * 0.85, t0 + hold);
+  g.gain.linearRampToValueAtTime(0.0001, t0 + hold + R);
+
+  osc.frequency.setValueAtTime(freq, t0);
+
+  osc.connect(g);
+  g.connect(lp);
+  lp.connect(masterGain);
+
+  osc.start(t0);
+  osc.stop(t0 + hold + R + 0.02);
+}
 
   // =================== Notas UI ===================
   const NOTES = (() => {
@@ -284,16 +288,25 @@
   const ctx=canvas.getContext('2d', {alpha:true});
   let W=0,H=0,CX=0,CY=0,R=0;
 
-  function resize(){
-    const wrap=canvas.parentElement; // circle-wrap
-    const rect=wrap.getBoundingClientRect();
-    const size=Math.min(rect.width, rect.height);
-    canvas.width = size * devicePixelRatio;
-    canvas.height= size * devicePixelRatio;
-    canvas.style.width = size+'px';
-    canvas.style.height= size+'px';
-    W=canvas.width; H=canvas.height; CX=W/2; CY=H/2; R=Math.min(W,H)/2;
-  }
+function resize(){
+  const wrap = canvas.parentElement; // .circle-wrap
+  const rect = wrap.getBoundingClientRect();
+  const pad  = 14; // margen interno fijo (px CSS)
+  const size = Math.min(rect.width, rect.height) - pad*2;
+
+  canvas.width  = size * devicePixelRatio;
+  canvas.height = size * devicePixelRatio;
+  canvas.style.width  = (size) + 'px';
+  canvas.style.height = (size) + 'px';
+  canvas.style.position = 'absolute';
+  canvas.style.left = pad + 'px';
+  canvas.style.top  = pad + 'px';
+
+  const ring = 1.5 * devicePixelRatio; // grosor visible del borde
+  W = canvas.width; H = canvas.height;
+  CX = W/2; CY = H/2;
+  R  = Math.min(W,H)/2 - ring/2; // radio de colisión alineado al borde dibujado
+}
   window.addEventListener('resize', resize, {passive:true});
   resize();
 
@@ -442,20 +455,28 @@
   }
 
   function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    // anillo guía (ya está el borde en .circle-guides, pero dibujamos para definición HiDPI)
-    ctx.save();
-    ctx.lineWidth = 1.5 * devicePixelRatio;
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#ccc';
-    ctx.beginPath(); ctx.arc(CX, CY, R-1.5*devicePixelRatio, 0, Math.PI*2); ctx.stroke();
-    ctx.restore();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    for (const n of nodes){
-      ctx.beginPath(); ctx.fillStyle=n.color; ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();
-      // centro suave
-      ctx.beginPath(); ctx.fillStyle='rgba(0,0,0,.12)'; ctx.arc(n.x,n.y,Math.max(1.5*devicePixelRatio,n.r*0.25),0,Math.PI*2); ctx.fill();
-    }
+  // Borde del círculo (único)
+  ctx.save();
+  const ring = 1.5 * devicePixelRatio;
+  ctx.lineWidth = ring;
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#ccc';
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.restore();
+
+  // nodos
+  for (const n of nodes){
+    ctx.beginPath(); ctx.fillStyle=n.color;
+    ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();
+
+    ctx.beginPath(); ctx.fillStyle='rgba(0,0,0,.12)';
+    ctx.arc(n.x,n.y,Math.max(1.5*devicePixelRatio,n.r*0.25),0,Math.PI*2);
+    ctx.fill();
   }
+}
 
   let last=performance.now();
   function loop(now){
