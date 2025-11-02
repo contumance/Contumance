@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Bounce Garden — Re:sonance</title>
-  <meta name="description" content="Generador de drones melódicos: nodos que rebotan dentro de un círculo; cada colisión dispara su nota y duración." />
+  <meta name="description" content="Nodos que rebotan dentro de un círculo; cada colisión dispara su nota o un drum (kick/snare/hat). Con panorámica L/R por nodo y drones." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <style>
     :root{
@@ -66,18 +66,13 @@
     /* Stage (círculo + canvas) */
     .stage{
       border:1px solid var(--accent); border-radius:.6rem; background:transparent;
-      margin:14px 0 18px; padding:10px;
+      margin:14px 0 18px; padding:10px; position:relative;
     }
     .circle-wrap{
       position:relative; width:100%; aspect-ratio:1/1;
-      border:1px solid var(--rule); border-radius:.6rem; overflow:hidden;
-      background:transparent;
+      border:1px solid var(--rule); border-radius:.6rem; overflow:hidden; background:transparent;
     }
-    .circle-guides{
-      position:absolute; inset:12px; border-radius:50%;
-      border:1px solid var(--rule);
-    }
-    canvas{position:absolute; inset:12px; width:calc(100% - 24px); height:calc(100% - 24px); display:block;}
+    canvas{position:absolute; display:block;}
 
     /* Lista de nodos */
     .list{display:flex; flex-direction:column; gap:6px;}
@@ -88,7 +83,6 @@
     .left{display:flex; align-items:center; gap:.6rem; min-width:0}
     .swatch{width:12px; height:12px; border-radius:999px; flex:none}
     .muted{color:var(--muted)}
-
     .footer{margin:30px 0 60px; font-size:12px; color:var(--muted);}
 
     /* Footer (Buy Me a Coffee) */
@@ -121,7 +115,7 @@
 
     <header>
       <h1>The Bounce Garden</h1>
-      <div class="subtitle">Where collisions sing — melodic orbits and long-tail drones inside a circle.</div>
+      <div class="subtitle">Where collisions sing — melodic orbits, drum hits, and long-tail drones inside a circle.</div>
     </header>
 
     <details class="panel" open>
@@ -144,6 +138,19 @@
             Duración (s)
             <input id="durInput" type="range" min="0.1" max="12" step="0.1" value="4.0">
           </label>
+          <label>
+            Pan (L/R)
+            <input id="panInput" type="range" min="-1" max="1" step="0.01" value="0">
+          </label>
+          <label>
+            Voice
+            <select id="voiceSelect">
+              <option value="tone">Tone</option>
+              <option value="kick">Kick</option>
+              <option value="snare">Snare</option>
+              <option value="hat">Hat</option>
+            </select>
+          </label>
           <label style="min-width:190px;">
             Volumen
             <input id="volumeInput" type="range" min="0" max="1" step="0.01" value="0.45">
@@ -159,12 +166,13 @@
 
         <div class="stage">
           <div class="circle-wrap">
+            <!-- solo canvas (un solo borde visible y preciso) -->
             <canvas id="canvas"></canvas>
           </div>
         </div>
 
         <div class="list" id="nodeList" aria-live="polite"></div>
-        <p class="muted">Tip: usa duraciones largas (≥ 4 s) para drones suaves y deja que las colisiones generen texturas ambientales. Clic en el canvas para añadir rápidamente.</p>
+        <p class="muted">Tip: usa duraciones largas (≥4s) para drones suaves. Clic en el canvas para añadir rápidamente. Probá voices “kick/snare/hat” para texturas rítmicas.</p>
       </div>
     </details>
 
@@ -185,14 +193,14 @@
     </footer>
   </main>
 
+  <!-- === Theme toggle === -->
   <script>
-    // --- Theme toggle (igual al ejemplo) ---
     (function(){
       const KEY='theme-preference';
       const root=document.documentElement;
       const btn=document.getElementById('themeToggle');
-      function setIcon(mode){ btn.textContent = '◑'; }
-      function apply(mode){ root.classList.toggle('theme-dark',mode==='dark'); setIcon(mode); }
+      function setIcon(){ btn.textContent = '◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(); }
       function getPreferred(){
         const saved=localStorage.getItem(KEY);
         if(saved==='light'||saved==='dark') return saved;
@@ -204,7 +212,7 @@
   </script>
 
   <script>
-  // =================== Audio ===================
+  // =================== Audio core ===================
   let audioCtx = null, masterGain = null;
   function ensureAudio(){
     if (audioCtx) return;
@@ -215,42 +223,139 @@
   }
   function midiToFreq(m){ return 440 * Math.pow(2, (m - 69) / 12); }
 
-  // Sencillo motor de síntesis con opción de duraciones largas (drones)
-  const ENV = { attack:0.01, decay:0.1, sustain:0.0, release:0.2 };
-  // Reemplazar función playNote existente por esta:
-function playNote(freq, gainScale, durSec){
-  if (!audioCtx) return;
-  const t0 = audioCtx.currentTime;
+  function makePanner(pan) {
+    const p = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+    if (p) p.pan.value = Math.max(-1, Math.min(1, pan || 0));
+    return p;
+  }
 
-  const osc = audioCtx.createOscillator();
-  const g   = audioCtx.createGain();
-  const lp  = audioCtx.createBiquadFilter();
+  // Síntesis de tono (clara, sin FM) con filtro suave y paneo
+  function playTone(freq, gainScale, durSec, pan){
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    const lp  = audioCtx.createBiquadFilter();
+    const p   = makePanner(pan);
 
-  // timbre claro sin FM: la nota se distingue mejor
-  osc.type = 'sine';                // si querés, probá 'triangle'
-  lp.type  = 'lowpass';
-  lp.frequency.value = Math.max(1500, freq * 3); // suaviza agudos sin perder pitch
+    osc.type = 'sine';
+    lp.type  = 'lowpass';
+    lp.frequency.value = Math.max(1500, freq * 3);
 
-  // Envolvente (corta o larga según durSec)
-  const A = 0.008, D = 0.06, R = 0.18;
-  const hold = Math.max(0.08, durSec); // usa la duración del nodo (drone)
-  const peak = Math.min(1, Math.max(0.05, gainScale));
+    const A=0.008, D=0.06, R=0.18;
+    const hold = Math.max(0.08, durSec);
+    const peak = Math.min(1, Math.max(0.05, gainScale));
 
-  g.gain.setValueAtTime(0, t0);
-  g.gain.linearRampToValueAtTime(peak, t0 + A);
-  g.gain.linearRampToValueAtTime(peak * 0.85, t0 + A + D);
-  g.gain.setValueAtTime(peak * 0.85, t0 + hold);
-  g.gain.linearRampToValueAtTime(0.0001, t0 + hold + R);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(peak, t0+A);
+    g.gain.linearRampToValueAtTime(peak*0.85, t0+A+D);
+    g.gain.setValueAtTime(peak*0.85, t0+hold);
+    g.gain.linearRampToValueAtTime(0.0001, t0+hold+R);
 
-  osc.frequency.setValueAtTime(freq, t0);
+    osc.frequency.setValueAtTime(freq, t0);
 
-  osc.connect(g);
-  g.connect(lp);
-  lp.connect(masterGain);
+    osc.connect(g); g.connect(lp);
+    if (p){ lp.connect(p); p.connect(masterGain); } else { lp.connect(masterGain); }
 
-  osc.start(t0);
-  osc.stop(t0 + hold + R + 0.02);
-}
+    osc.start(t0);
+    osc.stop(t0 + hold + R + 0.02);
+  }
+
+  // ====== Drum mini-synths ======
+  let _noiseBuf = null;
+  function getNoiseBuffer(){
+    if (_noiseBuf) return _noiseBuf;
+    const len = (audioCtx?.sampleRate||48000) * 2;
+    const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i=0;i<len;i++) d[i] = (Math.random()*2-1);
+    _noiseBuf = buf; return buf;
+  }
+
+  function playKick({pan=0, gain=0.9, dur=0.25, fStart=140, fEnd=48}={}){
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    const p   = makePanner(pan);
+
+    osc.type='sine';
+    osc.frequency.setValueAtTime(fStart, t0);
+    osc.frequency.exponentialRampToValueAtTime(fEnd, t0 + dur);
+
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain, t0+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    osc.connect(g);
+    if (p){ g.connect(p); p.connect(masterGain);} else { g.connect(masterGain); }
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+
+  function playSnare({pan=0, gain=0.5, dur=0.18, toneHz=330}={}){
+    const t0 = audioCtx.currentTime;
+
+    const nsrc = audioCtx.createBufferSource();
+    nsrc.buffer = getNoiseBuffer();
+    const hpf = audioCtx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=800;
+    const bpf = audioCtx.createBiquadFilter(); bpf.type='bandpass'; bpf.frequency.value=1800; bpf.Q.value=0.5;
+    const ng = audioCtx.createGain();
+    const p  = makePanner(pan);
+
+    ng.gain.setValueAtTime(gain, t0);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    nsrc.connect(hpf); hpf.connect(bpf); bpf.connect(ng);
+    if (p){ ng.connect(p); p.connect(masterGain);} else { ng.connect(masterGain); }
+
+    nsrc.start(t0);
+    nsrc.stop(t0 + dur + 0.05);
+
+    const osc = audioCtx.createOscillator();
+    const g   = audioCtx.createGain();
+    osc.type='triangle';
+    osc.frequency.setValueAtTime(toneHz, t0);
+    g.gain.setValueAtTime(gain*0.25, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur*0.7);
+    osc.connect(g);
+    if (p){ g.connect(p); p.connect(masterGain);} else { g.connect(masterGain); }
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  }
+
+  function playHat({pan=0, gain=0.35, dur=0.07}={}){
+    const t0 = audioCtx.currentTime;
+    const nsrc = audioCtx.createBufferSource();
+    nsrc.buffer = getNoiseBuffer();
+    const hpf = audioCtx.createBiquadFilter(); hpf.type='highpass'; hpf.frequency.value=7000;
+    const ng = audioCtx.createGain();
+    const p  = makePanner(pan);
+
+    ng.gain.setValueAtTime(gain, t0);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+
+    nsrc.connect(hpf); hpf.connect(ng);
+    if (p){ ng.connect(p); p.connect(masterGain);} else { ng.connect(masterGain); }
+
+    nsrc.start(t0);
+    nsrc.stop(t0 + dur + 0.02);
+  }
+
+  function triggerNodeSound(n, impactGain=0.55){
+    if (!audioCtx) return;
+    const voice = n.voice || 'tone';
+    if (voice === 'tone'){
+      const freq = midiToFreq(n.midi);
+      playTone(freq, impactGain, n.dur, n.pan);
+    } else if (voice === 'kick'){
+      const base = Math.max(42, Math.min(180, midiToFreq(n.midi))); // usar nota como “peso”
+      playKick({pan:n.pan, gain:impactGain, dur:Math.min(n.dur,0.35), fStart:base, fEnd:48});
+    } else if (voice === 'snare'){
+      playSnare({pan:n.pan, gain:impactGain, dur:Math.min(n.dur,0.25)});
+    } else if (voice === 'hat'){
+      playHat({pan:n.pan, gain:impactGain*0.9, dur:Math.min(n.dur,0.12)});
+    }
+  }
 
   // =================== Notas UI ===================
   const NOTES = (() => {
@@ -267,7 +372,7 @@ function playNote(freq, gainScale, durSec){
   NOTES.forEach(n=>{ const o=document.createElement('option'); o.value=n.midi; o.textContent=n.name; noteSelect.appendChild(o); });
   noteSelect.value = NOTES.find(n=>n.name==='A3')?.midi ?? NOTES[0].midi;
 
-  // =================== Controles UI ===================
+  // =================== Controles ===================
   const volumeInput = document.getElementById('volumeInput');
   volumeInput.addEventListener('input', e=>{ if (masterGain) masterGain.gain.value = parseFloat(e.target.value); });
 
@@ -288,25 +393,24 @@ function playNote(freq, gainScale, durSec){
   const ctx=canvas.getContext('2d', {alpha:true});
   let W=0,H=0,CX=0,CY=0,R=0;
 
-function resize(){
-  const wrap = canvas.parentElement; // .circle-wrap
-  const rect = wrap.getBoundingClientRect();
-  const pad  = 14; // margen interno fijo (px CSS)
-  const size = Math.min(rect.width, rect.height) - pad*2;
+  function resize(){
+    const wrap = canvas.parentElement; // .circle-wrap
+    const rect = wrap.getBoundingClientRect();
+    const pad  = 14; // margen interno en px CSS
+    const size = Math.min(rect.width, rect.height) - pad*2;
 
-  canvas.width  = size * devicePixelRatio;
-  canvas.height = size * devicePixelRatio;
-  canvas.style.width  = (size) + 'px';
-  canvas.style.height = (size) + 'px';
-  canvas.style.position = 'absolute';
-  canvas.style.left = pad + 'px';
-  canvas.style.top  = pad + 'px';
+    canvas.width  = size * devicePixelRatio;
+    canvas.height = size * devicePixelRatio;
+    canvas.style.width  = (size) + 'px';
+    canvas.style.height = (size) + 'px';
+    canvas.style.left   = pad + 'px';
+    canvas.style.top    = pad + 'px';
 
-  const ring = 1.5 * devicePixelRatio; // grosor visible del borde
-  W = canvas.width; H = canvas.height;
-  CX = W/2; CY = H/2;
-  R  = Math.min(W,H)/2 - ring/2; // radio de colisión alineado al borde dibujado
-}
+    const ring = 1.5 * devicePixelRatio; // grosor visible del borde
+    W = canvas.width; H = canvas.height;
+    CX = W/2; CY = H/2;
+    R  = Math.min(W,H)/2 - ring/2; // radio de colisión alineado
+  }
   window.addEventListener('resize', resize, {passive:true});
   resize();
 
@@ -319,9 +423,8 @@ function resize(){
     return `hsl(${h} 60% 50%)`;
   }
 
-  function addNode(midi, speedVal, radiusPx, durSec){
-    // Aceleramos el motor: factor alto para velocidades más evidentes
-    const SPD_FACTOR = 3.8; // <<< velocidad alta
+  function addNode(midi, speedVal, radiusPx, durSec, pan, voice){
+    const SPD_FACTOR = 4.6; // alta energía
     const r = Math.max(4, radiusPx) * devicePixelRatio;
 
     // posición inicial sin solaparse
@@ -329,7 +432,7 @@ function resize(){
     while(!placed && tries<220){
       tries++;
       const ang=Math.random()*Math.PI*2;
-      const rad = Math.random()*(R - r - 4*devicePixelRatio);
+      const rad = Math.random()*(R - r - 2*devicePixelRatio);
       x = CX + Math.cos(ang)*rad;
       y = CY + Math.sin(ang)*rad;
       placed = nodes.every(n => Math.hypot(x-n.x, y-n.y) >= (r+n.r+2*devicePixelRatio));
@@ -340,13 +443,15 @@ function resize(){
     const vy = Math.sin(theta)*speedVal*SPD_FACTOR*devicePixelRatio;
 
     const node = {
-      id:crypto.randomUUID(),
+      id: crypto.randomUUID(),
       x,y,vx,vy,
-      r:r,
+      r: r,
       midi,
-      dur:Math.max(0.1, durSec),
-      color:randColor(),
-      lastHit:0
+      dur: Math.max(0.1, durSec),
+      pan: Math.max(-1, Math.min(1, pan||0)),
+      voice: voice || 'tone',
+      color: randColor(),
+      lastHit: 0
     };
     nodes.push(node);
     renderList();
@@ -366,7 +471,10 @@ function resize(){
       const sw=document.createElement('span'); sw.className='swatch'; sw.style.background=n.color;
       const name = (NOTES.find(x=>x.midi===n.midi)?.name) || n.midi;
       const speed = (Math.hypot(n.vx,n.vy)/devicePixelRatio).toFixed(1);
-      left.append(sw, document.createTextNode(`${name} · v=${speed} · r=${(n.r/devicePixelRatio|0)} · dur=${n.dur.toFixed(1)}s`));
+      left.append(
+        sw,
+        document.createTextNode(`${name} · v=${speed} · r=${(n.r/devicePixelRatio|0)} · dur=${n.dur.toFixed(1)}s · pan=${n.pan.toFixed(2)} · ${n.voice}`)
+      );
       const rm=document.createElement('button'); rm.textContent='Remove';
       rm.addEventListener('click', ()=>removeNode(n.id));
       item.append(left, rm);
@@ -376,16 +484,17 @@ function resize(){
 
   // =================== Interacción ===================
   document.getElementById('addBtn').addEventListener('click', ()=>{
-    const midi=parseInt(document.getElementById('noteSelect').value,10);
-    const speed=parseFloat(document.getElementById('speedInput').value);
-    const size =parseInt(document.getElementById('sizeInput').value,10);
-    const dur  =parseFloat(document.getElementById('durInput').value);
-    addNode(midi, speed, size, dur);
+    const midi = parseInt(document.getElementById('noteSelect').value,10);
+    const speed= parseFloat(document.getElementById('speedInput').value);
+    const size = parseInt(document.getElementById('sizeInput').value,10);
+    const dur  = parseFloat(document.getElementById('durInput').value);
+    const pan  = parseFloat(document.getElementById('panInput').value);
+    const voice= document.getElementById('voiceSelect').value;
+    addNode(midi, speed, size, dur, pan, voice);
     if (!audioCtx){ ensureAudio(); audioCtx.resume(); audioBtn.textContent='Audio On'; audioBtn.classList.remove('primary'); }
   });
 
   document.getElementById('clearBtn').addEventListener('click', ()=>{ nodes.splice(0,nodes.length); renderList(); });
-
   canvas.addEventListener('pointerdown', ()=>{ document.getElementById('addBtn').click(); }, {passive:true});
 
   // =================== Simulación ===================
@@ -393,7 +502,6 @@ function resize(){
   const PAIR_COOLDOWN=0.06;
 
   function step(dt){
-    // integrar
     for (const n of nodes){
       n.x += n.vx * dt;
       n.y += n.vy * dt;
@@ -413,10 +521,9 @@ function resize(){
         if (audioCtx){
           const t=audioCtx.currentTime;
           if (t - n.lastHit > WALL_COOLDOWN){
-            const freq=midiToFreq(n.midi);
             const spd = Math.min(5.0, Math.hypot(n.vx,n.vy)/(3*devicePixelRatio));
             const gain = 0.45 + 0.25*spd;
-            playNote(freq, gain, n.dur); // duración por nodo (drone posible)
+            triggerNodeSound(n, gain);
             n.lastHit = t;
           }
         }
@@ -446,8 +553,8 @@ function resize(){
 
           if (audioCtx){
             const t=audioCtx.currentTime;
-            if (t - a.lastHit > PAIR_COOLDOWN){ playNote(midiToFreq(a.midi), 0.55, a.dur); a.lastHit=t; }
-            if (t - b.lastHit > PAIR_COOLDOWN){ playNote(midiToFreq(b.midi), 0.55, b.dur); b.lastHit=t; }
+            if (t - a.lastHit > PAIR_COOLDOWN){ triggerNodeSound(a, 0.55); a.lastHit=t; }
+            if (t - b.lastHit > PAIR_COOLDOWN){ triggerNodeSound(b, 0.55); b.lastHit=t; }
           }
         }
       }
@@ -455,28 +562,27 @@ function resize(){
   }
 
   function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // Borde del círculo (único)
-  ctx.save();
-  const ring = 1.5 * devicePixelRatio;
-  ctx.lineWidth = ring;
-  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#ccc';
-  ctx.beginPath();
-  ctx.arc(CX, CY, R, 0, Math.PI*2);
-  ctx.stroke();
-  ctx.restore();
+    // Borde del círculo (único y alineado)
+    ctx.save();
+    const ring = 1.5 * devicePixelRatio;
+    ctx.lineWidth = ring;
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim() || '#ccc';
+    ctx.beginPath();
+    ctx.arc(CX, CY, R, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
 
-  // nodos
-  for (const n of nodes){
-    ctx.beginPath(); ctx.fillStyle=n.color;
-    ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();
+    for (const n of nodes){
+      ctx.beginPath(); ctx.fillStyle=n.color;
+      ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill();
 
-    ctx.beginPath(); ctx.fillStyle='rgba(0,0,0,.12)';
-    ctx.arc(n.x,n.y,Math.max(1.5*devicePixelRatio,n.r*0.25),0,Math.PI*2);
-    ctx.fill();
+      ctx.beginPath(); ctx.fillStyle='rgba(0,0,0,.12)';
+      ctx.arc(n.x,n.y,Math.max(1.5*devicePixelRatio,n.r*0.25),0,Math.PI*2);
+      ctx.fill();
+    }
   }
-}
 
   let last=performance.now();
   function loop(now){
@@ -500,7 +606,7 @@ function resize(){
   </script>
 
   <script>
-    // Poblar select de notas al final (tras definir NOTES)
+    // Poblar select de notas al final (si no quedó poblado)
     (function(){
       const sel=document.getElementById('noteSelect');
       if (!sel.options.length){
