@@ -1,389 +1,478 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Modal Progressions — Contumance</title>
-<meta name="description" content="Type a progression, pick a root and a mode, and get playable guitar voicings with inversion control." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
-<style>
-  :root{
-    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
-    --link:#2d5842; --link-visited:#514f7a;
-    --accent:#a08a63; --rule:#d8d2c2; --maxw:44rem;
-    --radius:14px; --lh:1.6; --fs:18px;
-  }
-  html.theme-dark{
-    --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
-    --link:#a9d0b8; --link-visited:#c0b8e6;
-    --accent:#8b7757; --rule:#2a2926;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font:400 var(--fs)/var(--lh) ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-    background:var(--paper); color:var(--ink);
-  }
-  header,footer{max-width:var(--maxw); margin:0 auto; padding:1rem 1rem}
-  header{display:flex; align-items:center; justify-content:space-between; gap:.75rem}
-  h1{font-size:1.25rem; margin:0}
-  .muted{color:var(--muted)}
-  .toggle{
-    border:1px solid var(--rule); background:transparent; color:inherit;
-    padding:.35rem .6rem; border-radius:999px; cursor:pointer;
-  }
-  main{max-width:var(--maxw); margin:0 auto; padding:0 1rem 3rem}
-  .panel{
-    border:1px solid var(--rule); border-radius:var(--radius); padding:1rem; background:transparent;
-  }
-  .row{display:grid; grid-template-columns:1fr 1fr; gap:.75rem}
-  .row > div{display:flex; flex-direction:column; gap:.35rem}
-  label{font-size:.9rem; color:var(--muted)}
-  input[type="text"], select{
-    padding:.55rem .65rem; border-radius:10px; border:1px solid var(--rule); background:transparent; color:inherit;
-  }
-  .actions{display:flex; gap:.5rem; align-items:center; margin-top:.5rem}
-  .btn{
-    border:1px solid var(--ink); background:var(--ink); color:var(--paper);
-    padding:.6rem .9rem; border-radius:10px; cursor:pointer;
-  }
-  .btn.secondary{background:transparent; color:var(--ink); border-color:var(--rule)}
-  .grid{
-    margin-top:1rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:1rem;
-  }
-  .card{
-    border:1px solid var(--rule); border-radius:var(--radius); padding:.8rem; display:flex; flex-direction:column; gap:.6rem;
-  }
-  .titleline{display:flex; align-items:baseline; justify-content:space-between; gap:.5rem}
-  .deg{font-weight:700; letter-spacing:.03em}
-  .name{font-variant:small-caps; font-weight:600}
-  .controls{display:flex; gap:.4rem; align-items:center; flex-wrap:wrap}
-  .chip{
-    border:1px solid var(--rule); padding:.2rem .5rem; border-radius:999px; font-size:.85rem; color:var(--muted);
-  }
-  .iconbtn{
-    border:1px solid var(--rule); background:transparent; color:inherit;
-    width:2.1rem; height:2.1rem; border-radius:10px; cursor:pointer;
-  }
-  canvas.fret{width:100%; aspect-ratio:4/3; border-radius:12px; border:1px dashed var(--rule); background:linear-gradient(transparent 50%, transparent 50%)}
-  .hint{font-size:.85rem; color:var(--muted)}
-  footer .btn{
-    background:transparent; border:1px solid var(--ink); color:var(--ink);
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Modal Architect — Contumance</title>
+  <meta name="description" content="Design harmonic structures from scale geometry. Choose a mode, a root, write degrees, and craft playable guitar inversions." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>'>
+
+  <style>
+    /* ---- Shared palette & rhythm (matches Daily Chord / Scales) ---- */
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+      --link:#2d5842; --link-visited:#514f7a;
+      --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
+      --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
+    }
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
+    }
+    html{ font-size:var(--fs-base); }
+    body{
+      margin:0; padding:0; color:var(--ink); background:var(--paper); line-height:var(--lh);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
+    }
+    main{ max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
+
+    /* Top bar / header like the example */
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+    nav.breadcrumb{ font-size:.95rem; }
+    nav.breadcrumb a{ color:var(--link); text-decoration:none; text-underline-offset:2px; }
+    h1{ margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem); }
+    .subtitle{ color:var(--muted); font-size:.95rem; margin-bottom:.8rem; }
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
+    }
+    .theme-toggle:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
+    hr{ border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5; }
+
+    /* Collapsible controls panel (same feel) */
+    details.panel{ border:1px solid var(--accent); border-radius:.6rem; background: rgba(255,255,255,0.6); }
+    html.theme-dark details.panel{ background: rgba(0,0,0,0.1); }
+    details.panel>summary{ cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink); }
+    details.panel>summary::-webkit-details-marker{ display:none; }
+    details.panel .panel-body{ padding:.6rem .8rem .9rem; }
+
+    /* Form controls grid */
+    .controls{ display:grid; gap:8px; align-items:center; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); margin-bottom:8px; }
+    .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    label{ font-size:12px; opacity:.9; display:block; }
+    input[type="text"], select{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0; outline:none;
+      width:100%;
+    }
+    .hint{ font-size:.85rem; color:var(--muted); margin-top:.25rem; }
+
+    button{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:10px 12px; border-radius:.5rem; font-family:inherit; font-size:14px; line-height:1; min-width:0; outline:none; cursor:pointer;
+    }
+    button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    button:focus-visible, input[type="text"]:focus-visible, select:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
+
+    /* Results layout: cards consistent with your style */
+    .cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:12px; margin-top:12px; }
+    .card{
+      border:1px solid var(--accent); border-radius:.6rem; padding:.9rem; background:transparent;
+    }
+    .card .titleline{ display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; }
+    .deg{ font-weight:700; letter-spacing:.03em; }
+    .name{ font-variant:small-caps; font-weight:600; }
+    .meta{ display:flex; gap:.35rem; flex-wrap:wrap; margin:.35rem 0 .55rem; }
+    .tag{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .55rem; font-size:.8rem; color:var(--muted); }
+
+    .controls-row{ display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.25rem 0 .55rem; }
+    .chip{
+      border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.8rem; color:var(--muted);
+    }
+    .iconbtn{
+      border:1px solid var(--accent); background:transparent; color:inherit;
+      width:2.1rem; height:2.1rem; border-radius:.5rem; cursor:pointer;
+    }
+
+    canvas.fret{ width:100%; aspect-ratio:4/3; border-radius:.6rem; border:1px dashed var(--rule); display:block; }
+
+    /* Footer (same component as example) */
+    footer{
+      display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0;
+    }
+    footer .btn{
+      display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+      border:1px solid var(--accent); border-radius:999px; padding:.45rem .95rem;
+      font-size:.9rem; font-weight:500; transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    html:not(.theme-dark) footer .btn{
+      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink);
+    }
+    html:not(.theme-dark) footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+    }
+    html.theme-dark footer .btn{
+      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper);
+    }
+    html.theme-dark footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+    }
+    footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
+
+    @media (prefers-reduced-motion:no-preference){
+      a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; }
+      a:hover, a:focus-visible{ background-size:100% 1px; outline:none; }
+    }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Modal Progressions <span class="muted">— Re:sonance</span></h1>
-  <button class="toggle" id="themeToggle" aria-label="Toggle dark mode">☾ / ☀︎</button>
-</header>
-
-<main>
-  <section class="panel" aria-labelledby="builder">
-    <h2 id="builder" class="muted" style="margin-top:0">Builder</h2>
-    <div class="row">
-      <div>
-        <label for="progression">Progression (roman degrees)</label>
-        <input id="progression" type="text" placeholder="I - IV - VII - iii" value="I - IV - VII - iii">
-        <span class="hint">Admite accidentales: <code>#iv</code>, <code>bVII</code>, <code>vii°</code>. Separá con -, , o espacios.</span>
-      </div>
-      <div>
-        <label for="root">Root / Tonic</label>
-        <select id="root"></select>
-        <label for="mode" style="margin-top:.4rem">Mode</label>
-        <select id="mode">
-          <option>Ionian</option>
-          <option>Dorian</option>
-          <option>Phrygian</option>
-          <option selected>Lydian</option>
-          <option>Mixolydian</option>
-          <option>Aeolian</option>
-          <option>Locrian</option>
-        </select>
-      </div>
+  <main>
+    <!-- Top bar -->
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">← Back to index</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
     </div>
-    <div class="actions">
-      <button class="btn" id="go">Generate</button>
-      <button class="btn secondary" id="example">Example: C Lydian — I IV VII iii</button>
-    </div>
-  </section>
 
-  <section id="results" class="grid" aria-live="polite"></section>
+    <!-- Page header -->
+    <header>
+      <h1>The Modal Architect</h1>
+      <div class="subtitle">Design harmonic structures from scale geometry. Choose a mode, a root, write degrees, and pick inversions.</div>
+    </header>
 
-  <p class="hint" style="margin-top:1rem">Tips: usá ⬅︎➡︎ para cambiar inversión y ⬆︎⬇︎ para mover la posición por el diapasón en la tarjeta enfocada.</p>
-</main>
+    <!-- Controls -->
+    <details class="panel" open>
+      <summary>Controls</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Modal progression controls">
+          <div>
+            <label for="progression">Progression (roman degrees)</label>
+            <input id="progression" type="text" placeholder="I - IV - VII - iii" value="I - IV - VII - iii">
+            <div class="hint">Supports accidentals: <code>#iv</code>, <code>bVII</code>, <code>vii°</code>. Use dashes, commas, or spaces.</div>
+          </div>
+          <div>
+            <label for="root">Root / Tonic</label>
+            <select id="root"></select>
+          </div>
+          <div>
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option>Ionian</option>
+              <option>Dorian</option>
+              <option>Phrygian</option>
+              <option selected>Lydian</option>
+              <option>Mixolydian</option>
+              <option>Aeolian</option>
+              <option>Locrian</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <button class="primary" id="go" type="button">Generate</button>
+          <button id="example" type="button">Example: C Lydian — I IV VII iii</button>
+        </div>
+      </div>
+    </details>
 
-<footer>
-  <p class="muted">A quiet tool for sketching modal progressions on guitar. Made for the Contumance library.</p>
-  <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener">Buy me a coffee</a>
-</footer>
+    <!-- Results -->
+    <section id="results" class="cards" aria-live="polite"></section>
 
-<script>
-/* ---------- Theory core ---------- */
-const NOTE_NAMES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-// Guitar tuning E2 A2 D3 G3 B3 E4 → pitch classes:
-const TUNING = [4,9,2,7,11,4]; // strings 6..1 in pitch-class (E A D G B E) but we’ll draw 4-3-2 strings
+    <p class="hint" style="margin-top:.5rem">Tip: use ◀ ▶ to change inversion and ▲ ▼ to move the position on the focused card.</p>
 
-// modal patterns as semitone sets from tonic (0..11):
-const MODES = {
-  "Ionian":[0,2,4,5,7,9,11],
-  "Dorian":[0,2,3,5,7,9,10],
-  "Phrygian":[0,1,3,5,7,8,10],
-  "Lydian":[0,2,4,6,7,9,11],
-  "Mixolydian":[0,2,4,5,7,9,10],
-  "Aeolian":[0,2,3,5,7,8,10],
-  "Locrian":[0,1,3,5,6,8,10]
-};
+    <!-- Footer -->
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         aria-label="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
 
-// Get scale degrees (pitch classes) for root+mode
-function scalePCs(rootPC, modeName){
-  const patt = MODES[modeName];
-  return patt.map(s => (rootPC + s) % 12);
-}
-
-// Diatonic triad at degree index (0..6), returns [pcRoot, pcThird, pcFifth]
-function triadForDegree(scale, degreeIdx){
-  const a = scale[degreeIdx % 7];
-  const b = scale[(degreeIdx+2)%7];
-  const c = scale[(degreeIdx+4)%7];
-  return [a,b,c];
-}
-
-function qualityOfTriad([r, t, f]){
-  const to = (x)=> (x - r + 12)%12;
-  const it3 = to(t), it5 = to(f);
-  if (it3===4 && it5===7) return "maj";
-  if (it3===3 && it5===7) return "min";
-  if (it3===3 && it5===6) return "dim";
-  if (it3===4 && it5===8) return "aug";
-  return ""; // fallback
-}
-
-function nameFromPC(pc){ return NOTE_NAMES_SHARP[pc]; }
-
-// Parse roman token like "IV", "iii", "#iv", "bVII", "vii°"
-const ROMAN_MAP = {i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7};
-function parseDegreeToken(tok){
-  tok = tok.trim();
-  let acc=0; // -1 flat, +1 sharp (we treat as modal shift on the degree)
-  if(tok[0]==='#'){acc=+1; tok=tok.slice(1);}
-  if(tok[0]==='b' || tok[0]==='B'){acc=-1; tok=tok.slice(1);}
-  const base = tok.toLowerCase().replace(/[°\+]/g,'');
-  const n = ROMAN_MAP[base]||1;
-  const dim = /°/.test(tok);
-  const maj = /[IV]/.test(tok[0]); // crude: upper-case → major flavor when ambiguous
-  return {degree:n, accidental:acc, isDim:dim, uppercase:/[IVX]+/.test(tok), raw:tok};
-}
-
-/* ---------- Fretboard voicing search (strings 4-3-2) ---------- */
-// note at string s (4->index 2, 3->index 3, 2->index 4) & fret f
-function noteAt(stringNo, fret){
-  const idx = ({6:0,5:1,4:2,3:3,2:4,1:5})[stringNo];
-  return (TUNING[idx] + fret) % 12;
-}
-
-// Search a close-position triad on strings 4,3,2 with given bassNote (pc) and triad pcs
-// returns {s42,s32,s22} frets and which notes
-function findCloseTriad(triadPCs, inversion=0, startFret=0){
-  // inversion: 0 root position (bass=root), 1 (bass=third), 2 (bass=fifth)
-  const order = [0,1,2]; // indices in triad array
-  const bassIdx = order[inversion];
-  const pcs = triadPCs;
-
-  for(let baseFret=startFret; baseFret<=12; baseFret++){
-    // place bass on string 4
-    if (noteAt(4, baseFret)!==pcs[bassIdx]) continue;
-
-    // remaining notes to place on strings 3 and 2
-    const rest = [0,1,2].filter(i=>i!==bassIdx);
-    // find nearest frets for G (string3) and B (string2)
-    let best=null, bestSpan=99;
-
-    for(let f3=Math.max(0,baseFret-4); f3<=Math.min(15,baseFret+6); f3++){
-      const n3 = noteAt(3,f3);
-      const i3 = rest.find(i => pcs[i]===n3);
-      if(i3===undefined) continue;
-      for(let f2=Math.max(0,Math.min(f3,baseFret)-4); f2<=Math.min(15,Math.max(f3,baseFret)+6); f2++){
-        const n2 = noteAt(2,f2);
-        const left = rest.filter(i => i!==i3);
-        if(left.length!==1) continue;
-        if (pcs[left[0]]!==n2) continue;
-        const span = Math.max(baseFret,f3,f2) - Math.min(baseFret,f3,f2);
-        if(span<=5){ // playable
-          if(span<bestSpan){ bestSpan=span; best={f4:baseFret,f3,f2}; }
-        }
+  <!-- Theme toggle (same behavior as example) -->
+  <script>
+    (function () {
+      const KEY = 'theme-preference';
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      function setIcon(mode){ btn.textContent = '◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
+      let current = getPreferred(); apply(current);
+      btn.addEventListener('click', () => {
+        current = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(KEY, current); apply(current);
+      });
+      document.getElementById('y').textContent = new Date().getFullYear();
+    })();
+  </script>
+
+  <!-- Modal Architect logic (American notation, EADGBE; 3-string close voicings on 4-3-2) -->
+  <script>
+    /* ---------- Theory core ---------- */
+    const NOTE_NAMES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    // Guitar tuning E A D G B E (pitch classes), index mapping 6..1
+    const TUNING = [4,9,2,7,11,4];
+
+    const MODES = {
+      "Ionian":[0,2,4,5,7,9,11],
+      "Dorian":[0,2,3,5,7,9,10],
+      "Phrygian":[0,1,3,5,7,8,10],
+      "Lydian":[0,2,4,6,7,9,11],
+      "Mixolydian":[0,2,4,5,7,9,10],
+      "Aeolian":[0,2,3,5,7,8,10],
+      "Locrian":[0,1,3,5,6,8,10]
+    };
+
+    function scalePCs(rootPC, modeName){
+      const patt = MODES[modeName];
+      return patt.map(s => (rootPC + s) % 12);
     }
-    if(best) return best;
-  }
-  return null;
-}
 
-/* ---------- UI wiring ---------- */
-const rootSel = document.getElementById('root');
-NOTE_NAMES_SHARP.forEach((n,i)=>{
-  const o=document.createElement('option'); o.value=i; o.textContent=n; rootSel.appendChild(o);
-});
-rootSel.value = 0; // C
+    function triadForDegree(scale, degreeIdx){
+      const a = scale[degreeIdx % 7];
+      const b = scale[(degreeIdx+2)%7];
+      const c = scale[(degreeIdx+4)%7];
+      return [a,b,c];
+    }
 
-const modeSel = document.getElementById('mode');
-const progInput = document.getElementById('progression');
-const results = document.getElementById('results');
+    function qualityOfTriad([r, t, f]){
+      const to = (x)=> (x - r + 12)%12;
+      const it3 = to(t), it5 = to(f);
+      if (it3===4 && it5===7) return "maj";
+      if (it3===3 && it5===7) return "min";
+      if (it3===3 && it5===6) return "dim";
+      if (it3===4 && it5===8) return "aug";
+      return "";
+    }
 
-document.getElementById('example').addEventListener('click', ()=>{
-  rootSel.value = NOTE_NAMES_SHARP.indexOf("C");
-  modeSel.value = "Lydian";
-  progInput.value = "I - IV - VII - iii";
-  generate();
-});
-document.getElementById('go').addEventListener('click', generate);
+    function nameFromPC(pc){ return NOTE_NAMES_SHARP[pc]; }
 
-function cleanTokens(str){
-  return str.split(/[\s,\-–—]+/).filter(Boolean);
-}
+    // roman parsing
+    const ROMAN_MAP = {i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7};
+    function parseDegreeToken(tok){
+      tok = tok.trim();
+      let acc=0;
+      if(tok[0]==='#'){acc=+1; tok=tok.slice(1);}
+      if(tok[0]==='b' || tok[0]==='B'){acc=-1; tok=tok.slice(1);}
+      const base = tok.toLowerCase().replace(/[°\+]/g,'');
+      const n = ROMAN_MAP[base]||1;
+      const dim = /°/.test(tok);
+      return {degree:n, accidental:acc, isDim:dim, raw:tok};
+    }
 
-function romanToIndex(deg){ return (deg-1+7)%7; }
+    /* ---------- Fretboard search (strings 4-3-2) ---------- */
+    function noteAt(stringNo, fret){
+      const idx = ({6:0,5:1,4:2,3:3,2:4,1:5})[stringNo];
+      return (TUNING[idx] + fret) % 12;
+    }
 
-// Build cards
-function generate(){
-  results.innerHTML = "";
-  const rootPC = parseInt(rootSel.value,10);
-  const modeName = modeSel.value;
-  const scale = scalePCs(rootPC, modeName);
+    function findCloseTriad(triadPCs, inversion=0, startFret=0){
+      const order = [0,1,2];
+      const bassIdx = order[inversion];
 
-  const tokens = cleanTokens(progInput.value);
-  tokens.forEach((tk, idx)=>{
-    const parsed = parseDegreeToken(tk);
-    // degree index with accidental: move within scale circularly
-    let di = romanToIndex(parsed.degree);
-    // accidental ±1 moves to neighbouring scale degree (modal mixture-ish)
-    di = (di + parsed.accidental + 7) % 7;
+      for(let baseFret=startFret; baseFret<=12; baseFret++){
+        if (noteAt(4, baseFret)!==triadPCs[bassIdx]) continue;
 
-    const triPCs = triadForDegree(scale, di);
-    // optional override if token explicitly asks diminished with °
-    let q = qualityOfTriad(triPCs);
-    if(parsed.isDim) q = "dim";
+        const rest = [0,1,2].filter(i=>i!==bassIdx);
+        let best=null, bestSpan=99;
 
-    const chordRootPC = triPCs[0];
-    const chordName = nameFromPC(chordRootPC) + (q==="maj"?"maj": q==="min"?"min": q==="dim"?"dim":"");
+        for(let f3=Math.max(0,baseFret-4); f3<=Math.min(15,baseFret+6); f3++){
+          const n3 = noteAt(3,f3);
+          const i3 = rest.find(i => triadPCs[i]===n3);
+          if(i3===undefined) continue;
+          for(let f2=Math.max(0,Math.min(f3,baseFret)-4); f2<=Math.min(15,Math.max(f3,baseFret)+6); f2++){
+            const n2 = noteAt(2,f2);
+            const left = rest.filter(i => i!==i3);
+            if(left.length!==1) continue;
+            if (triadPCs[left[0]]!==n2) continue;
+            const span = Math.max(baseFret,f3,f2) - Math.min(baseFret,f3,f2);
+            if(span<=5){
+              if(span<bestSpan){ bestSpan=span; best={f4:baseFret,f3,f2}; }
+            }
+          }
+        }
+        if(best) return best;
+      }
+      return null;
+    }
 
-    const card = document.createElement('div');
-    card.className="card";
-    card.tabIndex=0;
+    /* ---------- UI wiring ---------- */
+    const rootSel = document.getElementById('root');
+    NOTE_NAMES_SHARP.forEach((n,i)=>{
+      const o=document.createElement('option'); o.value=i; o.textContent=n; rootSel.appendChild(o);
+    });
+    rootSel.value = 0; // C
 
-    const title = document.createElement('div');
-    title.className="titleline";
-    title.innerHTML = `<span class="deg">${tk}</span><span class="name">${chordName}</span>`;
-    card.appendChild(title);
+    const modeSel = document.getElementById('mode');
+    const progInput = document.getElementById('progression');
+    const results = document.getElementById('results');
 
-    // controls
-    const ctrls = document.createElement('div'); ctrls.className='controls';
-    const invChip = document.createElement('span'); invChip.className='chip'; invChip.textContent='Root position';
-    const posChip = document.createElement('span'); posChip.className='chip'; posChip.textContent='Pos: 0';
-    const prevInv = btn("⟵"); const nextInv = btn("⟶");
-    const up = btn("⬆︎"); const down = btn("⬇︎");
-    ctrls.append(prevInv, invChip, nextInv, down, posChip, up);
-    card.appendChild(ctrls);
+    document.getElementById('example').addEventListener('click', ()=>{
+      rootSel.value = NOTE_NAMES_SHARP.indexOf("C");
+      modeSel.value = "Lydian";
+      progInput.value = "I - IV - VII - iii";
+      generate();
+    });
+    document.getElementById('go').addEventListener('click', generate);
 
-    // canvas
-    const c = document.createElement('canvas'); c.width=400; c.height=300; c.className='fret';
-    card.appendChild(c);
-
-    // state
-    let inversion = 0; // 0,1,2
-    let startFret = 0;
+    function cleanTokens(str){
+      return str.split(/[\s,\-–—]+/).filter(Boolean);
+    }
+    function romanToIndex(deg){ return (deg-1+7)%7; }
 
     function btn(txt){ const b=document.createElement('button'); b.className='iconbtn'; b.textContent=txt; return b; }
 
-    function redraw(){
-      const ctx = c.getContext('2d');
-      ctx.clearRect(0,0,c.width,c.height);
-      // grid (6 frets x 4 strings visual) for strings 4-3-2 + nut
-      const frets = 6;
-      const strings = 3; // 4,3,2
-      const pad = 16;
-      const w = c.width - pad*2, h = c.height - pad*2;
-      const dx = w / frets, dy = h / (strings-1);
+    function generate(){
+      results.innerHTML = "";
+      const rootPC = parseInt(rootSel.value,10);
+      const modeName = modeSel.value;
+      const scale = scalePCs(rootPC, modeName);
 
-      // frets
-      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim();
-      ctx.lineWidth = 1;
-      for(let i=0;i<=frets;i++){
-        const x = pad + i*dx;
-        ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad+h); ctx.stroke();
-      }
-      // strings
-      for(let s=0;s<strings;s++){
-        const y = pad + s*dy;
-        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad+w, y); ctx.stroke();
-      }
+      const tokens = cleanTokens(progInput.value);
+      tokens.forEach((tk)=>{
+        const parsed = parseDegreeToken(tk);
+        let di = romanToIndex(parsed.degree);
+        di = (di + parsed.accidental + 7) % 7;
 
-      // find voicing
-      const voicing = findCloseTriad(triPCs, inversion, startFret);
-      if(!voicing){
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-        ctx.fillText("No playable voicing found for this position.", pad, pad+14);
-        return;
-      }
+        const triPCs = triadForDegree(scale, di);
+        let q = qualityOfTriad(triPCs);
+        if(parsed.isDim) q = "dim";
 
-      invChip.textContent = inversion===0 ? "Root position" : (inversion===1?"1st inversion":"2nd inversion");
+        const chordRootPC = triPCs[0];
+        const chordName = nameFromPC(chordRootPC) + (q==="maj"?"maj": q==="min"?"min": q==="dim"?"dim":"");
 
-      // dots
-      const fretsFrom = Math.min(voicing.f4, voicing.f3, voicing.f2);
-      const base = Math.floor(fretsFrom/4)*4; // window start (coarse)
-      const off = base;
-      const fN = f => f - off;
+        // card
+        const card = document.createElement('div');
+        card.className="card";
+        card.tabIndex=0;
 
-      // show position chip
-      posChip.textContent = `Pos: ${off}`;
+        const title = document.createElement('div');
+        title.className="titleline";
+        title.innerHTML = `<span class="deg">${tk}</span><span class="name">${chordName}</span>`;
+        card.appendChild(title);
 
-      const dots = [
-        {stringIdx:0, fret:fN(voicing.f4), label:"bass"}, // string 4
-        {stringIdx:1, fret:fN(voicing.f3)},
-        {stringIdx:2, fret:fN(voicing.f2)},
-      ];
+        const meta = document.createElement('div');
+        meta.className='meta';
+        const t1 = document.createElement('span'); t1.className='tag'; t1.textContent=modeName;
+        const t2 = document.createElement('span'); t2.className='tag'; t2.textContent=`Root: ${NOTE_NAMES_SHARP[rootPC]}`;
+        const t3 = document.createElement('span'); t3.className='tag'; t3.textContent=(q||'triad');
+        meta.append(t1,t2,t3);
+        card.appendChild(meta);
 
-      const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
-      ctx.fillStyle = ink; ctx.strokeStyle = ink;
+        // controls row
+        const ctrls = document.createElement('div'); ctrls.className='controls-row';
+        const invChip = document.createElement('span'); invChip.className='chip'; invChip.textContent='Root position';
+        const posChip = document.createElement('span'); posChip.className='chip'; posChip.textContent='Pos: 0';
+        const prevInv = btn("◀"); const nextInv = btn("▶");
+        const up = btn("▲"); const down = btn("▼");
+        ctrls.append(prevInv, invChip, nextInv, down, posChip, up);
+        card.appendChild(ctrls);
 
-      dots.forEach(d=>{
-        const x = pad + (d.fret+0.5)*dx;
-        const y = pad + d.stringIdx*dy;
-        ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+        // canvas
+        const c = document.createElement('canvas'); c.width=400; c.height=300; c.className='fret';
+        card.appendChild(c);
+
+        // state
+        let inversion = 0;
+        let startFret = 0;
+
+        function redraw(){
+          const ctx = c.getContext('2d');
+          ctx.clearRect(0,0,c.width,c.height);
+
+          const frets = 6, strings = 3, pad = 16;
+          const w = c.width - pad*2, h = c.height - pad*2;
+          const dx = w / frets, dy = h / (strings-1);
+
+          // grid
+          const rule = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim();
+          ctx.strokeStyle = rule; ctx.lineWidth = 1;
+          for(let i=0;i<=frets;i++){
+            const x = pad + i*dx;
+            ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad+h); ctx.stroke();
+          }
+          for(let s=0;s<strings;s++){
+            const y = pad + s*dy;
+            ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad+w, y); ctx.stroke();
+          }
+
+          // voicing
+          const voicing = findCloseTriad(triPCs, inversion, startFret);
+          if(!voicing){
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+            ctx.fillText("No playable voicing found for this position.", pad, pad+14);
+            return;
+          }
+
+          invChip.textContent = inversion===0 ? "Root position" : (inversion===1?"1st inversion":"2nd inversion");
+
+          const fretsFrom = Math.min(voicing.f4, voicing.f3, voicing.f2);
+          const base = Math.floor(fretsFrom/4)*4;
+          const off = base;
+          const fN = f => f - off;
+          posChip.textContent = `Pos: ${off}`;
+
+          const dots = [
+            {stringIdx:0, fret:fN(voicing.f4)}, // string 4
+            {stringIdx:1, fret:fN(voicing.f3)}, // string 3
+            {stringIdx:2, fret:fN(voicing.f2)}, // string 2
+          ];
+
+          const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+          ctx.fillStyle = ink; ctx.strokeStyle = ink;
+
+          dots.forEach(d=>{
+            const x = pad + (d.fret+0.5)*dx;
+            const y = pad + d.stringIdx*dy;
+            ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+          });
+
+          // base fret label
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+          ctx.font = "12px ui-sans-serif";
+          ctx.fillText(`Fret ${off}`, pad, pad+h+14);
+        }
+
+        nextInv.addEventListener('click', ()=>{ inversion=(inversion+1)%3; redraw();});
+        prevInv.addEventListener('click', ()=>{ inversion=(inversion+2)%3; redraw();});
+        up.addEventListener('click', ()=>{ startFret=Math.min(12,startFret+4); redraw();});
+        down.addEventListener('click', ()=>{ startFret=Math.max(0,startFret-4); redraw();});
+
+        card.addEventListener('keydown', (e)=>{
+          if(e.key==="ArrowRight"){ inversion=(inversion+1)%3; redraw(); }
+          if(e.key==="ArrowLeft"){ inversion=(inversion+2)%3; redraw(); }
+          if(e.key==="ArrowUp"){ startFret=Math.min(12,startFret+4); redraw(); }
+          if(e.key==="ArrowDown"){ startFret=Math.max(0,startFret-4); redraw(); }
+        });
+
+        results.appendChild(card);
+        redraw();
       });
-
-      // base fret label
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-      ctx.font = "12px ui-sans-serif";
-      ctx.fillText(`Fret ${off}`, pad, pad+h+14);
     }
 
-    nextInv.addEventListener('click', ()=>{ inversion=(inversion+1)%3; redraw();});
-    prevInv.addEventListener('click', ()=>{ inversion=(inversion+2)%3; redraw();});
-    up.addEventListener('click', ()=>{ startFret=Math.min(12,startFret+4); redraw();});
-    down.addEventListener('click', ()=>{ startFret=Math.max(0,startFret-4); redraw();});
-
-    card.addEventListener('keydown', (e)=>{
-      if(e.key==="ArrowRight"){ inversion=(inversion+1)%3; redraw();}
-      if(e.key==="ArrowLeft"){ inversion=(inversion+2)%3; redraw();}
-      if(e.key==="ArrowUp"){ startFret=Math.min(12,startFret+4); redraw();}
-      if(e.key==="ArrowDown"){ startFret=Math.max(0,startFret-4); redraw();}
-    });
-
-    results.appendChild(card);
-    redraw();
-  });
-}
-
-/* ---------- Theme ---------- */
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.addEventListener('click', ()=>{
-  document.documentElement.classList.toggle('theme-dark');
-  // footer button contrast swaps with theme automatically
-});
-
-/* First paint with example */
-generate();
-</script>
+    // initial render
+    (function init(){
+      try{
+        document.getElementById('root').value = 0; // C
+        generate();
+      }catch(err){
+        console.error(err);
+      }
+    })();
+  </script>
 </body>
 </html>
