@@ -75,7 +75,7 @@
     .chip{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.8rem; color:var(--muted); }
     .iconbtn{ border:1px solid var(--accent); background:transparent; color:inherit; width:2.1rem; height:2.1rem; border-radius:.5rem; cursor:pointer; }
 
-    /* Hint/comment style (smaller, italic, muted + indent with guide) */
+    /* Hint/comment style */
     .hint{
       font-size: .8rem;
       color: var(--muted);
@@ -136,15 +136,24 @@
       <summary>Controls</summary>
       <div class="panel-body">
         <div class="controls" role="group" aria-label="Modal progression controls">
+          <!-- NEW: Preset selector -->
+          <div>
+            <label for="preset">Preset progressions by style</label>
+            <select id="preset" aria-label="Choose a preset progression"></select>
+            <div class="hint">Choosing a preset will set <em>Root</em>, <em>Mode</em>, and <em>Progression</em> automatically. You can still edit them.</div>
+          </div>
+
           <div>
             <label for="progression">Progression (roman degrees)</label>
-            <input id="progression" type="text" placeholder="I - IV - VII - iii" value="I - IV - VII - iii">
+            <input id="progression" type="text" placeholder="I - IV - VII - iii" value="I - IV - VII - iii" />
             <div class="hint">Supports accidentals: <code>#iv</code>, <code>bVII</code>, <code>vii°</code>. Use dashes, commas, or spaces.</div>
           </div>
+
           <div>
             <label for="root">Root / Tonic</label>
             <select id="root"></select>
           </div>
+
           <div>
             <label for="mode">Mode</label>
             <select id="mode">
@@ -154,6 +163,7 @@
             </select>
           </div>
         </div>
+
         <div class="row">
           <button class="primary" id="go" type="button">Generate</button>
           <button id="example" type="button">Example: C Lydian — I IV VII iii</button>
@@ -301,7 +311,7 @@
         g.push(`<text x="${x0-15}" y="${y+4}" font-size="10" text-anchor="end">${STRING_LABELS[r]}</text>`);
       }
 
-      // Vertical fret lines (nut bold if startF===0 -> show at first gap as before)
+      // Vertical fret lines
       for(let f=0; f<=fretsCount; f++){
         const x=x0+f*dx; const isNut=(startF===0 && f===1);
         g.push(`<line x1="${x}" y1="${(y0 - dy/2)}" x2="${x}" y2="${(y0 + (strings-1)*dy + dy/2)}" class="${isNut?'nut':''}" />`);
@@ -318,7 +328,7 @@
       for(let s=1; s<=6; s++){
         const fret=fullVoicing.frets[s];
         if(fret==null) continue;
-        const row = s - 1; // s=1 -> row 0 (top), s=6 -> row 5 (bottom)
+        const row = s - 1;
         const cx=x0+(fret - startF + 0.5)*dx;
         const cy=y0 + row*dy;
         let label='';
@@ -338,6 +348,37 @@
       return g.join('');
     }
 
+    /* ---------- Presets ---------- */
+    const PRESETS = [
+      // Rock / Pop
+      { id:'pop4', group:'Rock / Pop', label:'Four-chord pop — I V vi IV (C Ionian)', root:'C', mode:'Ionian', progression:'I V vi IV' },
+      { id:'pop_vi', group:'Rock / Pop', label:'vi IV I V (C Ionian)', root:'C', mode:'Ionian', progression:'vi IV I V' },
+      { id:'pop_145', group:'Rock / Pop', label:'I IV V (C Ionian)', root:'C', mode:'Ionian', progression:'I IV V' },
+
+      // Jazz
+      { id:'jazz_251', group:'Jazz', label:'ii V I (C Ionian)', root:'C', mode:'Ionian', progression:'ii V I' },
+      { id:'jazz_minor_251', group:'Jazz', label:'ii° V i (A Aeolian)', root:'A', mode:'Aeolian', progression:'ii° V i' },
+      { id:'jazz_turn', group:'Jazz', label:'I vi ii V (C Ionian)', root:'C', mode:'Ionian', progression:'I vi ii V' },
+
+      // Blues (triad skeletons)
+      { id:'blues_basic', group:'Blues', label:'I IV V (G Mixolydian)', root:'G', mode:'Mixolydian', progression:'I IV V' },
+      { id:'blues_shuffle', group:'Blues', label:'I IV I V IV I V (A Mixolydian)', root:'A', mode:'Mixolydian', progression:'I IV I V IV I V' },
+
+      // Metal / Heavy
+      { id:'metal_aeo', group:'Metal / Heavy', label:'i VI VII (E Aeolian)', root:'E', mode:'Aeolian', progression:'i VI VII' },
+      { id:'metal_phry', group:'Metal / Heavy', label:'i bII i (E Phrygian)', root:'E', mode:'Phrygian', progression:'i bII i' },
+      { id:'metal_iv', group:'Metal / Heavy', label:'i iv v (D Aeolian)', root:'D', mode:'Aeolian', progression:'i iv v' },
+      { id:'andalusian', group:'Metal / Heavy', label:'Andalusian — i VII VI V (A Aeolian)', root:'A', mode:'Aeolian', progression:'i VII VI V' },
+
+      // Modal vamps
+      { id:'modal_dor', group:'Modal', label:'Dorian vamp — i IV (D Dorian)', root:'D', mode:'Dorian', progression:'i IV' },
+      { id:'modal_lyd', group:'Modal', label:'Lydian color — I II (C Lydian)', root:'C', mode:'Lydian', progression:'I II' },
+      { id:'modal_mixo', group:'Modal', label:'Mixolydian — I bVII IV (G Mixolydian)', root:'G', mode:'Mixolydian', progression:'I bVII IV' },
+
+      // EDM / Alt (minor pop)
+      { id:'edm_min', group:'EDM / Alt', label:'i VI III VII (A Aeolian)', root:'A', mode:'Aeolian', progression:'i VI III VII' }
+    ];
+
     /* ---------- UI ---------- */
     const rootSel=document.getElementById('root');
     NOTES.forEach((n,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=n; rootSel.appendChild(o); });
@@ -346,6 +387,37 @@
     const modeSel=document.getElementById('mode');
     const progInput=document.getElementById('progression');
     const results=document.getElementById('results');
+
+    // Build preset select with <optgroup>
+    (function buildPresetSelect(){
+      const sel=document.getElementById('preset');
+      const byGroup = {};
+      PRESETS.forEach(p => { (byGroup[p.group] ||= []).push(p); });
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '— Choose a preset —';
+      sel.appendChild(placeholder);
+      Object.keys(byGroup).forEach(g=>{
+        const og=document.createElement('optgroup'); og.label=g;
+        byGroup[g].forEach(p=>{
+          const opt=document.createElement('option');
+          opt.value=p.id; opt.textContent=p.label;
+          og.appendChild(opt);
+        });
+        sel.appendChild(og);
+      });
+      sel.addEventListener('change', ()=>{
+        const id=sel.value;
+        const p=PRESETS.find(x=>x.id===id);
+        if(!p) return;
+        // apply preset
+        const rootPC = NOTES.indexOf(p.root);
+        if(rootPC>=0) rootSel.value = rootPC;
+        modeSel.value = p.mode;
+        progInput.value = p.progression;
+        generate();
+      });
+    })();
 
     document.getElementById('example').addEventListener('click', ()=>{
       rootSel.value = NOTES.indexOf('C'); modeSel.value='Lydian'; progInput.value='I - IV - VII - iii'; generate();
@@ -383,7 +455,7 @@
         const posChip=document.createElement('span'); posChip.className='chip'; posChip.textContent='Pos: 0';
         const prevInv=btn('◀'), nextInv=btn('▶'), up=btn('▲'), down=btn('▼');
         ctrls.append(prevInv,invChip,nextInv,down,posChip,up);
-        card.appendChild(ctrls);
+        card.appendChild(ctrlls);
 
         const fb=document.createElement('div'); fb.className='fb'; card.appendChild(fb);
 
