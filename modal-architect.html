@@ -75,7 +75,19 @@
     .chip{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.8rem; color:var(--muted); }
     .iconbtn{ border:1px solid var(--accent); background:transparent; color:inherit; width:2.1rem; height:2.1rem; border-radius:.5rem; cursor:pointer; }
 
-    /* --- Mini fretboard SVG (exact same system as The Chords Book) --- */
+    /* Hint/comment style (smaller, italic, muted + indent with guide) */
+    .hint{
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+      opacity: .85;
+      margin-top: .25rem;
+      padding-left: .7rem;
+      border-left: 1px dashed var(--accent-soft);
+      line-height: 1.4;
+    }
+
+    /* --- Mini fretboard SVG (same system as The Chords Book) --- */
     .fb svg{ max-width:100%; height:auto; display:block; }
     .fb-grid line{ stroke:var(--rule); stroke-width:1; }
     .fb-grid .nut{ stroke:var(--ink); stroke-width:3; }
@@ -261,7 +273,7 @@
       return {base, frets};
     }
 
-    /* ---------- SVG renderer (exactly like The Chords Book) ---------- */
+    /* ---------- SVG renderer (same as The Chords Book) ---------- */
     function svgMiniFretboard(fullVoicing, labelsMode, triadPCs, startFOverride){
       const strings=6;
       const startF = startFOverride ?? fullVoicing.base;
@@ -288,7 +300,6 @@
       g.push(`</g>`);
 
       g.push(`<g class="fb-note">`);
-      // draw notes top-to-bottom visual rows: string 6 at top (row 0)
       for(let s=6; s>=1; s--){
         const fret=fullVoicing.frets[s];
         if(fret==null) continue;
@@ -340,9 +351,7 @@
         const {degree,accidental,isDim}=parseDegreeToken(tk);
         let di=(romanToIdx(degree)+accidental+7)%7;
         let tri=triadForDegree(scale,di);
-        if(isDim){ // fuerza disminuido si el usuario puso ° explícito
-          tri=[tri[0], wrap(tri[0]+3), wrap(tri[0]+6)];
-        }
+        if(isDim){ tri=[tri[0], wrap(tri[0]+3), wrap(tri[0]+6)]; }
         const chordName=chordSymbolFromTriad(tri);
 
         const card=document.createElement('div'); card.className='card'; card.tabIndex=0;
@@ -351,7 +360,7 @@
         card.appendChild(title);
 
         const meta=document.createElement('div'); meta.className='meta';
-        meta.innerHTML=`<span>Mode: ${modeName}</span><span>•</span><span>Root: ${NOTES[rootPC]}</span><span>•</span><span>triad</span>`;
+        meta.innerHTML=`<span>Mode: ${modeName}</span><span>•</span><span>Root: ${NOTES[rootPC]}</span>`;
         card.appendChild(meta);
 
         const ctrls=document.createElement('div'); ctrls.className='controls-row';
@@ -367,7 +376,7 @@
 
         function redraw(){
           const v432=findCloseTriad(tri, inversion, startF);
-          if(!v432){ fb.innerHTML=`<div class="hint" style="color:var(--muted)">No playable voicing here.</div>`; return; }
+          if(!v432){ fb.innerHTML=`<div class="hint">No playable voicing here.</div>`; return; }
           currentFull=extendToSixStrings(tri, v432);
           invChip.textContent = inversion===0?'Root position':(inversion===1?'1st inversion':'2nd inversion');
           posChip.textContent = 'Pos: ' + currentFull.base;
