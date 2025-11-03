@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Modal Progressions — Contumance</title>
+<meta name="description" content="Type a progression, pick a root and a mode, and get playable guitar voicings with inversion control." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+<style>
+  :root{
+    --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+    --link:#2d5842; --link-visited:#514f7a;
+    --accent:#a08a63; --rule:#d8d2c2; --maxw:44rem;
+    --radius:14px; --lh:1.6; --fs:18px;
+  }
+  html.theme-dark{
+    --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+    --link:#a9d0b8; --link-visited:#c0b8e6;
+    --accent:#8b7757; --rule:#2a2926;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font:400 var(--fs)/var(--lh) ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    background:var(--paper); color:var(--ink);
+  }
+  header,footer{max-width:var(--maxw); margin:0 auto; padding:1rem 1rem}
+  header{display:flex; align-items:center; justify-content:space-between; gap:.75rem}
+  h1{font-size:1.25rem; margin:0}
+  .muted{color:var(--muted)}
+  .toggle{
+    border:1px solid var(--rule); background:transparent; color:inherit;
+    padding:.35rem .6rem; border-radius:999px; cursor:pointer;
+  }
+  main{max-width:var(--maxw); margin:0 auto; padding:0 1rem 3rem}
+  .panel{
+    border:1px solid var(--rule); border-radius:var(--radius); padding:1rem; background:transparent;
+  }
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:.75rem}
+  .row > div{display:flex; flex-direction:column; gap:.35rem}
+  label{font-size:.9rem; color:var(--muted)}
+  input[type="text"], select{
+    padding:.55rem .65rem; border-radius:10px; border:1px solid var(--rule); background:transparent; color:inherit;
+  }
+  .actions{display:flex; gap:.5rem; align-items:center; margin-top:.5rem}
+  .btn{
+    border:1px solid var(--ink); background:var(--ink); color:var(--paper);
+    padding:.6rem .9rem; border-radius:10px; cursor:pointer;
+  }
+  .btn.secondary{background:transparent; color:var(--ink); border-color:var(--rule)}
+  .grid{
+    margin-top:1rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:1rem;
+  }
+  .card{
+    border:1px solid var(--rule); border-radius:var(--radius); padding:.8rem; display:flex; flex-direction:column; gap:.6rem;
+  }
+  .titleline{display:flex; align-items:baseline; justify-content:space-between; gap:.5rem}
+  .deg{font-weight:700; letter-spacing:.03em}
+  .name{font-variant:small-caps; font-weight:600}
+  .controls{display:flex; gap:.4rem; align-items:center; flex-wrap:wrap}
+  .chip{
+    border:1px solid var(--rule); padding:.2rem .5rem; border-radius:999px; font-size:.85rem; color:var(--muted);
+  }
+  .iconbtn{
+    border:1px solid var(--rule); background:transparent; color:inherit;
+    width:2.1rem; height:2.1rem; border-radius:10px; cursor:pointer;
+  }
+  canvas.fret{width:100%; aspect-ratio:4/3; border-radius:12px; border:1px dashed var(--rule); background:linear-gradient(transparent 50%, transparent 50%)}
+  .hint{font-size:.85rem; color:var(--muted)}
+  footer .btn{
+    background:transparent; border:1px solid var(--ink); color:var(--ink);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Modal Progressions <span class="muted">— Re:sonance</span></h1>
+  <button class="toggle" id="themeToggle" aria-label="Toggle dark mode">☾ / ☀︎</button>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="builder">
+    <h2 id="builder" class="muted" style="margin-top:0">Builder</h2>
+    <div class="row">
+      <div>
+        <label for="progression">Progression (roman degrees)</label>
+        <input id="progression" type="text" placeholder="I - IV - VII - iii" value="I - IV - VII - iii">
+        <span class="hint">Admite accidentales: <code>#iv</code>, <code>bVII</code>, <code>vii°</code>. Separá con -, , o espacios.</span>
+      </div>
+      <div>
+        <label for="root">Root / Tonic</label>
+        <select id="root"></select>
+        <label for="mode" style="margin-top:.4rem">Mode</label>
+        <select id="mode">
+          <option>Ionian</option>
+          <option>Dorian</option>
+          <option>Phrygian</option>
+          <option selected>Lydian</option>
+          <option>Mixolydian</option>
+          <option>Aeolian</option>
+          <option>Locrian</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="go">Generate</button>
+      <button class="btn secondary" id="example">Example: C Lydian — I IV VII iii</button>
+    </div>
+  </section>
+
+  <section id="results" class="grid" aria-live="polite"></section>
+
+  <p class="hint" style="margin-top:1rem">Tips: usá ⬅︎➡︎ para cambiar inversión y ⬆︎⬇︎ para mover la posición por el diapasón en la tarjeta enfocada.</p>
+</main>
+
+<footer>
+  <p class="muted">A quiet tool for sketching modal progressions on guitar. Made for the Contumance library.</p>
+  <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener">Buy me a coffee</a>
+</footer>
+
+<script>
+/* ---------- Theory core ---------- */
+const NOTE_NAMES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+// Guitar tuning E2 A2 D3 G3 B3 E4 → pitch classes:
+const TUNING = [4,9,2,7,11,4]; // strings 6..1 in pitch-class (E A D G B E) but we’ll draw 4-3-2 strings
+
+// modal patterns as semitone sets from tonic (0..11):
+const MODES = {
+  "Ionian":[0,2,4,5,7,9,11],
+  "Dorian":[0,2,3,5,7,9,10],
+  "Phrygian":[0,1,3,5,7,8,10],
+  "Lydian":[0,2,4,6,7,9,11],
+  "Mixolydian":[0,2,4,5,7,9,10],
+  "Aeolian":[0,2,3,5,7,8,10],
+  "Locrian":[0,1,3,5,6,8,10]
+};
+
+// Get scale degrees (pitch classes) for root+mode
+function scalePCs(rootPC, modeName){
+  const patt = MODES[modeName];
+  return patt.map(s => (rootPC + s) % 12);
+}
+
+// Diatonic triad at degree index (0..6), returns [pcRoot, pcThird, pcFifth]
+function triadForDegree(scale, degreeIdx){
+  const a = scale[degreeIdx % 7];
+  const b = scale[(degreeIdx+2)%7];
+  const c = scale[(degreeIdx+4)%7];
+  return [a,b,c];
+}
+
+function qualityOfTriad([r, t, f]){
+  const to = (x)=> (x - r + 12)%12;
+  const it3 = to(t), it5 = to(f);
+  if (it3===4 && it5===7) return "maj";
+  if (it3===3 && it5===7) return "min";
+  if (it3===3 && it5===6) return "dim";
+  if (it3===4 && it5===8) return "aug";
+  return ""; // fallback
+}
+
+function nameFromPC(pc){ return NOTE_NAMES_SHARP[pc]; }
+
+// Parse roman token like "IV", "iii", "#iv", "bVII", "vii°"
+const ROMAN_MAP = {i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7};
+function parseDegreeToken(tok){
+  tok = tok.trim();
+  let acc=0; // -1 flat, +1 sharp (we treat as modal shift on the degree)
+  if(tok[0]==='#'){acc=+1; tok=tok.slice(1);}
+  if(tok[0]==='b' || tok[0]==='B'){acc=-1; tok=tok.slice(1);}
+  const base = tok.toLowerCase().replace(/[°\+]/g,'');
+  const n = ROMAN_MAP[base]||1;
+  const dim = /°/.test(tok);
+  const maj = /[IV]/.test(tok[0]); // crude: upper-case → major flavor when ambiguous
+  return {degree:n, accidental:acc, isDim:dim, uppercase:/[IVX]+/.test(tok), raw:tok};
+}
+
+/* ---------- Fretboard voicing search (strings 4-3-2) ---------- */
+// note at string s (4->index 2, 3->index 3, 2->index 4) & fret f
+function noteAt(stringNo, fret){
+  const idx = ({6:0,5:1,4:2,3:3,2:4,1:5})[stringNo];
+  return (TUNING[idx] + fret) % 12;
+}
+
+// Search a close-position triad on strings 4,3,2 with given bassNote (pc) and triad pcs
+// returns {s42,s32,s22} frets and which notes
+function findCloseTriad(triadPCs, inversion=0, startFret=0){
+  // inversion: 0 root position (bass=root), 1 (bass=third), 2 (bass=fifth)
+  const order = [0,1,2]; // indices in triad array
+  const bassIdx = order[inversion];
+  const pcs = triadPCs;
+
+  for(let baseFret=startFret; baseFret<=12; baseFret++){
+    // place bass on string 4
+    if (noteAt(4, baseFret)!==pcs[bassIdx]) continue;
+
+    // remaining notes to place on strings 3 and 2
+    const rest = [0,1,2].filter(i=>i!==bassIdx);
+    // find nearest frets for G (string3) and B (string2)
+    let best=null, bestSpan=99;
+
+    for(let f3=Math.max(0,baseFret-4); f3<=Math.min(15,baseFret+6); f3++){
+      const n3 = noteAt(3,f3);
+      const i3 = rest.find(i => pcs[i]===n3);
+      if(i3===undefined) continue;
+      for(let f2=Math.max(0,Math.min(f3,baseFret)-4); f2<=Math.min(15,Math.max(f3,baseFret)+6); f2++){
+        const n2 = noteAt(2,f2);
+        const left = rest.filter(i => i!==i3);
+        if(left.length!==1) continue;
+        if (pcs[left[0]]!==n2) continue;
+        const span = Math.max(baseFret,f3,f2) - Math.min(baseFret,f3,f2);
+        if(span<=5){ // playable
+          if(span<bestSpan){ bestSpan=span; best={f4:baseFret,f3,f2}; }
+        }
+      }
+    }
+    if(best) return best;
+  }
+  return null;
+}
+
+/* ---------- UI wiring ---------- */
+const rootSel = document.getElementById('root');
+NOTE_NAMES_SHARP.forEach((n,i)=>{
+  const o=document.createElement('option'); o.value=i; o.textContent=n; rootSel.appendChild(o);
+});
+rootSel.value = 0; // C
+
+const modeSel = document.getElementById('mode');
+const progInput = document.getElementById('progression');
+const results = document.getElementById('results');
+
+document.getElementById('example').addEventListener('click', ()=>{
+  rootSel.value = NOTE_NAMES_SHARP.indexOf("C");
+  modeSel.value = "Lydian";
+  progInput.value = "I - IV - VII - iii";
+  generate();
+});
+document.getElementById('go').addEventListener('click', generate);
+
+function cleanTokens(str){
+  return str.split(/[\s,\-–—]+/).filter(Boolean);
+}
+
+function romanToIndex(deg){ return (deg-1+7)%7; }
+
+// Build cards
+function generate(){
+  results.innerHTML = "";
+  const rootPC = parseInt(rootSel.value,10);
+  const modeName = modeSel.value;
+  const scale = scalePCs(rootPC, modeName);
+
+  const tokens = cleanTokens(progInput.value);
+  tokens.forEach((tk, idx)=>{
+    const parsed = parseDegreeToken(tk);
+    // degree index with accidental: move within scale circularly
+    let di = romanToIndex(parsed.degree);
+    // accidental ±1 moves to neighbouring scale degree (modal mixture-ish)
+    di = (di + parsed.accidental + 7) % 7;
+
+    const triPCs = triadForDegree(scale, di);
+    // optional override if token explicitly asks diminished with °
+    let q = qualityOfTriad(triPCs);
+    if(parsed.isDim) q = "dim";
+
+    const chordRootPC = triPCs[0];
+    const chordName = nameFromPC(chordRootPC) + (q==="maj"?"maj": q==="min"?"min": q==="dim"?"dim":"");
+
+    const card = document.createElement('div');
+    card.className="card";
+    card.tabIndex=0;
+
+    const title = document.createElement('div');
+    title.className="titleline";
+    title.innerHTML = `<span class="deg">${tk}</span><span class="name">${chordName}</span>`;
+    card.appendChild(title);
+
+    // controls
+    const ctrls = document.createElement('div'); ctrls.className='controls';
+    const invChip = document.createElement('span'); invChip.className='chip'; invChip.textContent='Root position';
+    const posChip = document.createElement('span'); posChip.className='chip'; posChip.textContent='Pos: 0';
+    const prevInv = btn("⟵"); const nextInv = btn("⟶");
+    const up = btn("⬆︎"); const down = btn("⬇︎");
+    ctrls.append(prevInv, invChip, nextInv, down, posChip, up);
+    card.appendChild(ctrls);
+
+    // canvas
+    const c = document.createElement('canvas'); c.width=400; c.height=300; c.className='fret';
+    card.appendChild(c);
+
+    // state
+    let inversion = 0; // 0,1,2
+    let startFret = 0;
+
+    function btn(txt){ const b=document.createElement('button'); b.className='iconbtn'; b.textContent=txt; return b; }
+
+    function redraw(){
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0,0,c.width,c.height);
+      // grid (6 frets x 4 strings visual) for strings 4-3-2 + nut
+      const frets = 6;
+      const strings = 3; // 4,3,2
+      const pad = 16;
+      const w = c.width - pad*2, h = c.height - pad*2;
+      const dx = w / frets, dy = h / (strings-1);
+
+      // frets
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--rule').trim();
+      ctx.lineWidth = 1;
+      for(let i=0;i<=frets;i++){
+        const x = pad + i*dx;
+        ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, pad+h); ctx.stroke();
+      }
+      // strings
+      for(let s=0;s<strings;s++){
+        const y = pad + s*dy;
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(pad+w, y); ctx.stroke();
+      }
+
+      // find voicing
+      const voicing = findCloseTriad(triPCs, inversion, startFret);
+      if(!voicing){
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+        ctx.fillText("No playable voicing found for this position.", pad, pad+14);
+        return;
+      }
+
+      invChip.textContent = inversion===0 ? "Root position" : (inversion===1?"1st inversion":"2nd inversion");
+
+      // dots
+      const fretsFrom = Math.min(voicing.f4, voicing.f3, voicing.f2);
+      const base = Math.floor(fretsFrom/4)*4; // window start (coarse)
+      const off = base;
+      const fN = f => f - off;
+
+      // show position chip
+      posChip.textContent = `Pos: ${off}`;
+
+      const dots = [
+        {stringIdx:0, fret:fN(voicing.f4), label:"bass"}, // string 4
+        {stringIdx:1, fret:fN(voicing.f3)},
+        {stringIdx:2, fret:fN(voicing.f2)},
+      ];
+
+      const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+      ctx.fillStyle = ink; ctx.strokeStyle = ink;
+
+      dots.forEach(d=>{
+        const x = pad + (d.fret+0.5)*dx;
+        const y = pad + d.stringIdx*dy;
+        ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+      });
+
+      // base fret label
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+      ctx.font = "12px ui-sans-serif";
+      ctx.fillText(`Fret ${off}`, pad, pad+h+14);
+    }
+
+    nextInv.addEventListener('click', ()=>{ inversion=(inversion+1)%3; redraw();});
+    prevInv.addEventListener('click', ()=>{ inversion=(inversion+2)%3; redraw();});
+    up.addEventListener('click', ()=>{ startFret=Math.min(12,startFret+4); redraw();});
+    down.addEventListener('click', ()=>{ startFret=Math.max(0,startFret-4); redraw();});
+
+    card.addEventListener('keydown', (e)=>{
+      if(e.key==="ArrowRight"){ inversion=(inversion+1)%3; redraw();}
+      if(e.key==="ArrowLeft"){ inversion=(inversion+2)%3; redraw();}
+      if(e.key==="ArrowUp"){ startFret=Math.min(12,startFret+4); redraw();}
+      if(e.key==="ArrowDown"){ startFret=Math.max(0,startFret-4); redraw();}
+    });
+
+    results.appendChild(card);
+    redraw();
+  });
+}
+
+/* ---------- Theme ---------- */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', ()=>{
+  document.documentElement.classList.toggle('theme-dark');
+  // footer button contrast swaps with theme automatically
+});
+
+/* First paint with example */
+generate();
+</script>
+</body>
+</html>
