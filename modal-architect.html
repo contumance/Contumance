@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Modal Architect — Contumance</title>
   <meta name="description" content="Design harmonic structures from scale geometry. Choose a mode, a root, write degrees, and craft playable guitar inversions." />
-  <!-- FIX: quitada la comilla sobrante al final del href -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
 
   <style>
-    /* ---- Shared palette & rhythm (matches Daily Chord / Scales) ---- */
     :root{
       --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
       --link:#2d5842; --link-visited:#514f7a;
@@ -70,7 +68,7 @@
     button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
     button:focus-visible, input[type="text"]:focus-visible, select:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
 
-    .cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:12px; margin-top:12px; }
+    .cards{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:12px; margin-top:12px; }
     .card{ border:1px solid var(--accent); border-radius:.6rem; padding:.9rem; background:transparent; }
     .card .titleline{ display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; }
     .deg{ font-weight:700; letter-spacing:.03em; }
@@ -79,17 +77,10 @@
     .tag{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .55rem; font-size:.8rem; color:var(--muted); }
 
     .controls-row{ display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; margin:.25rem 0 .55rem; }
-    .chip{
-      border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.8rem; color:var(--muted);
-    }
-    .iconbtn{
-      border:1px solid var(--accent); background:transparent; color:inherit;
-      width:2.1rem; height:2.1rem; border-radius:.5rem; cursor:pointer;
-    }
+    .chip{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.8rem; color:var(--muted); }
+    .iconbtn{ border:1px solid var(--accent); background:transparent; color:inherit; width:2.1rem; height:2.1rem; border-radius:.5rem; cursor:pointer; }
 
-    canvas.fret{ width:100%; aspect-ratio:4/3; border-radius:.6rem; border:1px dashed var(--rule); display:block; }
-
-    /* Footer */
+    canvas.fret{ width:100%; aspect-ratio:5/4; border-radius:.6rem; border:1px dashed var(--rule); display:block; }
     footer{
       display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0;
     }
@@ -98,18 +89,10 @@
       border:1px solid var(--accent); border-radius:999px; padding:.45rem .95rem;
       font-size:.9rem; font-weight:500; transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
     }
-    html:not(.theme-dark) footer .btn{
-      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink);
-    }
-    html:not(.theme-dark) footer .btn:hover{
-      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
-    }
-    html.theme-dark footer .btn{
-      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper);
-    }
-    html.theme-dark footer .btn:hover{
-      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
-    }
+    html:not(.theme-dark) footer .btn{ background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink); }
+    html:not(.theme-dark) footer .btn:hover{ background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%); }
+    html.theme-dark footer .btn{ background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper); }
+    html.theme-dark footer .btn:hover{ background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%); }
     footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
     footer .note{font-size:.85rem;color:var(--muted)}
     footer .byline{font-size:.75rem;opacity:.7}
@@ -176,7 +159,7 @@
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
          aria-label="Support this library on Buy Me a Coffee">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 8h14.5a 2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
           <path d="M3 8h17"/>
           <path d="M7 4h6"/>
         </svg>
@@ -187,8 +170,8 @@
     </footer>
   </main>
 
-  <!-- Theme toggle -->
   <script>
+    // Theme toggle (idéntico al ejemplo)
     (function () {
       const KEY = 'theme-preference';
       const root = document.documentElement;
@@ -209,10 +192,11 @@
     })();
   </script>
 
-  <!-- App logic -->
   <script>
+    /* ======== Teoría y utilidades ======== */
     const NOTE_NAMES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-    const TUNING = [4,9,2,7,11,4]; // E A D G B E (pitch classes)
+    // TUNING como pitch-class por cuerda 6..1
+    const TUNING = [4,9,2,7,11,4]; // E A D G B E
 
     const MODES = {
       "Ionian":[0,2,4,5,7,9,11],
@@ -252,6 +236,7 @@
 
     function noteAt(stringNo,fret){ const idx=({6:0,5:1,4:2,3:3,2:4,1:5})[stringNo]; return (TUNING[idx]+fret)%12; }
 
+    /* ======== Búsqueda de voicing base 4-3-2 y extensión a 6 cuerdas ======== */
     function findCloseTriad(triadPCs, inversion=0, startFret=0){
       const bassIdx=[0,1,2][inversion];
       for(let baseFret=startFret; baseFret<=12; baseFret++){
@@ -273,10 +258,44 @@
       return null;
     }
 
+    // Elige, para una cuerda dada, un traste dentro de [base, base+5] que pertenezca a la tríada
+    // prioriza R→3→5 y proximidad al centro de la ventana.
+    function chooseFretForString(stringNo, triadPCs, base){
+      const center = base + 2.5;
+      const prio = [0,1,2]; // R, 3, 5
+      let best=null, bestDist=1e9, bestRank=99;
+      for(let f=base; f<=base+5; f++){
+        const pc = noteAt(stringNo, f);
+        const idx = triadPCs.indexOf(pc);
+        if(idx===-1) continue;
+        const rank = prio.indexOf(idx);
+        const dist = Math.abs(f - center);
+        if(rank < bestRank || (rank===bestRank && dist<bestDist)){
+          bestRank = rank; bestDist = dist; best = f;
+        }
+      }
+      return best; // puede ser null si no hay coincidencias
+    }
+
+    // Extiende el voicing 4-3-2 a 6-5-4-3-2-1 dentro de la misma ventana
+    function extendToSixStrings(triadPCs, voicing432){
+      const minF = Math.min(voicing432.f4, voicing432.f3, voicing432.f2);
+      const base = Math.floor(minF/4)*4;
+      const frets = {6:null,5:null,4:voicing432.f4,3:voicing432.f3,2:voicing432.f2,1:null};
+
+      // low strings 6 y 5 (relleno)
+      frets[6] = chooseFretForString(6, triadPCs, base);
+      frets[5] = chooseFretForString(5, triadPCs, base);
+      // high string 1
+      frets[1] = chooseFretForString(1, triadPCs, base);
+
+      return { base, frets };
+    }
+
+    /* ======== UI ======== */
     const rootSel=document.getElementById('root');
     NOTE_NAMES_SHARP.forEach((n,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=n; rootSel.appendChild(o); });
     rootSel.value=0;
-
     const modeSel=document.getElementById('mode');
     const progInput=document.getElementById('progression');
     const results=document.getElementById('results');
@@ -301,6 +320,7 @@
       tokens.forEach(tk=>{
         const parsed=parseDegreeToken(tk);
         let di=(romanToIndex(parsed.degree)+parsed.accidental+7)%7;
+
         const triPCs=triadForDegree(scale,di);
         let q=qualityOfTriad(triPCs); if(parsed.isDim) q='dim';
         const chordName=nameFromPC(triPCs[0]) + (q==='maj'?'maj': q==='min'?'min': q==='dim'?'dim':'');
@@ -319,35 +339,45 @@
         const invChip=document.createElement('span'); invChip.className='chip'; invChip.textContent='Root position';
         const posChip=document.createElement('span'); posChip.className='chip'; posChip.textContent='Pos: 0';
         const prevInv=btn('◀'), nextInv=btn('▶'), up=btn('▲'), down=btn('▼');
-        ctrls.append(prevInv,invChip,nextInv,down,posChip,up); card.appendChild(ctrlls);
+        ctrls.append(prevInv,invChip,nextInv,down,posChip,up);  /* FIX: era ctrlls -> ctrls */
+        card.appendChild(ctrls);
 
-        const c=document.createElement('canvas'); c.width=400; c.height=300; c.className='fret'; card.appendChild(c);
+        const c=document.createElement('canvas'); c.width=460; c.height=360; c.className='fret'; card.appendChild(c);
 
         let inversion=0, startFret=0;
 
         function redraw(){
           const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
-          const frets=6, strings=3, pad=16, w=c.width-pad*2, h=c.height-pad*2, dx=w/frets, dy=h/(strings-1);
+          const frets=6, strings=6, pad=18, w=c.width-pad*2, h=c.height-pad*2, dx=w/frets, dy=h/(strings-1);
           const rule=getComputedStyle(document.documentElement).getPropertyValue('--rule').trim();
+          const ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+          const mut=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+
+          // grid
           ctx.strokeStyle=rule; ctx.lineWidth=1;
           for(let i=0;i<=frets;i++){ const x=pad+i*dx; ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,pad+h); ctx.stroke(); }
           for(let s=0;s<strings;s++){ const y=pad+s*dy; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+w,y); ctx.stroke(); }
 
-          const voicing=findCloseTriad(triPCs,inversion,startFret);
-          if(!voicing){ const m=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-            ctx.fillStyle=m; ctx.fillText('No playable voicing found for this position.', pad, pad+14); return; }
-
+          // encontrar voicing base y extender
+          const v432 = findCloseTriad(triPCs, inversion, startFret);
+          if(!v432){ ctx.fillStyle=mut; ctx.fillText('No playable voicing found here.', pad, pad+14); return; }
+          const full = extendToSixStrings(triPCs, v432);
           invChip.textContent = inversion===0?'Root position':(inversion===1?'1st inversion':'2nd inversion');
-          const base=Math.floor(Math.min(voicing.f4,voicing.f3,voicing.f2)/4)*4;
-          const fN=f=>f-base; posChip.textContent='Pos: '+base;
+          posChip.textContent = 'Pos: '+full.base;
 
-          const dots=[{i:0,f:fN(voicing.f4)},{i:1,f:fN(voicing.f3)},{i:2,f:fN(voicing.f2)}];
-          const ink=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+          // dibujar notas (6..1)
           ctx.fillStyle=ink; ctx.strokeStyle=ink;
-          dots.forEach(d=>{ const x=pad+(d.f+0.5)*dx; const y=pad+d.i*dy; ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill(); });
+          for(let s=0;s<6;s++){
+            const stringNo = 6 - s; // fila 0 = cuerda 6
+            const fret = full.frets[stringNo];
+            if(fret==null) continue; // si no hay coincidencia, se deja vacío
+            const x = pad + (fret - full.base + 0.5)*dx;
+            const y = pad + s*dy;
+            ctx.beginPath(); ctx.arc(x,y,10,0,Math.PI*2); ctx.fill();
+          }
 
-          ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-          ctx.font="12px ui-sans-serif"; ctx.fillText('Fret '+base, pad, pad+h+14);
+          // etiqueta traste base
+          ctx.fillStyle=mut; ctx.font="12px ui-sans-serif"; ctx.fillText('Fret '+full.base, pad, pad+h+14);
         }
 
         nextInv.addEventListener('click', ()=>{ inversion=(inversion+1)%3; redraw(); });
@@ -367,6 +397,7 @@
       });
     }
 
+    // init
     (function init(){ try{ document.getElementById('root').value=0; generate(); }catch(e){ console.error(e); } })();
   </script>
 </body>
