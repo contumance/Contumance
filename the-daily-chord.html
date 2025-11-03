@@ -253,6 +253,39 @@
       return age - Math.floor(age);
     }
 
+    /* ========= Etiquetas universales ========= */
+    // Nombre/emoji de fase lunar (8 fases)
+    function moonPhaseName(frac){
+      const names = [
+        '🌑 New', '🌒 Waxing crescent', '🌓 First quarter', '🌔 Waxing gibbous',
+        '🌕 Full', '🌖 Waning gibbous', '🌗 Last quarter', '🌘 Waning crescent'
+      ];
+      const idx = Math.floor(((frac + 1/16) % 1) * 8); // centra los tramos
+      return names[idx];
+    }
+    // Signo zodiacal (tropical) por fecha calendario
+    function zodiacForDate(d){
+      const m = d.getMonth()+1, day = d.getDate();
+      const md = m*100 + day;
+      const table = [
+        {name:'Capricorn', sym:'♑︎', start:1222}, {name:'Aquarius', sym:'♒︎', start:120},
+        {name:'Pisces',   sym:'♓︎', start:219},  {name:'Aries',    sym:'♈︎', start:321},
+        {name:'Taurus',   sym:'♉︎', start:420},  {name:'Gemini',   sym:'♊︎', start:521},
+        {name:'Cancer',   sym:'♋︎', start:621},  {name:'Leo',      sym:'♌︎', start:723},
+        {name:'Virgo',    sym:'♍︎', start:823},  {name:'Libra',    sym:'♎︎', start:923},
+        {name:'Scorpio',  sym:'♏︎', start:1023}, {name:'Sagittarius', sym:'♐︎', start:1122},
+        {name:'Capricorn', sym:'♑︎', start:1222}
+      ];
+      let pick = table[0];
+      for(let i=0;i<table.length-1;i++){
+        const cur = table[i], next = table[i+1];
+        const inRange = (md >= cur.start && md < next.start) ||
+                        (cur.start>next.start && (md >= cur.start || md < next.start)); // cruce de año
+        if(inRange){ pick = cur; break; }
+      }
+      return pick;
+    }
+
     /* ========= PRNG ========= */
     function hash32(str){
       let h = 2166136261 >>> 0;
@@ -354,7 +387,6 @@
       g.gain.setValueAtTime(0, t0);
       g.gain.linearRampToValueAtTime(vel, t0 + a);
       g.gain.linearRampToValueAtTime(vel*s, t0 + a + d);
-      // release al final
       const tend = t0 + Math.max(0.05, dur);
       g.gain.setValueAtTime(vel*s, tend);
       g.gain.linearRampToValueAtTime(0, tend + r);
@@ -368,7 +400,7 @@
     function bindNoteInteractivity(){
       const circles = document.querySelectorAll('#fretboard .fb-note circle');
       circles.forEach(c=>{
-        c.setAttribute('tabindex', '0'); // foco por teclado dentro del SVG
+        c.setAttribute('tabindex', '0');
         const midi = Number(c.getAttribute('data-midi'));
         const note = c.getAttribute('data-note');
         const oct = c.getAttribute('data-oct');
@@ -393,7 +425,6 @@
         });
       });
 
-      // Asegura inicialización de AudioContext con primer gesto global
       const resumeOnce = ()=>{
         try{ getAC(); }catch(e){}
         window.removeEventListener('pointerdown', resumeOnce, {capture:true});
@@ -460,7 +491,7 @@
       voicing.forEach((v, idx) => {
         if(!v) return;
         const cx = x0 + (v.fret - startFret + .5)*dx;
-        const visualRow = (strings - 1) - idx; // 0..5 -> invierte 6→0, ...
+        const visualRow = (strings - 1) - idx;
         const cy = y0 + visualRow*dy;
         const label = DEG_LABELS[(v.deg+12)%12] || '•';
         const name = pcName(v.midi);
@@ -471,7 +502,6 @@
       g.push(`</g></svg>`);
       document.getElementById('fretboard').innerHTML = g.join('');
 
-      // Enlaza audio a los nuevos nodos
       bindNoteInteractivity();
     }
 
@@ -536,9 +566,22 @@
 
       dateLabel.textContent = formatDateLong(d0);
       chordText.textContent = symbol;
+
+      // Etiquetas universales (sin hemisferio)
+      const z = zodiacForDate(d0);
+      const moonFrac = moonPhaseDateOnly(d0);
+      const moonLabel = moonPhaseName(moonFrac);
+      const quarter = 'Q' + (Math.floor(d0.getMonth()/3)+1); // Q1..Q4
+
       const famLabel = qualKey.replace('sixNine','6/9').replace('six','6');
-      const tagSeason = ['Winter','Spring','Summer','Autumn'][Math.floor((d0.getMonth())/3)] || '';
-      tagsRender([`Day ${doy}`, `Quality: ${famLabel}`, `Inv: ${['R','1st','2nd','3rd'][invIndex] || 'R'}`, tagSeason]);
+      tagsRender([
+        `Day ${doy}`,
+        `Quality: ${famLabel}`,
+        `Inv: ${['R','1st','2nd','3rd'][invIndex] || 'R'}`,
+        `Zodiac: ${z.sym} ${z.name}`,
+        `Moon: ${moonLabel}`,
+        quarter
+      ]);
       moodLine.textContent = mood;
 
       renderFretboard(root, qualKey, windowSeed);
