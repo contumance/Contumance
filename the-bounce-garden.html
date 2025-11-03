@@ -63,16 +63,18 @@
     }
     button.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
 
-    /* Stage (círculo + canvas) */
+    /* Stage (círculo + canvas) — ahora fuera del panel */
     .stage{
       border:1px solid var(--accent); border-radius:.6rem; background:transparent;
-      margin:14px 0 18px; padding:10px; position:relative;
+      margin:14px 0 10px; padding:10px; position:relative;
     }
     .circle-wrap{
       position:relative; width:100%; aspect-ratio:1/1;
       border:1px solid var(--rule); border-radius:.6rem; overflow:hidden; background:transparent;
     }
     canvas{position:absolute; display:block;}
+
+    .tip{margin:.35rem 2px 1rem; font-size:.9rem; color:var(--muted);}
 
     /* Lista de nodos */
     .list{display:flex; flex-direction:column; gap:6px;}
@@ -118,6 +120,18 @@
       <div class="subtitle">Where collisions sing — melodic orbits, drum hits, and long-tail drones inside a circle.</div>
     </header>
 
+    <!-- ======= STAGE FUERA DEL PANEL ======= -->
+    <section aria-label="Playground">
+      <div class="stage">
+        <div class="circle-wrap">
+          <!-- solo canvas (un solo borde visible y preciso) -->
+          <canvas id="canvas"></canvas>
+        </div>
+      </div>
+      <p class="tip">Tip: usa duraciones largas (≥4 s) para drones suaves. Clic en el círculo para añadir nodos rápido. Probá voces “kick/snare/hat” para texturas rítmicas.</p>
+    </section>
+
+    <!-- ======= PANEL DE SETUP (colapsable) ======= -->
     <details class="panel" open>
       <summary>Nodes setup</summary>
       <div class="panel-body">
@@ -164,15 +178,8 @@
           </div>
         </div>
 
-        <div class="stage">
-          <div class="circle-wrap">
-            <!-- solo canvas (un solo borde visible y preciso) -->
-            <canvas id="canvas"></canvas>
-          </div>
-        </div>
-
+        <!-- Lista de nodos (queda dentro del setup) -->
         <div class="list" id="nodeList" aria-live="polite"></div>
-        <p class="muted">Tip: use long durations (≥4 s) for soft drones. Click on the canvas to add quickly. Try “kick/snare/hat” voices for rhythmic textures.</p>
       </div>
     </details>
 
