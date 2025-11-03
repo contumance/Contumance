@@ -79,64 +79,59 @@
     .fb-grid text { fill: var(--muted); }
     html.theme-dark .fb-grid text { fill: var(--ink); opacity: .85; }
     html.theme-dark .fb-grid line { stroke:#3b3a34; }
-    .fb-note circle{ fill:var(--ink); }
+    .fb-note circle{ fill:var(--ink); cursor:pointer; transition:opacity .15s ease, transform .05s ease; }
+    .fb-note circle.playing{ opacity:.85; transform:scale(0.98); }
     .fb-note text{ font-size:10px; font-weight:700; fill:var(--paper); }
 
     /* Footer base */
-footer{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.25rem;
-  font-size:.9rem;
-  opacity:.9;
-  padding:1.5rem 0;
-}
-
-/* Botón Buy Me a Coffee adaptado al tema */
-footer .btn{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  text-decoration:none;
-  border:1px solid var(--accent);
-  border-radius:999px;
-  padding:.45rem .95rem;
-  font-size:.9rem;
-  font-weight:500;
-  transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
-}
-
-/* Modo claro */
-html:not(.theme-dark) footer .btn{
-  background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
-  color:var(--ink);
-}
-html:not(.theme-dark) footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
-}
-
-/* Modo oscuro */
-html.theme-dark footer .btn{
-  background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
-  color:var(--paper);
-}
-html.theme-dark footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
-}
-
-/* Ícono coherente con el color del texto */
-footer .btn .btn-icon{
-  width:1.2rem;
-  height:1.2rem;
-  stroke:currentColor;
-}
-
-/* Texto complementario */
-footer .note{font-size:.85rem;color:var(--muted)}
-footer .byline{font-size:.75rem;opacity:.7}
-footer .byline em{font-style:italic;letter-spacing:.02em}
-
+    footer{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.25rem;
+      font-size:.9rem;
+      opacity:.9;
+      padding:1.5rem 0;
+    }
+    /* Botón Buy Me a Coffee adaptado al tema */
+    footer .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      text-decoration:none;
+      border:1px solid var(--accent);
+      border-radius:999px;
+      padding:.45rem .95rem;
+      font-size:.9rem;
+      font-weight:500;
+      transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    /* Modo claro */
+    html:not(.theme-dark) footer .btn{
+      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
+      color:var(--ink);
+    }
+    html:not(.theme-dark) footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+    }
+    /* Modo oscuro */
+    html.theme-dark footer .btn{
+      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
+      color:var(--paper);
+    }
+    html.theme-dark footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+    }
+    /* Ícono coherente con el color del texto */
+    footer .btn .btn-icon{
+      width:1.2rem;
+      height:1.2rem;
+      stroke:currentColor;
+    }
+    /* Texto complementario */
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
 
     @media (prefers-reduced-motion:no-preference){
       a{ position:relative; background-image:linear-gradient(currentColor,currentColor); background-position:0 100%; background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease; }
@@ -186,6 +181,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
     <section class="fretcard" aria-label="Fretboard for this chord">
       <div class="kicker">Fretboard</div>
       <div id="fretboard"></div>
+      <div class="legend" id="fbLegend" aria-hidden="true">Tip: tap circles to hear each note.</div>
     </section>
 
     <footer>
@@ -200,8 +196,8 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
         <span>Buy me a coffee</span>
       </a>
 
-        <span class="note">Fuel the craft. Inspire the next page.</span>
-  <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
   </main>
 
@@ -227,7 +223,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
     })();
   </script>
 
-  <!-- Oracle logic + fretboard (American notation, deterministic per local day) -->
+  <!-- Oracle logic + fretboard + per-note audio -->
   <script>
     /* ========= Fecha normalizada (determinismo diario) ========= */
     function normalizeLocal(d){
@@ -289,9 +285,6 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
     const NOTE_PC = { "C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11 };
     const PC_TO_NAME = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
     const STD_TUNING = [40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4
-    // Antes:
-    // const STRING_NAMES = ['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
-    // Después (formato Guitar Pro: top = 1ª e, bottom = 6ª E):
     const STRING_NAMES = ['1(e)','2(B)','3(G)','4(D)','5(A)','6(E)'];
     const DEG_LABELS = {0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
 
@@ -328,6 +321,88 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       return pickWeighted(rng, base);
     }
 
+    /* ========= Audio (Web Audio) ========= */
+    let _ac = null, _master = null;
+    function getAC(){
+      if(!_ac){
+        _ac = new (window.AudioContext || window.webkitAudioContext)();
+        _master = _ac.createGain();
+        _master.gain.value = 0.2; // nivel razonable por defecto
+        _master.connect(_ac.destination);
+      }
+      if(_ac.state === 'suspended') _ac.resume();
+      return _ac;
+    }
+    function midiToFreq(m){ return 440 * Math.pow(2, (m - 69)/12); }
+    function pcName(m){ return PC_TO_NAME[(m%12+12)%12]; }
+    function octaveNum(m){ return Math.floor(m/12) - 1; }
+
+    // Sintesito por nota: triangle + mini-ADSR
+    function playNote(midi, opts={}){
+      const ac = getAC();
+      const t0 = ac.currentTime;
+      const dur = opts.duration ?? 0.6;      // s
+      const vel = Math.max(0, Math.min(1, opts.velocity ?? 0.9));
+      const a = 0.005, d = 0.06, s = 0.7, r = 0.15;
+
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = midiToFreq(midi);
+
+      // Envolvente
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(vel, t0 + a);
+      g.gain.linearRampToValueAtTime(vel*s, t0 + a + d);
+      // release al final
+      const tend = t0 + Math.max(0.05, dur);
+      g.gain.setValueAtTime(vel*s, tend);
+      g.gain.linearRampToValueAtTime(0, tend + r);
+
+      osc.connect(g).connect(_master || getAC().destination);
+      osc.start(t0);
+      osc.stop(tend + r + 0.02);
+    }
+
+    // Asignación accesible (click/teclado) a cada círculo
+    function bindNoteInteractivity(){
+      const circles = document.querySelectorAll('#fretboard .fb-note circle');
+      circles.forEach(c=>{
+        c.setAttribute('tabindex', '0'); // foco por teclado dentro del SVG
+        const midi = Number(c.getAttribute('data-midi'));
+        const note = c.getAttribute('data-note');
+        const oct = c.getAttribute('data-oct');
+        const label = c.getAttribute('data-label') || '';
+        c.setAttribute('role','button');
+        c.setAttribute('aria-label', `${note}${oct} ${label ? '('+label+')' : ''}`);
+        const onDown = (e)=>{
+          c.classList.add('playing');
+          playNote(midi, { duration: (e.shiftKey? 1.2 : 0.6), velocity: 0.9 });
+        };
+        const onUp = ()=> c.classList.remove('playing');
+        c.addEventListener('click', onDown);
+        c.addEventListener('pointerdown', onDown);
+        c.addEventListener('pointerup', onUp);
+        c.addEventListener('pointerleave', onUp);
+        c.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){
+            e.preventDefault();
+            onDown(e);
+            setTimeout(onUp, 120);
+          }
+        });
+      });
+
+      // Asegura inicialización de AudioContext con primer gesto global
+      const resumeOnce = ()=>{
+        try{ getAC(); }catch(e){}
+        window.removeEventListener('pointerdown', resumeOnce, {capture:true});
+        window.removeEventListener('keydown', resumeOnce, {capture:true});
+      };
+      window.addEventListener('pointerdown', resumeOnce, {capture:true, once:true});
+      window.addEventListener('keydown', resumeOnce, {capture:true, once:true});
+    }
+
     /* ========= Voicing / Fretboard ========= */
     function pickVoicing(pcRoot, intervals, windowStart, inversionBias){
       const win = 5, out = [];
@@ -343,12 +418,12 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
           const pc = (midiOpen + f) % 12;
           for(let k=0; k<ints.length; k++){
             if (pc === (pcRoot + (ints[k]%12) + 12) % 12){
-              chosen = { string:s, fret:f }; deg = (ints[k]%12); break;
+              chosen = { string:s, fret:f, midi:(midiOpen+f) }; deg = (ints[k]%12); break;
             }
           }
           if(chosen) break;
         }
-        out.push(chosen ? { string:s, fret:chosen.fret, deg:deg } : null);
+        out.push(chosen ? { string:s, fret:chosen.fret, deg:deg, midi:chosen.midi } : null);
       }
       return out;
     }
@@ -363,7 +438,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       const frets = 5, startFret = start, strings = 6, w = frets*44 + 100, h = strings*26 + 70;
       const x0 = 70, y0 = 40, dx = 44, dy = 26;
       const g = [];
-      g.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">`);
+      g.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" class="fret">`);
       g.push(`<g class="fb-grid">`);
       for(let s=0; s<strings; s++){
         const y = y0 + s*dy;
@@ -385,14 +460,19 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       voicing.forEach((v, idx) => {
         if(!v) return;
         const cx = x0 + (v.fret - startFret + .5)*dx;
-        const visualRow = (strings - 1) - idx; // 0..5 -> invierte 6→0, 5→1, ... 1→5
+        const visualRow = (strings - 1) - idx; // 0..5 -> invierte 6→0, ...
         const cy = y0 + visualRow*dy;
         const label = DEG_LABELS[(v.deg+12)%12] || '•';
-        g.push(`<circle cx="${cx}" cy="${cy}" r="11"></circle>`);
+        const name = pcName(v.midi);
+        const oct = octaveNum(v.midi);
+        g.push(`<circle cx="${cx}" cy="${cy}" r="11" data-midi="${v.midi}" data-note="${name}" data-oct="${oct}" data-label="${label}" tabindex="0"></circle>`);
         g.push(`<text x="${cx}" y="${(cy+3)}" text-anchor="middle">${label}</text>`);
       });
       g.push(`</g></svg>`);
       document.getElementById('fretboard').innerHTML = g.join('');
+
+      // Enlaza audio a los nuevos nodos
+      bindNoteInteractivity();
     }
 
     /* ========= Oráculo (determinista por día local) ========= */
@@ -469,7 +549,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       }}));
     }
 
-    /* ========= Controles (siempre normalizados) ========= */
+    /* ========= Controles ========= */
     document.getElementById('btnToday').addEventListener('click', () => {
       computeForDate(new Date());
     });
@@ -501,7 +581,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       }
     });
 
-    // Init (normalizado)
+    // Init
     (function init(){
       try{
         const t = normalizeLocal(new Date());
