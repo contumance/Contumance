@@ -677,11 +677,11 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       }
 
       // English labels
+      
       function stringsLabel(s0, s1, total) {
-        const hi = total - s1; // e.g., 6–4, etc.
-        const lo = total - s0;
-        return `strings ${lo}–${hi}`;
+        return `strings ${s0 + 1}–${s1 + 1}`;
       }
+      
       function posLabel(median) {
         const near = Math.max(0, Math.min(12, Math.round(median)));
         return `position ~${near}`;
@@ -694,11 +694,10 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
         const startF = Math.max(0, voicing.minF);
         const w = frets * 44 + 96, h = strings * 24 + 76;
         const x0 = 70, y0 = 46, dx = 44, dy = 24;
-
+        
         const STRING_NAMES = Array.from({ length: strings }, (_, i) => {
-          const idxStr = strings - 1 - i;
-          const name = state.tuning[idxStr];
-          const num = strings - i;
+          const name = state.tuning[i];   // 0 = 1ª cuerda (e)
+          const num = i + 1;              // 1..N
           return `${num}(${name})`;
         });
 
@@ -728,7 +727,7 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
         // notes
         g.push(`<g class="fb-note">`);
         voicing.notes.forEach(n => {
-          const visualRow = (strings - 1) - n.s;
+          const visualRow = n.s;  // 0 = fila superior
           const cx = x0 + (n.f - startF + 0.5) * dx;
           const cy = y0 + visualRow * dy;
           const label = (labelsMode === 'off') ? '' :
