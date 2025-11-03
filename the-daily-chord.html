@@ -289,7 +289,10 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
     const NOTE_PC = { "C":0,"C#":1,"D":2,"D#":3,"E":4,"F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11 };
     const PC_TO_NAME = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
     const STD_TUNING = [40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4
-    const STRING_NAMES = ['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
+    // Antes:
+    // const STRING_NAMES = ['6(E)','5(A)','4(D)','3(G)','2(B)','1(e)'];
+    // Después (formato Guitar Pro: top = 1ª e, bottom = 6ª E):
+    const STRING_NAMES = ['1(e)','2(B)','3(G)','4(D)','5(A)','6(E)'];
     const DEG_LABELS = {0:'R',1:'♭2',2:'2',3:'♭3',4:'3',5:'4',6:'♭5',7:'5',8:'♯5',9:'6',10:'♭7',11:'7'};
 
     const QUALITIES = {
@@ -382,7 +385,8 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       voicing.forEach((v, idx) => {
         if(!v) return;
         const cx = x0 + (v.fret - startFret + .5)*dx;
-        const cy = y0 + idx*dy;
+        const visualRow = (strings - 1) - idx; // 0..5 -> invierte 6→0, 5→1, ... 1→5
+        const cy = y0 + visualRow*dy;
         const label = DEG_LABELS[(v.deg+12)%12] || '•';
         g.push(`<circle cx="${cx}" cy="${cy}" r="11"></circle>`);
         g.push(`<text x="${cx}" y="${(cy+3)}" text-anchor="middle">${label}</text>`);
