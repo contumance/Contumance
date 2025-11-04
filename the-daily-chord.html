@@ -684,8 +684,8 @@
       if (now < until) { el.style.display = 'none'; return; }
       el.style.display = 'block';
       btn.addEventListener('click', ()=>{
-        const fourteenDays = 14*24*60*60*1000;
-        localStorage.setItem(KEY, String(Date.now() + fourteenDays));
+        const someDays = 2*24*60*60*1000;
+        localStorage.setItem(KEY, String(Date.now() + someDays));
         el.style.display = 'none';
       });
     })();
