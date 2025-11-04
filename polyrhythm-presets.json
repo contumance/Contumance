@@ -33,113 +33,234 @@
             { "name": "Kick 7", "steps": 7, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.1, "volume": 1.0 },
             { "name": "Hat 11", "steps": 11, "hits": 6, "offset": 0, "sound": "hat", "pan": 0.15, "volume": 0.7 }
           ]
-        }
-      }
-    },
-    {
-      "id": "clave-latin",
-      "label": "Clave / Latin",
-      "presets": {
-        "clave32": {
-          "label": "3:2 clave (polyrhythm)",
-          "tags": ["latin", "clave", "polyrhythm"],
-          "tempo": 100,
+        },
+        "koloss-17over16": {
+          "label": "17 over 16 accents (polymeter)",
+          "tags": ["mesh", "accent-shift", "odd"],
+          "tempo": 118,
           "barLen": 4,
-          "mode": "polyrhythm",
-          "swing": 0,
+          "mode": "polymeter",
+          "swing": 0.02,
           "inst": "drums",
-          "rootNote": "E2",
+          "rootNote": "D2",
           "tracks": [
-            { "name": "Low", "steps": 3, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.2, "volume": 1.0 },
-            { "name": "High", "steps": 2, "hits": 1, "offset": 0, "sound": "snare", "pan": 0.2, "volume": 0.9 }
-          ]
-        }
-      }
-    },
-    {
-      "id": "study-packs",
-      "label": "Study packs",
-      "presets": {
-        "543": {
-          "label": "5:4:3 (polyrhythm)",
-          "tags": ["study", "stacked", "polyrhythm"],
-          "tempo": 90,
-          "barLen": 4,
-          "mode": "polyrhythm",
-          "swing": 0,
-          "inst": "drums",
-          "rootNote": "E2",
-          "tracks": [
-            { "name": "5", "steps": 5, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.15, "volume": 1.0 },
-            { "name": "4", "steps": 4, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
-            { "name": "3", "steps": 3, "hits": 2, "offset": 0, "sound": "hat", "pan": 0.2, "volume": 0.65 }
+            { "name": "Accents 17", "steps": 17, "hits": 5, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Pulse 16", "steps": 16, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Hat 16", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.6 }
           ]
         },
-        "3332": {
-          "label": "3-3-3-2 over 4/4 (polymeter)",
-          "tags": ["study", "groupings", "3-3-3-2"],
-          "tempo": 120,
+        "stutter-13": {
+          "label": "Stutter 13 over 8 (polyrhythm)",
+          "tags": ["mesh", "stutter", "polyrhythm"],
+          "tempo": 92,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.04,
+          "inst": "drums",
+          "rootNote": "C2",
+          "tracks": [
+            { "name": "Chug accents", "steps": 13, "hits": 5, "offset": 0, "sound": "kick", "pan": -0.1, "volume": 1.0 },
+            { "name": "Backbeat 8", "steps": 8, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat ghost", "steps": 13, "hits": 7, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "odd-meters",
+      "label": "Odd meters / Prog",
+      "presets": {
+        "7_8-groove": {
+          "label": "7/8 groove (2+2+3)",
+          "tags": ["7/8", "aksak", "prog"],
+          "tempo": 132,
           "barLen": 4,
           "mode": "polymeter",
           "swing": 0,
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name": "Grouping", "steps": 11, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
-            { "name": "Pulse", "steps": 16, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
-            { "name": "Hat", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.15, "volume": 0.6 }
+            { "name": "Kick 7", "steps": 7, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Backbeat", "steps": 14, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat 7 grid", "steps": 7, "hits": 7, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.6 }
+          ]
+        },
+        "9_8-aksak": {
+          "label": "9/8 (2+2+2+3)",
+          "tags": ["9/8", "aksak", "odd"],
+          "tempo": 126,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Kick 9", "steps": 9, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.08, "volume": 1.0 },
+            { "name": "Snare phrase", "steps": 9, "hits": 2, "offset": 6, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat driving", "steps": 9, "hits": 9, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
+          ]
+        },
+        "11_8-cycle": {
+          "label": "11/8 cycle",
+          "tags": ["11/8", "odd", "cycle"],
+          "tempo": 112,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.02,
+          "inst": "drums",
+          "rootNote": "C2",
+          "tracks": [
+            { "name": "Accents 11", "steps": 11, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Low pulse 4", "steps": 4, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.07, "volume": 1.0 },
+            { "name": "Hat glue", "steps": 22, "hits": 11, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
           ]
         }
       }
     },
     {
-      "id": "palm-mutes",
-      "label": "Guitar/Bass palm-mutes",
+      "id": "arabic",
+      "label": "Arabic / Middle Eastern",
       "presets": {
-        "gtr-7over8": {
-          "label": "Guitar: 7 over 8 (polyrhythm)",
-          "tags": ["guitar", "polyrhythm", "pm"],
+        "maqsum-4_4": {
+          "label": "Maqsūm 4/4",
+          "tags": ["arabic", "dum-tek"],
           "tempo": 105,
           "barLen": 4,
-          "mode": "polyrhythm",
-          "swing": 0.06,
-          "inst": "guitar",
-          "rootNote": "D2",
+          "mode": "polymeter",
+          "swing": 0.02,
+          "inst": "drums",
+          "rootNote": "E2",
           "tracks": [
-            { "name": "PM riff", "steps": 7, "hits": 4, "offset": 0, "note": "D2", "pan": -0.1, "volume": 0.95 },
-            { "name": "Accent", "steps": 8, "hits": 2, "offset": 0, "note": "A2", "pan": 0.1, "volume": 0.8 }
+            { "name": "Dum", "steps": 16, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.08, "volume": 1.0 },
+            { "name": "Tek", "steps": 16, "hits": 2, "offset": 6, "sound": "snare", "pan": 0.08, "volume": 0.9 },
+            { "name": "Hat ornaments", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.55 }
           ]
         },
-        "bass-5over4": {
-          "label": "Bass: 5 over 4 (polyrhythm)",
-          "tags": ["bass", "polyrhythm", "pm"],
+        "saidi-4_4": {
+          "label": "Sa‘īdi 4/4",
+          "tags": ["arabic", "upper-egypt"],
+          "tempo": 112,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.02,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Dum", "steps": 16, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Tek–tek", "steps": 16, "hits": 3, "offset": 5, "sound": "snare", "pan": 0.06, "volume": 0.9 },
+            { "name": "Hat drive", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
+          ]
+        },
+        "malfuf-2_4": {
+          "label": "Malfūf 2/4",
+          "tags": ["arabic", "2/4"],
+          "tempo": 128,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "D–T–T", "steps": 8, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Tek comp", "steps": 8, "hits": 2, "offset": 3, "sound": "snare", "pan": 0.05, "volume": 0.9 },
+            { "name": "Hat quick", "steps": 8, "hits": 4, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.5 }
+          ]
+        },
+        "ayub-2_4": {
+          "label": "Ayūb 2/4",
+          "tags": ["arabic", "2/4", "ayub"],
+          "tempo": 132,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Dum", "steps": 8, "hits": 1, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Tek", "steps": 8, "hits": 1, "offset": 4, "sound": "snare", "pan": 0.05, "volume": 0.9 },
+            { "name": "Hat rolling", "steps": 8, "hits": 6, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.5 }
+          ]
+        },
+        "samai-10_8": {
+          "label": "Samā‘ī 10/8",
+          "tags": ["arabic", "10/8", "samai"],
           "tempo": 96,
           "barLen": 4,
-          "mode": "polyrhythm",
-          "swing": 0.04,
-          "inst": "bass",
-          "rootNote": "B1",
+          "mode": "polymeter",
+          "swing": 0,
+          "inst": "drums",
+          "rootNote": "C2",
           "tracks": [
-            { "name": "Low pulse", "steps": 5, "hits": 3, "offset": 0, "note": "B1", "pan": 0, "volume": 1.0 },
-            { "name": "Oct accent", "steps": 4, "hits": 2, "offset": 0, "note": "B2", "pan": 0.05, "volume": 0.85 }
+            { "name": "Dum phrase", "steps": 10, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Tek answer", "steps": 10, "hits": 3, "offset": 6, "sound": "snare", "pan": 0.06, "volume": 0.9 },
+            { "name": "Hat 10 grid", "steps": 10, "hits": 10, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.5 }
           ]
         }
       }
-    }
-  ],
-  "presets": {
-    "legacy-example": {
-      "label": "Legacy flat example",
-      "tempo": 110,
-      "barLen": 4,
-      "mode": "polymeter",
-      "swing": 0,
-      "inst": "drums",
-      "rootNote": "E2",
-      "tracks": [
-        { "name": "Kick", "steps": 8, "hits": 3, "sound": "kick", "pan": -0.1, "volume": 1.0 },
-        { "name": "Snare", "steps": 8, "hits": 2, "sound": "snare", "pan": 0, "volume": 0.9 }
-      ]
-    }
-  }
-}
+    },
+    {
+      "id": "turkish-balkan",
+      "label": "Turkish / Balkan (Aksak)",
+      "presets": {
+        "5_8_2plus3": {
+          "label": "5/8 (2+3)",
+          "tags": ["5/8","aksak"],
+          "tempo": 138,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Kick 5", "steps": 5, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Snare phrase", "steps": 10, "hits": 3, "offset": 4, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat 5 grid", "steps": 5, "hits": 5, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.55 }
+          ]
+        },
+        "7_8_2plus2plus3": {
+          "label": "7/8 (2+2+3)",
+          "tags": ["7/8","aksak"],
+          "tempo": 132,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "Kick 7", "steps": 7, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Backbeat 14", "steps": 14, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat glue", "steps": 7, "hits": 7, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
+          ]
+        },
+        "9_8_karsilama": {
+          "label": "9/8 Karşılama (2+2+2+3)",
+          "tags": ["9/8","karsilama","aksak"],
+          "tempo": 126,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Dum accents", "steps": 9, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Tek fills", "steps": 9, "hits": 3, "offset": 6, "sound": "snare", "pan": 0.06, "volume": 0.9 },
+            { "name": "Hat 9 grid", "steps": 9, "hits": 9, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.5 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "metalcore-syncopation",
+      "label": "Metalcore Syncopation",
+      "presets": {
+        "halftime-chugs": {
+          "label": "Halftime chugs (snare on 3)",
+          "tags": ["halftime","breakdown","syncopation"],
+          "tempo": 150,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.02,
+          "inst": "drums",
+          "rootNote": "B1",
+          "tracks": [
+            { "name": "Chugs 16", "steps": 16, "hits": 6, "
