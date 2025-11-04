@@ -15,9 +15,9 @@
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name":"Kick", "steps":23, "hits":8, "offset":0, "sound":"kick", "pan":-0.05, "volume":1.0 },
-            { "name":"Snare backbeat", "steps":16, "hits":4, "offset":0, "sound":"snare", "pan":0, "volume":0.9 },
-            { "name":"Hat grid", "steps":16, "hits":11, "offset":0, "sound":"hat", "pan":0.1, "volume":0.6 }
+            { "name": "Kick", "steps": 23, "hits": 8, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Snare backbeat", "steps": 16, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat grid", "steps": 16, "hits": 11, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.6 }
           ]
         },
         "711": {
@@ -30,8 +30,8 @@
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name":"Kick 7", "steps":7, "hits":3, "offset":0, "sound":"kick", "pan":-0.1, "volume":1.0 },
-            { "name":"Hat 11", "steps":11, "hits":6, "offset":0, "sound":"hat", "pan":0.15, "volume":0.7 }
+            { "name": "Kick 7", "steps": 7, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.1, "volume": 1.0 },
+            { "name": "Hat 11", "steps": 11, "hits": 6, "offset": 0, "sound": "hat", "pan": 0.15, "volume": 0.7 }
           ]
         }
       }
@@ -50,8 +50,8 @@
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name":"Low", "steps":3, "hits":2, "offset":0, "sound":"kick", "pan":-0.2, "volume":1.0 },
-            { "name":"High", "steps":2, "hits":1, "offset":0, "sound":"snare", "pan":0.2, "volume":0.9 }
+            { "name": "Low", "steps": 3, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.2, "volume": 1.0 },
+            { "name": "High", "steps": 2, "hits": 1, "offset": 0, "sound": "snare", "pan": 0.2, "volume": 0.9 }
           ]
         }
       }
@@ -70,9 +70,9 @@
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name":"5", "steps":5, "hits":3, "offset":0, "sound":"kick", "pan":-0.15, "volume":1.0 },
-            { "name":"4", "steps":4, "hits":2, "offset":0, "sound":"snare", "pan":0, "volume":0.9 },
-            { "name":"3", "steps":3, "hits":2, "offset":0, "sound":"hat", "pan":0.2, "volume":0.65 }
+            { "name": "5", "steps": 5, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.15, "volume": 1.0 },
+            { "name": "4", "steps": 4, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "3", "steps": 3, "hits": 2, "offset": 0, "sound": "hat", "pan": 0.2, "volume": 0.65 }
           ]
         },
         "3332": {
@@ -85,9 +85,9 @@
           "inst": "drums",
           "rootNote": "E2",
           "tracks": [
-            { "name":"Grouping", "steps":11, "hits":4, "offset":0, "sound":"snare", "pan":0, "volume":0.95 },
-            { "name":"Pulse", "steps":16, "hits":4, "offset":0, "sound":"kick", "pan":-0.05, "volume":1.0 },
-            { "name":"Hat", "steps":16, "hits":8, "offset":0, "sound":"hat", "pan":0.15, "volume":0.6 }
+            { "name": "Grouping", "steps": 11, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Pulse", "steps": 16, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Hat", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.15, "volume": 0.6 }
           ]
         }
       }
@@ -106,8 +106,8 @@
           "inst": "guitar",
           "rootNote": "D2",
           "tracks": [
-            { "name":"PM riff", "steps":7, "hits":4, "offset":0, "note":"D2", "pan":-0.1, "volume":0.95 },
-            { "name":"Accent", "steps":8, "hits":2, "offset":0, "note":"A2", "pan":0.1, "volume":0.8 }
+            { "name": "PM riff", "steps": 7, "hits": 4, "offset": 0, "note": "D2", "pan": -0.1, "volume": 0.95 },
+            { "name": "Accent", "steps": 8, "hits": 2, "offset": 0, "note": "A2", "pan": 0.1, "volume": 0.8 }
           ]
         },
         "bass-5over4": {
@@ -120,15 +120,13 @@
           "inst": "bass",
           "rootNote": "B1",
           "tracks": [
-            { "name":"Low pulse", "steps":5, "hits":3, "offset":0, "note":"B1", "pan":0, "volume":1.0 },
-            { "name":"Oct accent", "steps":4, "hits":2, "offset":0, "note":"B2", "pan":0.05, "volume":0.85 }
+            { "name": "Low pulse", "steps": 5, "hits": 3, "offset": 0, "note": "B1", "pan": 0, "volume": 1.0 },
+            { "name": "Oct accent", "steps": 4, "hits": 2, "offset": 0, "note": "B2", "pan": 0.05, "volume": 0.85 }
           ]
         }
       }
     }
   ],
-
-  /* Compatibilidad: también puedes seguir usando el mapa plano “presets” si lo deseas */
   "presets": {
     "legacy-example": {
       "label": "Legacy flat example",
@@ -139,8 +137,8 @@
       "inst": "drums",
       "rootNote": "E2",
       "tracks": [
-        { "name":"Kick", "steps":8, "hits":3, "sound":"kick", "pan":-0.1, "volume":1.0 },
-        { "name":"Snare", "steps":8, "hits":2, "sound":"snare", "pan":0, "volume":0.9 }
+        { "name": "Kick", "steps": 8, "hits": 3, "sound": "kick", "pan": -0.1, "volume": 1.0 },
+        { "name": "Snare", "steps": 8, "hits": 2, "sound": "snare", "pan": 0, "volume": 0.9 }
       ]
     }
   }
