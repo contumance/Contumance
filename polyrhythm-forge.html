@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Polyrhythm Forge — Re:sonance</title>
+  <meta name="description" content="Forja polirritmos y polímetricas al estilo Meshuggah. Visual en anillos, audio WebAudio, presets, Euclídeos, swing y paneo por pista." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+
+  <style>
+    :root{
+      --paper:#f5f1e8; --ink:#2f2a1e; --muted:#6b6253;
+      --link:#2d5842; --link-visited:#514f7a;
+      --accent:#a08a63; --rule:#d8d2c2; --accent-soft:#999;
+      --maxw:42rem; --radius:14px; --lh:1.6; --fs-base:18px;
+    }
+    html.theme-dark{
+      --paper:#10110f; --ink:#dbd6c9; --muted:#a39c8c;
+      --link:#a9d0b8; --link-visited:#c0b8e0;
+      --accent:#2a2b27; --rule:#2a2b27; --accent-soft:#7f7a6b;
+    }
+    html{ font-size:var(--fs-base); }
+    body{
+      margin:0; padding:0; color:var(--ink); background:var(--paper); line-height:var(--lh);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
+    }
+    main{ max-width:var(--maxw); margin:0 auto; padding:7vh 1.25rem 4rem; }
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+    nav.breadcrumb a{ color:var(--link); text-decoration:none; text-underline-offset:2px; }
+    h1{ margin:.2rem 0 .3rem 0; font-weight:600; font-size:clamp(1.6rem,4vw,2.2rem); }
+    .subtitle{ color:var(--muted); font-size:.95rem; margin-bottom:.8rem; }
+    .theme-toggle{
+      border:1px solid var(--accent); background:transparent; color:var(--ink);
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1;
+    }
+    .theme-toggle:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
+    hr{ border:none; border-top:1px solid var(--accent); margin:1.25rem 0; opacity:.5; }
+
+    details.panel{ border:1px solid var(--accent); border-radius:.6rem; background: rgba(255,255,255,0.6); }
+    html.theme-dark details.panel{ background: rgba(0,0,0,0.1); }
+    details.panel>summary{ cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink); }
+    details.panel>summary::-webkit-details-marker{ display:none; }
+    details.panel .panel-body{ padding:.6rem .8rem .9rem; }
+
+    .controls{ display:grid; gap:.6rem; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); }
+    .row{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    label{ font-size:12px; opacity:.9; }
+    input, select, button{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:.55rem .6rem; border-radius:.5rem; font-family:inherit; font-size:.92rem; line-height:1;
+      min-width:0; outline:none;
+    }
+    input[type="range"]{ width:160px; }
+    button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    button:focus-visible, input:focus-visible, select:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
+
+    .stage{
+      border:1px solid var(--accent); border-radius:.6rem; background:transparent;
+      margin-top:12px; padding:.5rem;
+    }
+    .stage canvas{ width:100%; height:auto; display:block; aspect-ratio:1/1; }
+
+    .tracklist{ margin-top:12px; display:grid; gap:.5rem; }
+    .track{
+      border:1px solid var(--accent); border-radius:.6rem; padding:.6rem .6rem .65rem;
+      display:grid; gap:.5rem;
+      grid-template-columns: 1fr;
+    }
+    .track .line{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .tag{ border:1px solid var(--accent); border-radius:999px; padding:.1rem .5rem; font-size:.78rem; color:var(--muted); }
+
+    footer{ display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0; }
+    footer .btn{
+      display:inline-flex; align-items:center; gap:.5rem; text-decoration:none; border:1px solid var(--accent);
+      border-radius:999px; padding:.45rem .95rem; font-size:.9rem; font-weight:500; transition:background-color .25s ease, color .25s ease;
+    }
+    html:not(.theme-dark) footer .btn{ background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink); }
+    html:not(.theme-dark) footer .btn:hover{ background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%); }
+    html.theme-dark footer .btn{ background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper); }
+    html.theme-dark footer .btn:hover{ background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%); }
+    footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">← Volver al índice</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+    </div>
+
+    <header>
+      <h1>The Polyrhythm Forge</h1>
+      <div class="subtitle">Forja polirritmos y polímetricas con visual en anillos — Mesh-ish.</div>
+    </header>
+
+    <details class="panel" open>
+      <summary>Motor & Presets</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Polyrhythm controls">
+          <div class="row" style="gap:.7rem">
+            <label>Tempo</label>
+            <input id="tempo" type="number" min="20" max="300" value="120" style="width:5.5rem">
+            <label>Compás (duración)</label>
+            <select id="barLen">
+              <option value="4" selected>1 compás = 4 negras (4/4)</option>
+              <option value="3">3 negras (3/4)</option>
+              <option value="5">5 negras (5/4)</option>
+              <option value="7">7 negras (7/4)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>Modo</label>
+            <select id="mode">
+              <option value="polymeter" selected>Polímetro (paso común)</option>
+              <option value="polyrhythm">Polirritmo (ciclo común)</option>
+            </select>
+            <label>Swing</label>
+            <input id="swing" type="range" min="0" max="0.6" step="0.01" value="0">
+            <span class="tag" id="swingVal">swing: 0%</span>
+          </div>
+          <div class="row">
+            <button id="play" class="primary" type="button">Play</button>
+            <button id="stop" type="button">Stop</button>
+            <button id="addTrack" type="button">+ Pista</button>
+            <select id="preset">
+              <option value="">— Cargar preset —</option>
+              <option value="bleedish">Bleed-ish 23:16 (polímetro)</option>
+              <option value="clave32">3:2 clave (polirritmo)</option>
+              <option value="543">5:4:3 (polirritmo)</option>
+              <option value="711">7:11 hats+kicks (polímetro)</option>
+            </select>
+            <button id="export" type="button">Export JSON</button>
+            <button id="import" type="button">Import JSON</button>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <section class="stage" aria-label="Visual de anillos">
+      <canvas id="ringCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
+    </section>
+
+    <section class="tracklist" id="tracks" aria-label="Pistas"></section>
+
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <script>
+    /* ===== Theme ===== */
+    (function () {
+      const KEY = 'theme-preference';
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      function setIcon(){ btn.textContent = '◑'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'light' || saved === 'dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let current = getPreferred(); apply(current);
+      btn.addEventListener('click', () => {
+        current = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(KEY, current); apply(current);
+      });
+      document.getElementById('y').textContent = new Date().getFullYear();
+    })();
+
+    /* ===== Utils ===== */
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
+
+    /* ===== WebAudio Engine ===== */
+    let AC = null, master, lookaheadId = null, drawing = false;
+    const schedule = []; // { when, cb }
+    const tracks = [];
+    let isPlaying = false;
+    let startAt = 0;    // AC.currentTime donde comenzó
+    let visStart = 0;   // performance.now() donde comenzó
+    const lookahead = 0.025;        // 25 ms
+    const scheduleAhead = 0.15;     // 150 ms
+
+    function getAC(){
+      if(!AC){
+        AC = new (window.AudioContext || window.webkitAudioContext)();
+        master = AC.createGain();
+        master.gain.value = 0.9;
+        master.connect(AC.destination);
+      }
+      if(AC.state === 'suspended') AC.resume();
+      return AC;
+    }
+
+    function mkGain(v=1){ const g = AC.createGain(); g.gain.value = v; return g; }
+    function mkPanner(p=0){ const pn = AC.createStereoPanner ? AC.createStereoPanner() : null; if(pn) pn.pan.value = p; return pn; }
+
+    function playClick(when, vol=1, pan=0){
+      const ac = getAC();
+      const osc = ac.createOscillator(), g = mkGain(0.0001), pn = mkPanner(pan);
+      osc.type = 'square'; osc.frequency.value = 2000;
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(vol, when + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.04);
+      if(pn){ osc.connect(g).connect(pn).connect(master); } else { osc.connect(g).connect(master); }
+      osc.start(when); osc.stop(when + 0.06);
+    }
+
+    function playHat(when, vol=1, pan=0){
+      const ac = getAC();
+      // ruido blanco + HPF
+      const bufferSize = 2 * ac.sampleRate * 0.05;
+      const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i=0;i<bufferSize;i++){ data[i] = Math.random()*2-1; }
+      const src = ac.createBufferSource(); src.buffer = buffer;
+      const hp = ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value = 6000;
+      const g = mkGain(0.0001), pn = mkPanner(pan);
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.linearRampToValueAtTime(vol, when + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.05);
+      src.connect(hp).connect(g);
+      if(pn) g.connect(pn).connect(master); else g.connect(master);
+      src.start(when); src.stop(when + 0.06);
+    }
+
+    function playSnare(when, vol=1, pan=0){
+      const ac = getAC();
+      // ruido + body
+      const osc = ac.createOscillator(); osc.type='triangle'; osc.frequency.value = 220;
+      const g1 = mkGain(0.0001);
+      g1.gain.setValueAtTime(0.0001, when);
+      g1.gain.linearRampToValueAtTime(vol*0.7, when + 0.006);
+      g1.gain.exponentialRampToValueAtTime(0.0001, when + 0.15);
+
+      const bufferSize = 2 * ac.sampleRate * 0.12;
+      const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1) * (1 - i/bufferSize); }
+      const noise = ac.createBufferSource(); noise.buffer = buffer;
+      const bp = ac.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value = 1800; bp.Q.value = 0.6;
+      const g2 = mkGain(0.0001);
+      g2.gain.setValueAtTime(0.0001, when);
+      g2.gain.linearRampToValueAtTime(vol*0.6, when + 0.003);
+      g2.gain.exponentialRampToValueAtTime(0.0001, when + 0.12);
+
+      const pn = mkPanner(pan);
+      if(pn){ osc.connect(g1).connect(pn).connect(master); noise.connect(bp).connect(g2).connect(pn); pn.connect(master); }
+      else { osc.connect(g1).connect(master); noise.connect(bp).connect(g2).connect(master); }
+
+      osc.start(when); osc.stop(when + 0.2);
+      noise.start(when); noise.stop(when + 0.15);
+    }
+
+    function playKick(when, vol=1, pan=0){
+      const ac = getAC();
+      const osc = ac.createOscillator(); osc.type='sine'; osc.frequency.setValueAtTime(80, when);
+      osc.frequency.exponentialRampToValueAtTime(35, when + 0.08);
+      const g = mkGain(0.0001), pn = mkPanner(pan);
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.linearRampToValueAtTime(vol, when + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.2);
+      if(pn){ osc.connect(g).connect(pn).connect(master); } else { osc.connect(g).connect(master); }
+      osc.start(when); osc.stop(when + 0.22);
+    }
+
+    function playClave(when, vol=1, pan=0){
+      const ac = getAC();
+      const osc = ac.createOscillator(); osc.type='square'; osc.frequency.value = 1000;
+      const g = mkGain(0.0001), pn = mkPanner(pan);
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(vol, when + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + 0.07);
+      if(pn){ osc.connect(g).connect(pn).connect(master); } else { osc.connect(g).connect(master); }
+      osc.start(when); osc.stop(when + 0.08);
+    }
+
+    const SOUND_MAP = {
+      click: playClick,
+      hat:   playHat,
+      snare: playSnare,
+      kick:  playKick,
+      clave: playClave
+    };
+
+    /* ===== Pattern helpers (Euclídeo) ===== */
+    function euclidean(steps, hits){
+      steps = Math.max(1, steps|0); hits = clamp(hits|0, 0, steps);
+      // Bjorklund simple
+      let pattern = new Array(steps).fill(0);
+      for(let i=0;i<hits;i++){ pattern[i] = 1; }
+      let counts = new Array(steps).fill(0);
+      for(let i=0;i<steps;i++){ counts[i] = (i<hits)?1:0; }
+      let a = hits, b = steps - hits;
+      let groups = counts.map(v => [v]);
+      while (a > 0 && b > 0){
+        const len = Math.min(a, b);
+        for (let i=0;i<len;i++){
+          groups[i] = groups[i].concat(groups.pop());
+        }
+        if (a > b) a = a - b;
+        else b = b - a;
+      }
+      pattern = groups.flat();
+      return pattern;
+    }
+
+    /* ===== Tracks UI / State ===== */
+    function makeTrack(opts={}){
+      const t = {
+        id: crypto.randomUUID(),
+        name: opts.name || 'Pista',
+        steps: opts.steps ?? 16,
+        hits: opts.hits ?? 8,
+        offset: opts.offset ?? 0,
+        sound: opts.sound || 'click',
+        pan: opts.pan ?? 0,
+        volume: opts.volume ?? 0.9,
+        mute: !!opts.mute,
+        solo: !!opts.solo,
+        pattern: [],
+        stepNow: 0,
+        colorScale: Math.random()*0.8 + 0.2
+      };
+      t.pattern = euclidean(t.steps, t.hits);
+      tracks.push(t);
+      renderTrackUI(t);
+      return t;
+    }
+
+    function renderTrackUI(t){
+      const wrap = document.createElement('div');
+      wrap.className = 'track';
+      wrap.dataset.id = t.id;
+      wrap.innerHTML = `
+        <div class="line">
+          <strong>${t.name}</strong>
+          <span class="tag">steps: <b class="stepsLab">${t.steps}</b></span>
+          <span class="tag">hits: <b class="hitsLab">${t.hits}</b></span>
+          <span class="tag">offset: <b class="offLab">${t.offset}</b></span>
+          <span class="tag">sound: <b class="sndLab">${t.sound}</b></span>
+        </div>
+        <div class="line">
+          <label>Steps</label><input class="steps" type="number" min="1" max="64" value="${t.steps}" style="width:5rem">
+          <label>Hits</label><input class="hits" type="number" min="0" max="64" value="${t.hits}" style="width:5rem">
+          <label>Offset</label><input class="offset" type="number" min="0" max="64" value="${t.offset}" style="width:5rem">
+          <label>Sound</label>
+            <select class="sound">
+              <option ${t.sound==='kick'?'selected':''} value="kick">kick</option>
+              <option ${t.sound==='snare'?'selected':''} value="snare">snare</option>
+              <option ${t.sound==='hat'?'selected':''} value="hat">hat</option>
+              <option ${t.sound==='clave'?'selected':''} value="clave">clave</option>
+              <option ${t.sound==='click'?'selected':''} value="click">click</option>
+            </select>
+          <label>Pan</label><input class="pan" type="range" min="-1" max="1" step="0.01" value="${t.pan}">
+          <label>Vol</label><input class="vol" type="range" min="0" max="1.2" step="0.01" value="${t.volume}">
+        </div>
+        <div class="line">
+          <button class="mute">${t.mute?'Unmute':'Mute'}</button>
+          <button class="solo">${t.solo?'Unsolo':'Solo'}</button>
+          <button class="delete">Eliminar</button>
+        </div>
+      `;
+      const host = $('#tracks'); host.appendChild(wrap);
+
+      const q = sel => wrap.querySelector(sel);
+      q('.steps').addEventListener('change', e => { t.steps = clamp(parseInt(e.target.value)||1, 1, 64); t.pattern = euclidean(t.steps, t.hits); q('.stepsLab').textContent = t.steps; });
+      q('.hits').addEventListener('change', e => { t.hits = clamp(parseInt(e.target.value)||0, 0, 64); t.pattern = euclidean(t.steps, t.hits); q('.hitsLab').textContent = t.hits; });
+      q('.offset').addEventListener('change', e => { t.offset = clamp(parseInt(e.target.value)||0, 0, 128); q('.offLab').textContent = t.offset; });
+      q('.sound').addEventListener('change', e => { t.sound = e.target.value; q('.sndLab').textContent = t.sound; });
+      q('.pan').addEventListener('input', e => { t.pan = parseFloat(e.target.value)||0; });
+      q('.vol').addEventListener('input', e => { t.volume = parseFloat(e.target.value)||0.8; });
+
+      q('.mute').addEventListener('click', () => { t.mute = !t.mute; q('.mute').textContent = t.mute?'Unmute':'Mute'; });
+      q('.solo').addEventListener('click', () => { t.solo = !t.solo; q('.solo').textContent = t.solo?'Unsolo':'Solo'; });
+      q('.delete').addEventListener('click', () => {
+        const idx = tracks.findIndex(x=>x.id===t.id);
+        if(idx>=0){ tracks.splice(idx,1); wrap.remove(); }
+      });
+    }
+
+    /* ===== Transport / Scheduler ===== */
+    function now(){ return getAC().currentTime; }
+
+    function clearSchedule(){
+      schedule.length = 0;
+    }
+
+    function enqueue(when, cb){
+      schedule.push({when, cb});
+    }
+
+    function pump(){
+      const t = now();
+      while(schedule.length && schedule[0].when <= t + scheduleAhead){
+        const job = schedule.shift();
+        try{ job.cb(job.when); }catch(e){ console.error(e); }
+      }
+    }
+
+    function loop(){
+      pump();
+    }
+
+    function start(){
+      const ac = getAC();
+      isPlaying = true;
+      startAt = ac.currentTime + 0.05;
+      visStart = performance.now() + 50;
+
+      if(lookaheadId) clearInterval(lookaheadId);
+      lookaheadId = setInterval(loop, lookahead*1000);
+
+      requestAnimationFrame(draw);
+      scheduleNextBars();
+    }
+
+    function stop(){
+      isPlaying = false;
+      clearInterval(lookaheadId); lookaheadId = null;
+    }
+
+    function scheduleNextBars(){
+      // programa por “ventanas” continuas
+      if(!isPlaying) return;
+      const ac = getAC();
+      const tp = parseFloat($('#tempo').value) || 120;
+      const barBeats = parseFloat($('#barLen').value) || 4;
+      const barDur = (60/tp) * barBeats; // duración de 1 compás
+      const mode = $('#mode').value; // polymeter / polyrhythm
+      const swing = parseFloat($('#swing').value)||0;
+
+      const tNow = ac.currentTime;
+      let latest = tNow;
+
+      tracks.forEach(tr => {
+        const soloed = tracks.some(x=>x.solo);
+        const audible = (!soloed || tr.solo) && !tr.mute && tr.volume>0.001;
+
+        const steps = Math.max(1, tr.steps|0);
+        const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
+        const sound = SOUND_MAP[tr.sound] || SOUND_MAP.click;
+
+        // Duración de paso según modo
+        let stepDur;
+        if(mode === 'polyrhythm'){
+          // Todos completan un ciclo en 1 compás: paso = barDur/steps
+          stepDur = barDur / steps;
+        }else{
+          // Polímetro: todas las pistas comparten paso base = negra/4 (dieciseisavo) por ejemplo
+          stepDur = (60/tp) / 4; // 1/16
+        }
+
+        // Programar una ventana de ~1 compás por adelante
+        const windowStart = Math.max(tNow, startAt);
+        const windowEnd = tNow + scheduleAhead;
+
+        // Encontrar índice de paso en función del tiempo
+        // Usamos un contador interno derivado de startAt y offset
+        const offsetSteps = (tr.offset%steps+steps)%steps;
+        // “Ciclo” del tiempo base
+        const sinceStart = Math.max(0, windowStart - startAt);
+        const firstStepIdx = Math.floor(sinceStart/stepDur);
+
+        // programar ~N pasos futuros
+        let n = Math.ceil((windowEnd - windowStart)/stepDur) + 2;
+        for(let i=0;i<n;i++){
+          const idx = firstStepIdx + i;
+          const when = startAt + idx*stepDur;
+
+          // swing simple en pasos pares
+          const isEven = (idx%2)===1;
+          const swingOff = isEven ? swing*stepDur*0.5 : 0;
+
+          const sIdx = (idx + offsetSteps) % steps;
+          if(audible && patt[sIdx]){
+            enqueue(when + swingOff, (w)=>{
+              sound(w, tr.volume, tr.pan);
+            });
+          }
+          if(when > latest) latest = when;
+        }
+      });
+
+      // mantener el flujo
+      setTimeout(scheduleNextBars, (scheduleAhead*0.5)*1000);
+    }
+
+    /* ===== Visual (Rings) ===== */
+    const canvas = document.getElementById('ringCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function draw(){
+      if(!drawing){ drawing = true; }
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      const cx = W/2, cy = H/2;
+      const TP = parseFloat($('#tempo').value) || 120;
+      const barBeats = parseFloat($('#barLen').value) || 4;
+      const barDur = (60/TP)*barBeats;
+      const mode = $('#mode').value;
+      const swing = parseFloat($('#swing').value)||0;
+
+      const nowPerf = performance.now();
+      const elapsed = isPlaying ? (nowPerf - visStart)/1000 : 0;
+
+      // background rings
+      const radiusBase = Math.min(W,H)*0.40;
+      const ringGap = 38;
+
+      // Title
+      ctx.save();
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#666';
+      ctx.font = '16px ui-serif, Georgia, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${mode==='polyrhythm'?'Polirritmo (ciclo común)':'Polímetro (paso común)'} · ${TP} BPM`, cx, cy - radiusBase - tracks.length*ringGap*0.08 - 20);
+      ctx.restore();
+
+      tracks.forEach((tr, i) => {
+        const steps = Math.max(1, tr.steps|0);
+        const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
+
+        // ring radius outer to inner
+        const r = radiusBase - i*ringGap;
+
+        // color tones based on theme
+        const styles = getComputedStyle(document.documentElement);
+        const ink = styles.getPropertyValue('--ink').trim() || '#222';
+        const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
+        const muted = styles.getPropertyValue('--muted').trim() || '#777';
+
+        // ring
+        ctx.save();
+        ctx.strokeStyle = rule; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+        ctx.restore();
+
+        // compute stepDur
+        let stepDur = mode==='polyrhythm' ? (barDur/steps) : ((60/TP)/4);
+
+        // draw steps
+        for(let s=0; s<steps; s++){
+          const ang = -Math.PI/2 + (s/steps)*Math.PI*2;
+          const px = cx + Math.cos(ang)*r;
+          const py = cy + Math.sin(ang)*r;
+
+          // dot
+          const on = patt[s];
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(px, py, on?6:3.2, 0, Math.PI*2);
+          ctx.fillStyle = on ? ink : muted;
+          ctx.globalAlpha = on ? 0.95 : 0.45;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // cursor (playhead)
+        if(isPlaying){
+          // en polímetro el cursor avanza por pasos comunes; en polirritmo, cada pista completa 1 vuelta por compás
+          let phase;
+          if(mode==='polyrhythm'){
+            phase = (elapsed % barDur) / barDur; // 0..1 por compás
+          }else{
+            const stepDurCommon = (60/TP)/4;
+            const totalSteps = Math.floor(elapsed/stepDurCommon);
+            // swing visual (opcional simple)
+            const frac = (elapsed%stepDurCommon)/stepDurCommon;
+            phase = ((totalSteps + frac) / steps) % 1;
+          }
+          const ang = -Math.PI/2 + phase * Math.PI*2;
+          const px = cx + Math.cos(ang)*r;
+          const py = cy + Math.sin(ang)*r;
+          ctx.save();
+          ctx.fillStyle = ink;
+          ctx.globalAlpha = 0.25;
+          ctx.beginPath(); ctx.arc(px, py, 11, 0, Math.PI*2); ctx.fill();
+          ctx.restore();
+        }
+
+        // label
+        ctx.save();
+        ctx.fillStyle = muted; ctx.font = '12px ui-serif, Georgia, serif'; ctx.textAlign = 'center';
+        ctx.fillText(`${tr.name} · ${tr.steps}:${tr.hits} · pan ${tr.pan>=0?'+':''}${tr.pan.toFixed(2)} · ${tr.sound}`, cx, cy - r - 10);
+        ctx.restore();
+      });
+
+      if(isPlaying) requestAnimationFrame(draw);
+      else drawing = false;
+    }
+
+    /* ===== Presets / Import / Export ===== */
+    function loadPreset(key){
+      // limpia
+      $('#tracks').innerHTML=''; tracks.length=0;
+
+      if(key==='bleedish'){
+        makeTrack({ name:'Kick', steps:23, hits:8, offset:0, sound:'kick', pan:-0.05, volume:1.0 });
+        makeTrack({ name:'Snare backbeat', steps:16, hits:4, offset:0, sound:'snare', pan:0, volume:0.9 });
+        makeTrack({ name:'Hat grid', steps:16, hits:11, offset:0, sound:'hat', pan:0.1, volume:0.6 });
+        $('#mode').value = 'polymeter';
+        $('#tempo').value = 120;
+      }else if(key==='clave32'){
+        makeTrack({ name:'Low', steps:3, hits:2, offset:0, sound:'kick', pan:-0.2, volume:1.0 });
+        makeTrack({ name:'High', steps:2, hits:1, offset:0, sound:'snare', pan:0.2, volume:0.9 });
+        $('#mode').value = 'polyrhythm';
+        $('#tempo').value = 100;
+      }else if(key==='543'){
+        makeTrack({ name:'5', steps:5, hits:3, offset:0, sound:'kick', pan:-0.15, volume:1.0 });
+        makeTrack({ name:'4', steps:4, hits:2, offset:0, sound:'snare', pan:0, volume:0.9 });
+        makeTrack({ name:'3', steps:3, hits:2, offset:0, sound:'hat', pan:0.2, volume:0.65 });
+        $('#mode').value = 'polyrhythm';
+        $('#tempo').value = 90;
+      }else if(key==='711'){
+        makeTrack({ name:'Kick 7', steps:7, hits:3, offset:0, sound:'kick', pan:-0.1, volume:1.0 });
+        makeTrack({ name:'Hat 11', steps:11, hits:6, offset:0, sound:'hat', pan:0.15, volume:0.7 });
+        $('#mode').value = 'polymeter';
+        $('#tempo').value = 130;
+      }
+      draw();
+    }
+
+    function exportJSON(){
+      const data = {
+        tempo: parseFloat($('#tempo').value)||120,
+        barLen: parseFloat($('#barLen').value)||4,
+        mode: $('#mode').value,
+        swing: parseFloat($('#swing').value)||0,
+        tracks: tracks.map(t=>({
+          name:t.name, steps:t.steps, hits:t.hits, offset:t.offset,
+          sound:t.sound, pan:t.pan, volume:t.volume, mute:t.mute, solo:t.solo
+        }))
+      };
+      const txt = JSON.stringify(data, null, 2);
+      navigator.clipboard?.writeText(txt).catch(()=>{});
+      alert('Preset copiado al portapapeles.');
+    }
+
+    function importJSON(){
+      const txt = prompt('Pega el JSON del preset:');
+      if(!txt) return;
+      try{
+        const obj = JSON.parse(txt);
+        $('#tempo').value = obj.tempo||120;
+        $('#barLen').value = obj.barLen||4;
+        $('#mode').value = obj.mode||'polymeter';
+        $('#swing').value = obj.swing||0;
+        $('#swingVal').textContent = `swing: ${Math.round((obj.swing||0)*100)}%`;
+        $('#tracks').innerHTML=''; tracks.length=0;
+        (obj.tracks||[]).forEach(t=> makeTrack(t));
+        draw();
+      }catch(e){
+        alert('JSON inválido');
+      }
+    }
+
+    /* ===== Wire UI ===== */
+    $('#play').addEventListener('click', () => { if(!isPlaying){ start(); } });
+    $('#stop').addEventListener('click', () => { stop(); });
+    $('#addTrack').addEventListener('click', () => {
+      makeTrack({ name:`Pista ${tracks.length+1}`, steps:16, hits:8, sound:'click' });
+      draw();
+    });
+    $('#preset').addEventListener('change', e => { const k = e.target.value; if(k) loadPreset(k); e.target.value=''; });
+    $('#export').addEventListener('click', exportJSON);
+    $('#import').addEventListener('click', importJSON);
+
+    $('#swing').addEventListener('input', e => {
+      const v = parseFloat(e.target.value)||0;
+      $('#swingVal').textContent = `swing: ${Math.round(v*100)}%`;
+    });
+
+    // auto-resume context on user gesture
+    const resumeOnce = ()=>{
+      try{ getAC(); }catch(e){}
+      window.removeEventListener('pointerdown', resumeOnce, {capture:true});
+      window.removeEventListener('keydown', resumeOnce, {capture:true});
+    };
+    window.addEventListener('pointerdown', resumeOnce, {capture:true, once:true});
+    window.addEventListener('keydown', resumeOnce, {capture:true, once:true});
+
+    // Init defaults
+    (function init(){
+      makeTrack({ name:'Kick', steps:16, hits:4, sound:'kick', pan:-0.05, volume:1.0 });
+      makeTrack({ name:'Snare', steps:16, hits:4, offset:8, sound:'snare', pan:0, volume:0.9 });
+      makeTrack({ name:'Hat', steps:16, hits:8, sound:'hat', pan:0.1, volume:0.6 });
+      draw();
+    })();
+  </script>
+</body>
+</html>
