@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Polyrhythm Forge — Re:sonance</title>
-  <meta name="description" content="Forja polirritmos y polímetricas al estilo Meshuggah. Visual en anillos, WebAudio, Euclídeos, swing, paneo, palm-mutes y export MIDI." />
+  <meta name="description" content="Forge polyrhythms and polymeters in the style of Meshuggah. Ring visualization, WebAudio, Euclidean patterns, swing, panning, palm-mutes, and MIDI export." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <style>
     :root{
@@ -91,37 +91,37 @@
   <main>
     <div class="topbar">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html">← Volver al índice</a>
+        <a href="index.html">← Back to index</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
     </div>
 
     <header>
       <h1>The Polyrhythm Forge</h1>
-      <div class="subtitle">Forja polirritmos y polímetricas con visual en anillos — Mesh-ish + palm-mutes + export MIDI.</div>
+      <div class="subtitle">Forge polyrhythms and polymeters with ring visuals — Mesh-ish + palm-mutes + MIDI export.</div>
     </header>
 
     <details class="panel" open>
-      <summary>Motor & Presets</summary>
+      <summary>Engine & Presets</summary>
       <div class="panel-body">
         <div class="controls" role="group" aria-label="Polyrhythm controls">
           <div class="row" style="gap:.7rem">
             <label>Tempo</label>
             <input id="tempo" type="number" min="20" max="300" value="120" style="width:5.5rem">
-            <label>Compás (duración)</label>
+            <label>Bar length</label>
             <select id="barLen">
-              <option value="4" selected>1 compás = 4 negras (4/4)</option>
-              <option value="3">3 negras (3/4)</option>
-              <option value="5">5 negras (5/4)</option>
-              <option value="7">7 negras (7/4)</option>
+              <option value="4" selected>1 bar = 4 quarter notes (4/4)</option>
+              <option value="3">3 quarter notes (3/4)</option>
+              <option value="5">5 quarter notes (5/4)</option>
+              <option value="7">7 quarter notes (7/4)</option>
             </select>
           </div>
 
           <div class="row">
-            <label>Modo</label>
+            <label>Mode</label>
             <select id="mode">
-              <option value="polymeter" selected>Polímetro (paso común)</option>
-              <option value="polyrhythm">Polirritmo (ciclo común)</option>
+              <option value="polymeter" selected>Polymeter (common step)</option>
+              <option value="polyrhythm">Polyrhythm (common cycle)</option>
             </select>
 
             <label>Swing</label>
@@ -132,14 +132,14 @@
           <div class="row">
             <button id="play" class="primary" type="button">Play</button>
             <button id="stop" type="button">Stop</button>
-            <button id="addTrack" type="button">+ Pista</button>
+            <button id="addTrack" type="button">+ Track</button>
 
             <select id="preset">
-              <option value="">— Cargar preset —</option>
-              <option value="bleedish">Bleed-ish 23:16 (polímetro)</option>
-              <option value="clave32">3:2 clave (polirritmo)</option>
-              <option value="543">5:4:3 (polirritmo)</option>
-              <option value="711">7:11 hats+kicks (polímetro)</option>
+              <option value="">— Load preset —</option>
+              <option value="bleedish">Bleed-ish 23:16 (polymeter)</option>
+              <option value="clave32">3:2 clave (polyrhythm)</option>
+              <option value="543">5:4:3 (polyrhythm)</option>
+              <option value="711">7:11 hats+kicks (polymeter)</option>
             </select>
 
             <button id="export" type="button">Export JSON</button>
@@ -149,14 +149,14 @@
           <hr>
 
           <div class="row">
-            <label>Instrumento</label>
-            <select id="instMode" title="Qué dispara cada golpe">
+            <label>Instrument</label>
+            <select id="instMode" title="What each hit triggers">
               <option value="drums" selected>Drums (GM Channel 10)</option>
               <option value="guitar">Guitar Palm-mute</option>
               <option value="bass">Bass Palm-mute</option>
             </select>
             <label>Root note</label>
-            <input id="rootNote" type="text" value="E2" style="width:5.5rem" title="E2, D#3 o número MIDI">
+            <input id="rootNote" type="text" value="E2" style="width:5.5rem" title="E2, D#3 or MIDI number">
             <button id="exportMidi" type="button">Export MIDI</button>
             <span class="tag">SMF Type-0</span>
           </div>
@@ -164,11 +164,11 @@
       </div>
     </details>
 
-    <section class="stage" aria-label="Visual de anillos">
+    <section class="stage" aria-label="Ring visual">
       <canvas id="ringCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
     </section>
 
-    <section class="tracklist" id="tracks" aria-label="Pistas"></section>
+    <section class="tracklist" id="tracks" aria-label="Tracks"></section>
 
     <footer>
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer">
@@ -292,7 +292,7 @@
       const f = midiToFreq(midi);
       o1.frequency.value = f; o2.frequency.value = f;
 
-      // “Palm-mute”: ataque muy corto + decaimiento rápido + filtro bajo
+      // “Palm-mute”: very short attack + quick decay + low filter
       const a = 0.002, d = 0.06, s = 0.0, r = 0.06;
       g.gain.setValueAtTime(0.0001, when);
       g.gain.linearRampToValueAtTime(vol, when + a);
@@ -303,7 +303,7 @@
       o1.stop(when + a + d + r + 0.02); o2.stop(when + a + d + r + 0.02);
     }
 
-    /* ===== Pattern helpers (Euclídeo) ===== */
+    /* ===== Pattern helpers (Euclidean) ===== */
     function clampInt(v, lo, hi){ return Math.max(lo, Math.min(hi, v|0)); }
     function euclidean(steps, hits){
       steps = clampInt(steps,1,256); hits = clampInt(hits,0,steps);
@@ -326,12 +326,12 @@
     function makeTrack(opts={}){
       const t = {
         id: crypto.randomUUID(),
-        name: opts.name || 'Pista',
+        name: opts.name || 'Track',
         steps: opts.steps ?? 16,
         hits: opts.hits ?? 8,
         offset: opts.offset ?? 0,
-        sound: opts.sound || 'click',   // para modo Drums
-        note: opts.note || '',          // para modo Guitar/Bass (E2, D#3 o MIDI)
+        sound: opts.sound || 'click',   // for Drums mode
+        note: opts.note || '',          // for Guitar/Bass mode (E2, D#3 or MIDI)
         pan: opts.pan ?? 0,
         volume: opts.volume ?? 0.9,
         mute: !!opts.mute,
@@ -376,7 +376,7 @@
         <div class="line">
           <button class="mute">${t.mute?'Unmute':'Mute'}</button>
           <button class="solo">${t.solo?'Unsolo':'Solo'}</button>
-          <button class="delete">Eliminar</button>
+          <button class="delete">Delete</button>
         </div>
       `;
       $('#tracks').appendChild(wrap);
@@ -397,7 +397,7 @@
         if(idx>=0){ tracks.splice(idx,1); wrap.remove(); }
       });
 
-      // Mostrar/ocultar controles según instrumento global
+      // Show/hide controls based on global instrument
       function refreshForInst(){
         const inst = $('#instMode').value;
         const showDrums = (inst==='drums');
@@ -454,7 +454,7 @@
         const steps = clampInt(tr.steps,1,256);
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
 
-        // duración de paso
+        // step duration
         const stepDur = (mode==='polyrhythm') ? (barDur/steps) : ((60/tp)/4);
 
         const sinceStart = Math.max(0, windowStart - startAt);
@@ -511,7 +511,7 @@
       const muted = styles.getPropertyValue('--muted').trim() || '#777';
 
       ctx.save(); ctx.fillStyle = muted; ctx.font = '16px ui-serif, Georgia, serif'; ctx.textAlign='center';
-      ctx.fillText(`${mode==='polyrhythm'?'Polirritmo (ciclo común)':'Polímetro (paso común)'} · ${TP} BPM`, cx, cy - radiusBase - tracks.length*ringGap*0.08 - 20);
+      ctx.fillText(`${mode==='polyrhythm'?'Polyrhythm (common cycle)':'Polymeter (common step)'} · ${TP} BPM`, cx, cy - radiusBase - tracks.length*ringGap*0.08 - 20);
       ctx.restore();
 
       tracks.forEach((tr,i)=>{
@@ -590,11 +590,11 @@
       };
       const txt = JSON.stringify(data, null, 2);
       navigator.clipboard?.writeText(txt).catch(()=>{});
-      alert('Preset copiado al portapapeles.');
+      alert('Preset copied to clipboard.');
     }
 
     function importJSON(){
-      const txt = prompt('Pega el JSON del preset:');
+      const txt = prompt('Paste preset JSON:');
       if(!txt) return;
       try{
         const obj = JSON.parse(txt);
@@ -608,7 +608,7 @@
         $('#tracks').innerHTML=''; tracks.length=0;
         (obj.tracks||[]).forEach(t=> makeTrack(t));
         draw();
-      }catch(e){ alert('JSON inválido'); }
+      }catch(e){ alert('Invalid JSON'); }
     }
 
     /* ===== MIDI Export (SMF Type 0) ===== */
@@ -627,7 +627,7 @@
       const barBeats = parseFloat($('#barLen').value)||4;
       const swing = parseFloat($('#swing').value)||0;
 
-      // exportamos 4 compases para que “caiga” el ciclo
+      // export 4 bars so cycles “land”
       const bars = 4;
       const totalBeats = barBeats * bars;
 
@@ -642,13 +642,13 @@
       events.push({ t:0, data:[0xFF,0x58,0x04, num&0xFF, denomPow, 24, 8 ] });
 
       // Channel assignment
-      // Drums => ch 9 (10 en 1-based). Guitar/Bass => ch 0..7 round-robin y Program Change
+      // Drums => ch 9. Guitar/Bass => ch 0..7 round-robin + Program Change
       let nextMelCh = 0;
       function nextChannel(){ const ch = nextMelCh % 8; nextMelCh++; return ch; }
 
       const drumNoteMap = { kick:36, snare:38, hat:42, clave:75, click:37 };
 
-      // construir eventos por pista
+      // build events per track
       tracks.forEach(tr => {
         const steps = clampInt(tr.steps,1,256);
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
@@ -671,7 +671,7 @@
         }
 
         // timing helpers
-        const stepDurBeats = (rhythmMode==='polyrhythm') ? (barBeats/steps) : (0.25); // 1/16 en polímetro
+        const stepDurBeats = (rhythmMode==='polyrhythm') ? (barBeats/steps) : (0.25); // 1/16 in polymeter
         const totalSteps = Math.round(totalBeats / stepDurBeats);
         const offset = ((tr.offset%steps)+steps)%steps;
 
@@ -679,7 +679,7 @@
           const sIdx = (i + offset) % steps;
           if(!patt[sIdx]) continue;
 
-          // Swing en pares
+          // Swing on pairs
           const swingOffBeats = ((i%2)===1) ? swing*(stepDurBeats*0.5) : 0;
 
           const tBeats = i*stepDurBeats + swingOffBeats;
@@ -727,7 +727,7 @@
     /* ===== Wire UI ===== */
     $('#play').addEventListener('click', () => { if(!isPlaying){ start(); } });
     $('#stop').addEventListener('click', stop);
-    $('#addTrack').addEventListener('click', () => { makeTrack({ name:`Pista ${tracks.length+1}`, steps:16, hits:8, sound:'click' }); draw(); });
+    $('#addTrack').addEventListener('click', () => { makeTrack({ name:`Track ${tracks.length+1}`, steps:16, hits:8, sound:'click' }); draw(); });
     $('#preset').addEventListener('change', e => { const k=e.target.value; if(k) loadPreset(k); e.target.value=''; });
     $('#export').addEventListener('click', exportJSON);
     $('#import').addEventListener('click', importJSON);
