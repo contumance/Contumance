@@ -204,7 +204,7 @@
       "presets": {
         "5_8_2plus3": {
           "label": "5/8 (2+3)",
-          "tags": ["5/8","aksak"],
+          "tags": ["5/8", "aksak"],
           "tempo": 138,
           "barLen": 4,
           "mode": "polymeter",
@@ -219,7 +219,7 @@
         },
         "7_8_2plus2plus3": {
           "label": "7/8 (2+2+3)",
-          "tags": ["7/8","aksak"],
+          "tags": ["7/8", "aksak"],
           "tempo": 132,
           "barLen": 4,
           "mode": "polymeter",
@@ -232,9 +232,24 @@
             { "name": "Hat glue", "steps": 7, "hits": 7, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.55 }
           ]
         },
+        "7_8_3plus2plus2": {
+          "label": "7/8 (3+2+2)",
+          "tags": ["7/8", "aksak"],
+          "tempo": 132,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "Kick 7 (3+2+2)", "steps": 7, "hits": 3, "offset": 1, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Snare answer", "steps": 7, "hits": 2, "offset": 4, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat grid", "steps": 7, "hits": 7, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.55 }
+          ]
+        },
         "9_8_karsilama": {
           "label": "9/8 Karşılama (2+2+2+3)",
-          "tags": ["9/8","karsilama","aksak"],
+          "tags": ["9/8", "karsilama", "aksak"],
           "tempo": 126,
           "barLen": 4,
           "mode": "polymeter",
@@ -246,6 +261,21 @@
             { "name": "Tek fills", "steps": 9, "hits": 3, "offset": 6, "sound": "snare", "pan": 0.06, "volume": 0.9 },
             { "name": "Hat 9 grid", "steps": 9, "hits": 9, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.5 }
           ]
+        },
+        "10_8_3plus2plus2plus3": {
+          "label": "10/8 (3+2+2+3)",
+          "tags": ["10/8", "aksak", "odd"],
+          "tempo": 118,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.01,
+          "inst": "drums",
+          "rootNote": "C2",
+          "tracks": [
+            { "name": "Kick 10", "steps": 10, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Snare phrase", "steps": 10, "hits": 3, "offset": 7, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "Hat drive", "steps": 10, "hits": 10, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.5 }
+          ]
         }
       }
     },
@@ -255,7 +285,7 @@
       "presets": {
         "halftime-chugs": {
           "label": "Halftime chugs (snare on 3)",
-          "tags": ["halftime","breakdown","syncopation"],
+          "tags": ["halftime", "breakdown", "syncopation"],
           "tempo": 150,
           "barLen": 4,
           "mode": "polymeter",
@@ -263,4 +293,185 @@
           "inst": "drums",
           "rootNote": "B1",
           "tracks": [
-            { "name": "Chugs 16", "steps": 16, "hits": 6, "
+            { "name": "Chugs 16", "steps": 16, "hits": 6, "offset": 0, "sound": "kick", "pan": -0.08, "volume": 1.0 },
+            { "name": "Snare on 3", "steps": 8, "hits": 1, "offset": 4, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Ghost hats", "steps": 16, "hits": 12, "offset": 0, "sound": "hat", "pan": 0.08, "volume": 0.45 }
+          ]
+        },
+        "offbeat-backbeats": {
+          "label": "Offbeat backbeats",
+          "tags": ["syncopated", "offbeat", "bounce"],
+          "tempo": 160,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.03,
+          "inst": "drums",
+          "rootNote": "C2",
+          "tracks": [
+            { "name": "Kick sync", "steps": 8, "hits": 5, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Snare off", "steps": 3, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Hat offbeats", "steps": 4, "hits": 2, "offset": 2, "sound": "hat", "pan": 0.1, "volume": 0.55 }
+          ]
+        },
+        "djent-stab-shift": {
+          "label": "Djent stab shift (11 over 8)",
+          "tags": ["djent", "odd", "accent-shift"],
+          "tempo": 112,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.02,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "Stabs 11", "steps": 11, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.08, "volume": 1.0 },
+            { "name": "Backbeat 8", "steps": 8, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Hat 11 glue", "steps": 11, "hits": 11, "offset": 0, "sound": "hat", "pan": 0.12, "volume": 0.5 }
+          ]
+        },
+        "syncop-gallop": {
+          "label": "Syncopated gallop 3-3-2",
+          "tags": ["gallop", "3-3-2", "syncopation"],
+          "tempo": 140,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.03,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "Kick 8 (3-3-2)", "steps": 8, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.06, "volume": 1.0 },
+            { "name": "Snare backbeat", "steps": 8, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Hat drive", "steps": 8, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.08, "volume": 0.5 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "study-packs",
+      "label": "Study packs",
+      "presets": {
+        "543": {
+          "label": "5:4:3 (polyrhythm)",
+          "tags": ["study", "stacked", "polyrhythm"],
+          "tempo": 90,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "5", "steps": 5, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.15, "volume": 1.0 },
+            { "name": "4", "steps": 4, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 },
+            { "name": "3", "steps": 3, "hits": 2, "offset": 0, "sound": "hat", "pan": 0.2, "volume": 0.65 }
+          ]
+        },
+        "3332": {
+          "label": "3-3-3-2 over 4/4 (polymeter)",
+          "tags": ["study", "groupings", "3-3-3-2"],
+          "tempo": 120,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0,
+          "inst": "drums",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "Grouping", "steps": 11, "hits": 4, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "Pulse", "steps": 16, "hits": 4, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Hat", "steps": 16, "hits": 8, "offset": 0, "sound": "hat", "pan": 0.15, "volume": 0.6 }
+          ]
+        },
+        "hemiola-3over2": {
+          "label": "Hemiola 3:2 (polyrhythm)",
+          "tags": ["study", "hemiola", "classic"],
+          "tempo": 84,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0,
+          "inst": "drums",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "3", "steps": 3, "hits": 3, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.95 },
+            { "name": "2", "steps": 2, "hits": 2, "offset": 0, "sound": "kick", "pan": -0.05, "volume": 1.0 },
+            { "name": "Hat", "steps": 6, "hits": 6, "offset": 0, "sound": "hat", "pan": 0.1, "volume": 0.5 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "palm-mutes",
+      "label": "Guitar/Bass palm-mutes",
+      "presets": {
+        "gtr-7over8": {
+          "label": "Guitar: 7 over 8 (polyrhythm)",
+          "tags": ["guitar", "polyrhythm", "pm"],
+          "tempo": 105,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.06,
+          "inst": "guitar",
+          "rootNote": "D2",
+          "tracks": [
+            { "name": "PM riff", "steps": 7, "hits": 4, "offset": 0, "note": "D2", "pan": -0.1, "volume": 0.95 },
+            { "name": "Accent", "steps": 8, "hits": 2, "offset": 0, "note": "A2", "pan": 0.1, "volume": 0.8 }
+          ]
+        },
+        "bass-5over4": {
+          "label": "Bass: 5 over 4 (polyrhythm)",
+          "tags": ["bass", "polyrhythm", "pm"],
+          "tempo": 96,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.04,
+          "inst": "bass",
+          "rootNote": "B1",
+          "tracks": [
+            { "name": "Low pulse", "steps": 5, "hits": 3, "offset": 0, "note": "B1", "pan": 0, "volume": 1.0 },
+            { "name": "Oct accent", "steps": 4, "hits": 2, "offset": 0, "note": "B2", "pan": 0.05, "volume": 0.85 }
+          ]
+        },
+        "gtr-gallop-332": {
+          "label": "Guitar: gallop 3-3-2 (polymeter)",
+          "tags": ["guitar", "gallop", "3-3-2"],
+          "tempo": 140,
+          "barLen": 4,
+          "mode": "polymeter",
+          "swing": 0.03,
+          "inst": "guitar",
+          "rootNote": "E2",
+          "tracks": [
+            { "name": "Gallop", "steps": 8, "hits": 3, "offset": 0, "note": "E2", "pan": -0.05, "volume": 1.0 },
+            { "name": "Accent 4", "steps": 4, "hits": 2, "offset": 0, "note": "B2", "pan": 0.05, "volume": 0.85 }
+          ]
+        },
+        "gtr-13over16": {
+          "label": "Guitar: 13 over 16 (polyrhythm)",
+          "tags": ["guitar", "odd", "dense"],
+          "tempo": 88,
+          "barLen": 4,
+          "mode": "polyrhythm",
+          "swing": 0.05,
+          "inst": "guitar",
+          "rootNote": "C#2",
+          "tracks": [
+            { "name": "Main riff", "steps": 13, "hits": 6, "offset": 0, "note": "C#2", "pan": -0.08, "volume": 0.95 },
+            { "name": "Counter 8", "steps": 8, "hits": 2, "offset": 0, "note": "G#2", "pan": 0.08, "volume": 0.8 }
+          ]
+        }
+      }
+    }
+  ],
+  "presets": {
+    "legacy-example": {
+      "label": "Legacy flat example",
+      "tempo": 110,
+      "barLen": 4,
+      "mode": "polymeter",
+      "swing": 0,
+      "inst": "drums",
+      "rootNote": "E2",
+      "tracks": [
+        { "name": "Kick", "steps": 8, "hits": 3, "offset": 0, "sound": "kick", "pan": -0.1, "volume": 1.0 },
+        { "name": "Snare", "steps": 8, "hits": 2, "offset": 0, "sound": "snare", "pan": 0, "volume": 0.9 }
+      ]
+    }
+  }
+}
