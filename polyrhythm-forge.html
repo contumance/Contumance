@@ -134,12 +134,10 @@
             <button id="stop" type="button">Stop</button>
             <button id="addTrack" type="button">+ Track</button>
 
-            <select id="preset">
+            <!-- Presets agrupados desde JSON externo -->
+            <select id="preset" title="Load a preset from polyrhythm-presets.json">
               <option value="">— Load preset —</option>
-              <option value="bleedish">Bleed-ish 23:16 (polymeter)</option>
-              <option value="clave32">3:2 clave (polyrhythm)</option>
-              <option value="543">5:4:3 (polyrhythm)</option>
-              <option value="711">7:11 hats+kicks (polymeter)</option>
+              <!-- grupos/opciones se agregan por JS -->
             </select>
 
             <button id="export" type="button">Export JSON</button>
@@ -292,7 +290,6 @@
       const f = midiToFreq(midi);
       o1.frequency.value = f; o2.frequency.value = f;
 
-      // “Palm-mute”: very short attack + quick decay + low filter
       const a = 0.002, d = 0.06, s = 0.0, r = 0.06;
       g.gain.setValueAtTime(0.0001, when);
       g.gain.linearRampToValueAtTime(vol, when + a);
@@ -330,8 +327,8 @@
         steps: opts.steps ?? 16,
         hits: opts.hits ?? 8,
         offset: opts.offset ?? 0,
-        sound: opts.sound || 'click',   // for Drums mode
-        note: opts.note || '',          // for Guitar/Bass mode (E2, D#3 or MIDI)
+        sound: opts.sound || 'click',
+        note: opts.note || '',
         pan: opts.pan ?? 0,
         volume: opts.volume ?? 0.9,
         mute: !!opts.mute,
@@ -382,9 +379,9 @@
       $('#tracks').appendChild(wrap);
 
       const q = sel => wrap.querySelector(sel);
-      q('.steps').addEventListener('change', e => { t.steps = clampInt(e.target.value,1,64); t.pattern = euclidean(t.steps, t.hits); q('.stepsLab').textContent = t.steps; });
-      q('.hits').addEventListener('change', e => { t.hits = clampInt(e.target.value,0,64); t.pattern = euclidean(t.steps, t.hits); q('.hitsLab').textContent = t.hits; });
-      q('.offset').addEventListener('change', e => { t.offset = clampInt(e.target.value,0,128); q('.offLab').textContent = t.offset; });
+      q('.steps').addEventListener('change', e => { t.steps = Math.max(1, Math.min(64, e.target.value|0)); t.pattern = euclidean(t.steps, t.hits); q('.stepsLab').textContent = t.steps; });
+      q('.hits').addEventListener('change', e => { t.hits = Math.max(0, Math.min(64, e.target.value|0)); t.pattern = euclidean(t.steps, t.hits); q('.hitsLab').textContent = t.hits; });
+      q('.offset').addEventListener('change', e => { t.offset = Math.max(0, Math.min(128, e.target.value|0)); q('.offLab').textContent = t.offset; });
       q('.sound').addEventListener('change', e => { t.sound = e.target.value; q('.sndLab').textContent = t.sound; });
       q('.note').addEventListener('change', e => { t.note = e.target.value.trim(); q('.noteLab').textContent = t.note||'-'; });
       q('.pan').addEventListener('input', e => { t.pan = parseFloat(e.target.value)||0; });
@@ -397,16 +394,15 @@
         if(idx>=0){ tracks.splice(idx,1); wrap.remove(); }
       });
 
-      // Show/hide controls based on global instrument
       function refreshForInst(){
         const inst = $('#instMode').value;
         const showDrums = (inst==='drums');
         q('.labSound').style.display = showDrums ? '' : 'none';
-        q('.sound').style.display = showDrums ? '' : 'none';
+        q('.sound').style.display = showDrums ? 'inline-block' : 'none';
         q('.sndTag').style.display = showDrums ? '' : 'none';
 
         q('.labNote').style.display = showDrums ? 'none' : '';
-        q('.note').style.display = showDrums ? 'none' : '';
+        q('.note').style.display = showDrums ? 'none' : 'inline-block';
         q('.noteTag').style.display = showDrums ? 'none' : '';
       }
       $('#instMode').addEventListener('change', refreshForInst);
@@ -451,10 +447,9 @@
         const audible = (!soloed || tr.solo) && !tr.mute && tr.volume>0.001;
         if(!audible) return;
 
-        const steps = clampInt(tr.steps,1,256);
+        const steps = Math.max(1, Math.min(256, tr.steps|0));
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
 
-        // step duration
         const stepDur = (mode==='polyrhythm') ? (barDur/steps) : ((60/tp)/4);
 
         const sinceStart = Math.max(0, windowStart - startAt);
@@ -515,7 +510,7 @@
       ctx.restore();
 
       tracks.forEach((tr,i)=>{
-        const steps = clampInt(tr.steps,1,256);
+        const steps = Math.max(1, Math.min(256, tr.steps|0));
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
         const r = radiusBase - i*ringGap;
 
@@ -550,31 +545,113 @@
       if(isPlaying) requestAnimationFrame(draw);
     }
 
-    /* ===== Presets / Import / Export (JSON) ===== */
-    function loadPreset(key){
-      $('#tracks').innerHTML=''; tracks.length=0;
-      if(key==='bleedish'){
-        makeTrack({ name:'Kick', steps:23, hits:8, offset:0, sound:'kick', pan:-0.05, volume:1.0 });
-        makeTrack({ name:'Snare backbeat', steps:16, hits:4, offset:0, sound:'snare', pan:0, volume:0.9 });
-        makeTrack({ name:'Hat grid', steps:16, hits:11, offset:0, sound:'hat', pan:0.1, volume:0.6 });
-        $('#mode').value = 'polymeter'; $('#tempo').value = 120; $('#instMode').value='drums';
-      }else if(key==='clave32'){
-        makeTrack({ name:'Low', steps:3, hits:2, offset:0, sound:'kick', pan:-0.2, volume:1.0 });
-        makeTrack({ name:'High', steps:2, hits:1, offset:0, sound:'snare', pan:0.2, volume:0.9 });
-        $('#mode').value = 'polyrhythm'; $('#tempo').value = 100; $('#instMode').value='drums';
-      }else if(key==='543'){
-        makeTrack({ name:'5', steps:5, hits:3, offset:0, sound:'kick', pan:-0.15, volume:1.0 });
-        makeTrack({ name:'4', steps:4, hits:2, offset:0, sound:'snare', pan:0, volume:0.9 });
-        makeTrack({ name:'3', steps:3, hits:2, offset:0, sound:'hat', pan:0.2, volume:0.65 });
-        $('#mode').value = 'polyrhythm'; $('#tempo').value = 90; $('#instMode').value='drums';
-      }else if(key==='711'){
-        makeTrack({ name:'Kick 7', steps:7, hits:3, offset:0, sound:'kick', pan:-0.1, volume:1.0 });
-        makeTrack({ name:'Hat 11', steps:11, hits:6, offset:0, sound:'hat', pan:0.15, volume:0.7 });
-        $('#mode').value = 'polymeter'; $('#tempo').value = 130; $('#instMode').value='drums';
+    /* ===== Presets externos con grupos (JSON) ===== */
+    const PRESET_URL = 'polyrhythm-presets.json';
+    let GROUPS = [];         // [{id,label,presets:{key->obj}}]
+    let FLAT_PRESETS = {};   // presets||legacy
+    function populatePresetSelect(){
+      const sel = $('#preset');
+      // eliminar todo menos el placeholder
+      [...sel.querySelectorAll('optgroup, option:not([value=""])')].forEach(n=>n.remove());
+
+      // 1) grupos
+      (GROUPS||[]).forEach(g=>{
+        const og = document.createElement('optgroup');
+        og.label = g.label || g.id || 'Group';
+        const keys = Object.keys(g.presets||{});
+        keys.forEach(k=>{
+          const p = g.presets[k];
+          const opt = document.createElement('option');
+          opt.value = `group::${g.id}::${k}`;
+          const tags = (p.tags && p.tags.length) ? ` — ${p.tags.slice(0,3).join(', ')}` : '';
+          opt.textContent = (p.label || k) + tags;
+          og.appendChild(opt);
+        });
+        if(og.children.length) sel.appendChild(og);
+      });
+
+      // 2) plano (si hay)
+      const flatKeys = Object.keys(FLAT_PRESETS||{});
+      if(flatKeys.length){
+        const og = document.createElement('optgroup');
+        og.label = 'Other / Ungrouped';
+        flatKeys.forEach(k=>{
+          const p = FLAT_PRESETS[k];
+          const opt = document.createElement('option');
+          opt.value = `flat::${k}`;
+          const tags = (p.tags && p.tags.length) ? ` — ${p.tags.slice(0,3).join(', ')}` : '';
+          opt.textContent = (p.label || k) + tags;
+          og.appendChild(opt);
+        });
+        sel.appendChild(og);
       }
+
+      if(!sel.querySelector('optgroup')){
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No external presets found';
+        opt.disabled = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    async function loadExternalPresets(){
+      try{
+        const resp = await fetch(PRESET_URL, {cache:'no-store'});
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        const data = await resp.json();
+        GROUPS = Array.isArray(data.groups) ? data.groups : [];
+        // compat: admite “presets” plano en la raíz
+        FLAT_PRESETS = (data && data.presets && typeof data.presets==='object') ? data.presets : {};
+        populatePresetSelect();
+      }catch(err){
+        console.warn('Could not load external presets:', err);
+        GROUPS = []; FLAT_PRESETS = {};
+        populatePresetSelect();
+        $('#preset').title = 'Could not load polyrhythm-presets.json (serve over HTTP, not file://)';
+      }
+    }
+
+    function clearTracks(){ $('#tracks').innerHTML=''; tracks.length=0; }
+
+    function applyPresetObject(obj){
+      if(!obj) return;
+      $('#tempo').value    = obj.tempo    ?? 120;
+      $('#barLen').value   = obj.barLen   ?? 4;
+      $('#mode').value     = obj.mode     ?? 'polymeter';
+      $('#swing').value    = obj.swing    ?? 0;
+      $('#instMode').value = obj.inst     ?? 'drums';
+      $('#rootNote').value = obj.rootNote ?? 'E2';
+      $('#swingVal').textContent = `swing: ${Math.round((obj.swing||0)*100)}%`;
+
+      clearTracks();
+      (obj.tracks||[]).forEach(t=> makeTrack(t));
       draw();
     }
 
+    function findPresetByToken(token){
+      // token: "group::groupId::key"  |  "flat::key"
+      if(!token) return null;
+      const parts = token.split('::');
+      if(parts[0]==='group' && parts.length===3){
+        const gid = parts[1], key = parts[2];
+        const g = GROUPS.find(x=>x.id===gid);
+        return g && g.presets ? g.presets[key] : null;
+      }
+      if(parts[0]==='flat' && parts.length===2){
+        const key = parts[1];
+        return FLAT_PRESETS[key] || null;
+      }
+      return null;
+    }
+
+    function applyPresetByToken(token){
+      const p = findPresetByToken(token);
+      if(!p){ alert('Preset not found'); return; }
+      applyPresetObject(p);
+    }
+
+    /* ===== Export / Import JSON (manual) ===== */
     function exportJSON(){
       const data = {
         tempo: parseFloat($('#tempo').value)||120,
@@ -598,28 +675,17 @@
       if(!txt) return;
       try{
         const obj = JSON.parse(txt);
-        $('#tempo').value = obj.tempo||120;
-        $('#barLen').value = obj.barLen||4;
-        $('#mode').value = obj.mode||'polymeter';
-        $('#swing').value = obj.swing||0;
-        $('#instMode').value = obj.inst||'drums';
-        $('#rootNote').value = obj.rootNote||'E2';
-        $('#swingVal').textContent = `swing: ${Math.round((obj.swing||0)*100)}%`;
-        $('#tracks').innerHTML=''; tracks.length=0;
-        (obj.tracks||[]).forEach(t=> makeTrack(t));
-        draw();
+        applyPresetObject(obj);
       }catch(e){ alert('Invalid JSON'); }
     }
 
     /* ===== MIDI Export (SMF Type 0) ===== */
     function vlq(n){ const bytes=[]; let buffer = n & 0x7F; while((n >>= 7)){ buffer <<= 8; buffer |= ((n & 0x7F) | 0x80); } while(true){ bytes.push(buffer & 0xFF); if(buffer & 0x80) buffer >>= 8; else break; } return bytes; }
     function pushBytes(arr, ...vals){ vals.forEach(v=>arr.push(v&0xFF)); }
-    function textBytes(str){ return Array.from(new TextEncoder().encode(str)); }
-
     function buildMIDI(){
-      const tpq = 480; // ticks per quarter
+      const tpq = 480;
       const tempoBPM = parseFloat($('#tempo').value)||120;
-      const mpq = Math.round(60000000/tempoBPM); // microseconds per quarter
+      const mpq = Math.round(60000000/tempoBPM);
 
       const mode = $('#instMode').value;
       const rootMidi = midiFromInput($('#rootNote').value||'E2');
@@ -627,30 +693,20 @@
       const barBeats = parseFloat($('#barLen').value)||4;
       const swing = parseFloat($('#swing').value)||0;
 
-      // export 4 bars so cycles “land”
       const bars = 4;
       const totalBeats = barBeats * bars;
 
-      // Events: [ {t, data:[..]} ] in ticks
       const events = [];
-
-      // Track header meta
-      // Tempo
       events.push({ t:0, data:[0xFF,0x51,0x03, (mpq>>16)&0xFF, (mpq>>8)&0xFF, mpq&0xFF ] });
-      // TimeSig meta (barBeats / 4)
-      const num = barBeats|0, denomPow = 2; // 4 is 2^2
+      const num = barBeats|0, denomPow = 2;
       events.push({ t:0, data:[0xFF,0x58,0x04, num&0xFF, denomPow, 24, 8 ] });
 
-      // Channel assignment
-      // Drums => ch 9. Guitar/Bass => ch 0..7 round-robin + Program Change
       let nextMelCh = 0;
       function nextChannel(){ const ch = nextMelCh % 8; nextMelCh++; return ch; }
-
       const drumNoteMap = { kick:36, snare:38, hat:42, clave:75, click:37 };
 
-      // build events per track
       tracks.forEach(tr => {
-        const steps = clampInt(tr.steps,1,256);
+        const steps = Math.max(1, Math.min(256, tr.steps|0));
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
         if(patt.reduce((a,b)=>a+b,0)===0) return;
 
@@ -665,13 +721,11 @@
         }else{
           ch = nextChannel();
           noteNumber = tr.note ? midiFromInput(tr.note) : rootMidi;
-          program = (mode==='guitar') ? 28 : 33; // Muted Guitar (29 1-based) / Fingered Bass (34 1-based)
-          // Program Change at time 0
+          program = (mode==='guitar') ? 28 : 33;
           events.push({ t:0, data:[0xC0 | (ch&0x0F), program&0x7F] });
         }
 
-        // timing helpers
-        const stepDurBeats = (rhythmMode==='polyrhythm') ? (barBeats/steps) : (0.25); // 1/16 in polymeter
+        const stepDurBeats = (rhythmMode==='polyrhythm') ? (barBeats/steps) : (0.25);
         const totalSteps = Math.round(totalBeats / stepDurBeats);
         const offset = ((tr.offset%steps)+steps)%steps;
 
@@ -679,40 +733,30 @@
           const sIdx = (i + offset) % steps;
           if(!patt[sIdx]) continue;
 
-          // Swing on pairs
           const swingOffBeats = ((i%2)===1) ? swing*(stepDurBeats*0.5) : 0;
 
           const tBeats = i*stepDurBeats + swingOffBeats;
           const tTicks = Math.round(tBeats * tpq);
-          const durTicks = Math.max(30, Math.round(stepDurBeats * tpq * 0.5)); // 50% gate
+          const durTicks = Math.max(30, Math.round(stepDurBeats * tpq * 0.5));
+          const vel = Math.max(1, Math.min(127, Math.round((tr.volume||0.9)*100)+20));
 
-          const vel = clampInt(Math.round((tr.volume||0.9)*100)+20, 1, 127);
-
-          // Note On
           events.push({ t:tTicks, data:[0x90 | (ch&0x0F), noteNumber&0x7F, vel] });
-          // Note Off
           events.push({ t:tTicks+durTicks, data:[0x80 | (ch&0x0F), noteNumber&0x7F, 0x40] });
         }
       });
 
-      // sort by time, then note-off before note-on at same tick
       events.sort((a,b)=> a.t!==b.t ? a.t-b.t : (a.data[0]===0x90 && b.data[0]===0x80 ? 1 : -1));
 
-      // build track bytes with delta-times
       let track = [];
       let lastT = 0;
       for(const ev of events){
         const dt = ev.t - lastT; lastT = ev.t;
         track.push(...vlq(dt), ...ev.data);
       }
-      // End of Track
       track.push(...vlq(0), 0xFF, 0x2F, 0x00);
 
-      // Header chunk MThd
       const header = [];
-      // format 0, ntrks=1, division=tpq
       pushBytes(header, 0x4D,0x54,0x68,0x64, 0x00,0x00,0x00,0x06, 0x00,0x00, 0x00,0x01, (tpq>>8)&0xFF, tpq&0xFF);
-      // Track chunk MTrk
       const trkLen = track.length;
       const trkHeader = [0x4D,0x54,0x72,0x6B, (trkLen>>>24)&0xFF, (trkLen>>>16)&0xFF, (trkLen>>>8)&0xFF, trkLen&0xFF];
 
@@ -728,7 +772,7 @@
     $('#play').addEventListener('click', () => { if(!isPlaying){ start(); } });
     $('#stop').addEventListener('click', stop);
     $('#addTrack').addEventListener('click', () => { makeTrack({ name:`Track ${tracks.length+1}`, steps:16, hits:8, sound:'click' }); draw(); });
-    $('#preset').addEventListener('change', e => { const k=e.target.value; if(k) loadPreset(k); e.target.value=''; });
+    $('#preset').addEventListener('change', e => { const tok=e.target.value; if(tok) applyPresetByToken(tok); e.target.value=''; });
     $('#export').addEventListener('click', exportJSON);
     $('#import').addEventListener('click', importJSON);
     $('#exportMidi').addEventListener('click', buildMIDI);
@@ -738,11 +782,12 @@
     window.addEventListener('pointerdown', resumeOnce, {capture:true, once:true});
     window.addEventListener('keydown', resumeOnce, {capture:true, once:true});
 
-    // Init
-    (function init(){
-      makeTrack({ name:'Kick', steps:16, hits:4, sound:'kick', pan:-0.05, volume:1.0 });
-      makeTrack({ name:'Snare', steps:16, hits:4, offset:8, sound:'snare', pan:0, volume:0.9 });
-      makeTrack({ name:'Hat', steps:16, hits:8, sound:'hat', pan:0.1, volume:0.6 });
+    (async function init(){
+      await loadExternalPresets();
+      // estado inicial
+      makeTrack({ name:'Kick',  steps:16, hits:4,  sound:'kick',  pan:-0.05, volume:1.0 });
+      makeTrack({ name:'Snare', steps:16, hits:4,  offset:8, sound:'snare', pan:0,    volume:0.9 });
+      makeTrack({ name:'Hat',   steps:16, hits:8,  sound:'hat',   pan:0.1,  volume:0.6 });
       draw();
     })();
   </script>
