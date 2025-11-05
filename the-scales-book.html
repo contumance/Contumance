@@ -50,7 +50,6 @@
     html.theme-dark details.panel{background:rgba(0,0,0,.1);}
     details.panel>summary{cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);}
     details.panel>summary::-webkit-details-marker{display:none;}
-    /* chevron */
     details.panel>summary::after { content: "▾"; float: right; transition: transform .2s ease; }
     details.panel[open]>summary::after { transform: rotate(180deg); }
     details.panel .panel-body{padding:.6rem .8rem .9rem;}
@@ -65,50 +64,19 @@
     .tuning{display:grid; gap:8px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr));}
     .tuning .string-card{border:1px solid var(--accent); border-radius:.6rem; background:transparent; padding:8px;}
     .octv{display:flex; align-items:center; gap:6px; font-size:12px; opacity:.9}
-
-    .piano-wrap{
-      border:1px solid var(--accent); border-radius:.6rem; background:transparent;
-      margin:14px 0 18px; padding:10px 10px 14px;
-    }
+    .piano-wrap{border:1px solid var(--accent); border-radius:.6rem; background:transparent; margin:14px 0 18px; padding:10px 10px 14px;}
     .piano-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; font-size:.95rem;}
     .piano-caption{color:var(--muted); font-size:.85rem;}
-
-    /* ---- Inline support note (in-flow) ---- */
-    .support-note{
-      display:none; /* visible vía JS */
-      border:1px solid var(--accent);
-      border-radius:.6rem;
-      padding:.8rem .9rem;
-      margin:12px 0 16px;
-      font-size:.95rem;
-      background: color-mix(in oklab, var(--paper) 88%, var(--accent) 12%);
-      color: var(--ink);
-    }
-    html.theme-dark .support-note{
-      background: color-mix(in oklab, var(--ink) 70%, var(--accent) 30%);
-      color: var(--paper);
-    }
-    .support-note .actions{
-      display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.45rem;
-    }
-    .support-note .btn{
-      display:inline-flex; align-items:center; gap:.45rem; text-decoration:none;
-      border:1px solid var(--accent); border-radius:999px; padding:.4rem .85rem; font-weight:600;
-      transition:transform .08s ease, background-color .2s ease, color .2s ease;
-    }
+    .support-note{display:none; border:1px solid var(--accent); border-radius:.6rem; padding:.8rem .9rem; margin:12px 0 16px; font-size:.95rem;
+      background: color-mix(in oklab, var(--paper) 88%, var(--accent) 12%); color: var(--ink);}
+    html.theme-dark .support-note{background: color-mix(in oklab, var(--ink) 70%, var(--accent) 30%); color: var(--paper);}
+    .support-note .actions{display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.45rem;}
+    .support-note .btn{display:inline-flex; align-items:center; gap:.45rem; text-decoration:none; border:1px solid var(--accent); border-radius:999px; padding:.4rem .85rem; font-weight:600; transition:transform .08s ease, background-color .2s ease, color .2s ease;}
     .support-note .btn:active{ transform:scale(.98); }
     .support-note .btn svg{ width:1.05rem; height:1.05rem; stroke:currentColor; }
-    html:not(.theme-dark) .support-note .btn{
-      background: color-mix(in oklab, var(--paper) 85%, var(--accent) 15%); color: var(--ink);
-    }
-    html.theme-dark .support-note .btn{
-      background: color-mix(in oklab, var(--ink) 55%, var(--accent) 45%); color: var(--paper);
-    }
-    .support-note .dismiss{
-      appearance:none; background:none; border:none; padding:.25rem .4rem; cursor:pointer;
-      color:inherit; opacity:.75; text-decoration:underline; text-underline-offset:2px; font-size:.9rem;
-    }
-
+    html:not(.theme-dark) .support-note .btn{ background: color-mix(in oklab, var(--paper) 85%, var(--accent) 15%); color: var(--ink); }
+    html.theme-dark .support-note .btn{ background: color-mix(in oklab, var(--ink) 55%, var(--accent) 45%); color: var(--paper); }
+    .support-note .dismiss{appearance:none; background:none; border:none; padding:.25rem .4rem; cursor:pointer; color:inherit; opacity:.75; text-decoration:underline; text-underline-offset:2px; font-size:.9rem;}
     .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent;}
     .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(24,1fr); position:relative; width:100%;}
     .string{display:contents;}
@@ -132,49 +100,13 @@
         background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease;}
       a:hover, a:focus-visible{background-size:100% 1px; outline:none;}
     }
-
-    /* Footer base */
-    footer{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:.25rem;
-      font-size:.9rem;
-      opacity:.9;
-      padding:1.5rem 0;
-    }
-    /* Botón Buy Me a Coffee adaptado al tema */
-    footer .btn{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      text-decoration:none;
-      border:1px solid var(--accent);
-      border-radius:999px;
-      padding:.45rem .95rem;
-      font-size:.9rem;
-      font-weight:500;
-      transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
-    }
-    /* Modo claro */
-    html:not(.theme-dark) footer .btn{
-      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
-      color:var(--ink);
-    }
-    html:not(.theme-dark) footer .btn:hover{
-      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
-    }
-    /* Modo oscuro */
-    html.theme-dark footer .btn{
-      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
-      color:var(--paper);
-    }
-    html.theme-dark footer .btn:hover{
-      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
-    }
-    /* Ícono coherente con el color del texto */
+    footer{display:flex; flex-direction:column; align-items:center; gap:.25rem; font-size:.9rem; opacity:.9; padding:1.5rem 0;}
+    footer .btn{display:inline-flex; align-items:center; gap:.5rem; text-decoration:none; border:1px solid var(--accent); border-radius:999px; padding:.45rem .95rem; font-size:.9rem; font-weight:500; transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;}
+    html:not(.theme-dark) footer .btn{ background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink); }
+    html:not(.theme-dark) footer .btn:hover{ background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%); }
+    html.theme-dark footer .btn{ background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper); }
+    html.theme-dark footer .btn:hover{ background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%); }
     footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
-    /* Texto complementario */
     footer .note{font-size:.85rem;color:var(--muted)}
     footer .byline{font-size:.75rem;opacity:.7}
     footer .byline em{font-style:italic;letter-spacing:.02em}
@@ -211,7 +143,9 @@
           </div>
           <div class="row">
             <label for="scale">Scale</label>
-            <select id="scale"></select>
+            <select id="scale" disabled>
+              <option>Loading scales…</option>
+            </select>
           </div>
           <div class="row">
             <label for="labels">Labels</label>
@@ -221,7 +155,6 @@
               <option value="off">Hidden</option>
             </select>
           </div>
-          <!-- synth extras -->
           <div class="row">
             <label for="wave">Wave</label>
             <select id="wave">
@@ -246,7 +179,6 @@
       </div>
     </section>
 
-    <!-- ===== Piano (one octave C–C) ===== -->
     <section class="piano-wrap" aria-label="Piano octave">
       <div class="piano-head">
         <div><strong>Piano</strong> - one octave</div>
@@ -255,7 +187,6 @@
       <div id="pianoContainer" style="width:100%; overflow:hidden;"></div>
     </section>
 
-    <!-- ===== Inline Support Note ===== -->
     <section class="support-note" id="supportInline" aria-label="Support this project">
       <p style="margin:0">
         Did this page help you hear the fretboard differently? If you want to keep <strong>Re:sonance</strong> growing,
@@ -277,7 +208,6 @@
     <p class="footer">Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).</p>
 
     <footer>
-      <!-- Botón Buy Me a Coffee adaptado al tema (sin script externo) -->
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
          aria-label="Support this library on Buy Me a Coffee">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -287,7 +217,6 @@
         </svg>
         <span>Buy me a coffee</span>
       </a>
-
       <span class="note">Fuel the craft. Inspire the next page.</span>
       <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
@@ -312,196 +241,71 @@
     })();
   </script>
 
-<!-- Support inline logic (2 days, page-scoped + force flag) -->
-<script>
-  (function supportInlineLogic(){
-    const el  = document.getElementById('supportInline');
-    const btn = document.getElementById('dismissSupport');
-    if(!el || !btn) return;
+  <!-- Support inline logic (2 days, page-scoped + force flag) -->
+  <script>
+    (function supportInlineLogic(){
+      const el  = document.getElementById('supportInline');
+      const btn = document.getElementById('dismissSupport');
+      if(!el || !btn) return;
 
-    // Fuerza mostrar si URL contiene ?support=1 o #support
-    const FORCE = /[?&]support=1\b/.test(location.search) || location.hash === '#support';
-
-    // Key ESPECÍFICA de esta página (Scales)
-    const KEY = 'support-note:scales:v1:dismissedUntil';
-
-    // Si no hay force y aún está dentro del periodo de silencio, no mostrar
-    const now = Date.now();
-    const until = Number(localStorage.getItem(KEY) || 0);
-    if (!FORCE && now < until) {
-      el.style.display = 'none';
-      return;
-    }
-
-    // Mostrar
-    el.style.display = 'block';
-
-    // Al descartar, guardar 14 días de silencio
-    btn.addEventListener('click', () => {
-      const someDaysMs = 2 * 24 * 60 * 60 * 1000;
-      localStorage.setItem(KEY, String(Date.now() + someDaysMs));
-      el.style.display = 'none';
-    });
-  })();
-</script>
+      const FORCE = /[?&]support=1\b/.test(location.search) || location.hash === '#support';
+      const KEY = 'support-note:scales:v1:dismissedUntil';
+      const now = Date.now();
+      const until = Number(localStorage.getItem(KEY) || 0);
+      if (!FORCE && now < until) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      btn.addEventListener('click', () => {
+        const someDaysMs = 2 * 24 * 60 * 60 * 1000;
+        localStorage.setItem(KEY, String(Date.now() + someDaysMs));
+        el.style.display = 'none';
+      });
+    })();
+  </script>
 
   <!-- Main app -->
   <script>
     (function(){
       // ------- Musical data -------
-      var NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-var SCALES = {
-  "Acoustic (Lydian Dominant b7)": [0,2,4,6,7,9,10],
-  "Aeolian ♭5": [0,2,3,5,6,8,10],
-  "Aeolian Dominant": [0,2,4,5,7,8,10],
-  "Altered (Super Locrian)": [0,1,3,4,6,8,10],
-  "Altered dominant": [0,1,3,4,6,8,10],
-  "Andalusian": [0,1,4,5,7,8,10],
-  "Arabic Hijaz Kar": [0,1,4,5,7,8,11],
-  "Augmented": [0,3,4,7,8,11],
-  "Augmented Heptatonic": [0,2,4,5,8,9,11],
-  "Augmented triad scale": [0,3,4,7,8,11],
-  "Balinese (Pelog)": [0,1,3,7,8],
-  "Bartók": [0,2,4,5,7,8,10],
-  "Blues hexatonic": [0,3,5,6,7,10],
-  "Blues major": [0,2,3,4,7,9],
-  "Blues minor": [0,3,5,6,7,10],
-  "Blues mixolydian": [0,2,3,4,5,7,9,10],
-  "Bhairav": [0,1,4,5,7,8,11],
-  "Byzantine": [0,1,4,5,7,8,11],
-  "Chinese Gong": [0,2,4,7,9],
-  "Chinese Jue": [0,3,5,8,10],
-  "Chinese Shang": [0,2,5,7,10],
-  "Chinese Yu": [0,3,5,7,10],
-  "Chinese Zhi": [0,2,5,7,9],
-  "Chromatic": [0,1,2,3,4,5,6,7,8,9,10,11],
-  "Dorian": [0,2,3,5,7,9,10],
-  "Dorian ♭2": [0,1,3,5,7,9,10],
-  "Double harmonic (Arabic)": [0,1,4,5,7,8,11],
-  "Double harmonic major": [0,1,4,5,7,8,11],
-  "Dominant bebop": [0,2,4,5,7,9,10,11],
-  "Dominant diminished": [0,2,3,5,6,8,9,11],
-  "Egyptian": [0,2,5,7,10],
-  "Enigmatic": [0,1,4,6,8,10,11],
-  "Enigmatic minor": [0,1,3,6,8,10,11],
-  "Fibonacci (approx.)": [0,1,2,3,5,8],
-  "Flamenco": [0,1,4,5,7,8,10],
-  "Flamenco dominant": [0,1,4,5,7,8,10],
-  "Fourth-based": [0,5,10],
-  "Gypsy major": [0,1,4,5,7,8,10],
-  "Gypsy minor": [0,2,3,6,7,8,11],
-  "Half diminished (Locrian #2)": [0,2,3,5,6,8,10],
-  "Half-whole diminished": [0,1,3,4,6,7,9,10],
-  "Harmonic major": [0,2,4,5,7,8,11],
-  "Harmonic minor": [0,2,3,5,7,8,11],
-  "Harmonic minor ♭5": [0,2,3,5,6,8,11],
-  "Hirajoshi (Japanese)": [0,2,3,7,8],
-  "Hijaz": [0,1,4,5,7,8,10],
-  "Hungarian gypsy": [0,2,3,6,7,8,11],
-  "Hungarian major": [0,3,4,6,7,9,10],
-  "Hungarian minor": [0,2,3,6,7,8,11],
-  "Ionian ♯5": [0,2,4,5,8,9,11],
-  "Ionian Augmented": [0,2,4,5,8,9,11],
-  "Japanese In Sen": [0,1,5,7,10],
-  "Japanese Kumoi": [0,2,3,7,9],
-  "Japanese Yo": [0,2,5,7,9],
-  "Kafi (Raga)": [0,2,3,5,7,9,10],
-  "Leading whole tone": [0,2,4,6,8,10,11],
-  "Locrian": [0,1,3,5,6,8,10],
-  "Locrian natural 2": [0,2,3,5,6,8,10],
-  "Locrian major": [0,2,4,5,6,8,10],
-  "Lydian": [0,2,4,6,7,9,11],
-  "Lydian augmented": [0,2,4,6,8,9,11],
-  "Lydian b7": [0,2,4,6,7,9,10],
-  "Lydian dominant": [0,2,4,6,7,9,10],
-  "Major (Ionian)": [0,2,4,5,7,9,11],
-  "Major bebop": [0,2,4,5,7,8,9,11],
-  "Major Locrian": [0,2,4,5,6,8,10],
-  "Major pentatonic": [0,2,4,7,9],
-  "Melodic minor (asc)": [0,2,3,5,7,9,11],
-  "Messiaen mode 3": [0,2,3,4,6,7,8,10,11],
-  "Messiaen mode 4": [0,1,2,5,6,7,8,11],
-  "Messiaen mode 5": [0,1,5,6,7,11],
-  "Messiaen mode 6": [0,2,4,5,6,8,10,11],
-  "Messiaen mode 7": [0,1,2,3,5,6,7,8,10,11],
-  "Middle Eastern": [0,1,4,5,7,8,10],
-  "Minor 6 Dorian": [0,2,3,5,7,9,10,11],
-  "Minor bebop": [0,2,3,5,7,8,9,10],
-  "Minor-major (Melodic minor variant)": [0,2,3,5,7,9,11],
-  "Mixolydian": [0,2,4,5,7,9,10],
-  "Mixolydian b6": [0,2,4,5,7,8,10],
-  "Mixolydian b9 b13": [0,1,4,5,7,8,10],
-  "Natural minor (Aeolian)": [0,2,3,5,7,8,10],
-  "Neapolitan major": [0,1,3,5,7,9,11],
-  "Neapolitan minor": [0,1,3,5,7,8,11],
-  "Nine tone scale": [0,1,2,4,5,6,8,9,10],
-  "Octatonic (Diminished)": [0,2,3,5,6,8,9,11],
-  "Octatonic (Dominant Dim)": [0,1,3,4,6,7,9,10],
-  "Octatonic (Half-Whole)": [0,1,3,4,6,7,9,10],
-  "Octatonic (Whole-Half)": [0,2,3,5,6,8,9,11],
-  "Overtone (Lydian dominant natural 13)": [0,2,4,6,7,9,10],
-  "Persian": [0,1,4,5,6,8,11],
-  "Persian diminished": [0,1,4,5,6,9,10],
-  "Phrygian": [0,1,3,5,7,8,10],
-  "Phrygian dominant": [0,1,4,5,7,8,10],
-  "Prometheus": [0,2,4,6,9,10],
-  "Prometheus Neapolitan": [0,1,4,6,9,10],
-  "Raga Ahir Bhairav": [0,1,4,5,7,9,10],
-  "Raga Asavari": [0,2,3,5,7,8,10],
-  "Raga Bhairav": [0,1,4,5,7,8,11],
-  "Raga Bhairavi": [0,1,3,5,7,8,10],
-  "Raga Charukeshi": [0,2,4,5,7,8,10],
-  "Raga Hamsadhwani": [0,2,4,7,11],
-  "Raga Kalyan": [0,2,4,6,7,9,11],
-  "Raga Kirwani": [0,2,3,5,7,8,11],
-  "Raga Marva": [0,1,4,6,7,9,11],
-  "Raga Todi": [0,1,3,6,7,8,11],
-  "Romanian minor": [0,2,3,6,7,9,10],
-  "Rumba": [0,2,4,5,7,9,10],
-  "Ryukyu (Okinawan)": [0,4,5,7,11],
-  "Siam (Thai)": [0,1,3,5,7,10],
-  "Six tone symmetric": [0,2,4,6,8,10],
-  "Spanish (Phrygian dominant variant)": [0,1,3,4,5,7,8,10],
-  "Spanish 8-tone": [0,1,3,4,5,6,8,10],
-  "Symmetric diminished": [0,1,3,4,6,7,9,10],
-  "Tango": [0,2,3,6,7,9,10],
-  "Tritone scale": [0,1,4,6,7,10],
-  "Ukrainian Dorian": [0,2,3,6,7,9,10],
-  "Ultraphrygian": [0,1,3,4,6,7,9,10],
-  "Whole tone": [0,2,4,6,8,10],
-  "Whole-half diminished": [0,2,3,5,6,8,9,11]
-      };
-      var DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1st (highest) on top
-      var DEFAULT_OCTAVES_6 = [4,3,3,3,2,2]; // E4,B3,G3,D3,A2,E2
+      const NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+      // SCALES ahora viene del JSON externo
+      let SCALES = {};               // mapa nombre → [intervalos]
+      let SCALES_READY = false;      // flag
+      const SCALES_URL = 'scales.json'; // mismo directorio
 
       // ------- State & persistence -------
-      var state = {
+      const DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1st (highest) on top
+      const DEFAULT_OCTAVES_6 = [4,3,3,3,2,2]; // E4,B3,G3,D3,A2,E2
+      const LS_KEY="the_scales_book_state_v2_audio";
+
+      const state = {
         strings:6,
         tuning:DEFAULT_TUNING_6.slice(),
         octaves:DEFAULT_OCTAVES_6.slice(),
         root:"C", scaleName:"Major (Ionian)", labelMode:"notes",
         wave:"sine", volume:0.6
       };
-      var LS_KEY="the_scales_book_state_v2_audio";
-      try{ var saved=JSON.parse(localStorage.getItem(LS_KEY)||"null"); if(saved&&typeof saved==="object") Object.assign(state,saved);}catch(e){}
+      try{
+        const saved=JSON.parse(localStorage.getItem(LS_KEY)||"null");
+        if(saved&&typeof saved==="object") Object.assign(state,saved);
+      }catch(e){}
       function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
       // ------- DOM refs -------
-      var board=document.getElementById("board");
-      var rootSel=document.getElementById("root");
-      var scaleSel=document.getElementById("scale");
-      var labelsSel=document.getElementById("labels");
-      var tuningPanel=document.getElementById("tuningPanel");
-      var stringCountInput=document.getElementById("stringCount");
-      var applyStringsBtn=document.getElementById("applyStrings");
-      var pianoContainer=document.getElementById("pianoContainer");
-      var pianoCaption=document.getElementById("pianoCaption");
-      var waveSel=document.getElementById("wave");
-      var volSlider=document.getElementById("volume");
+      const board=document.getElementById("board");
+      const rootSel=document.getElementById("root");
+      const scaleSel=document.getElementById("scale");
+      const labelsSel=document.getElementById("labels");
+      const tuningPanel=document.getElementById("tuningPanel");
+      const stringCountInput=document.getElementById("stringCount");
+      const applyStringsBtn=document.getElementById("applyStrings");
+      const pianoContainer=document.getElementById("pianoContainer");
+      const pianoCaption=document.getElementById("pianoCaption");
+      const waveSel=document.getElementById("wave");
+      const volSlider=document.getElementById("volume");
 
       // ------- Helpers -------
       function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
-      function cycleNote(note, step){ var i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
+      function cycleNote(note, step){ let i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
       function ensureTuningLen(n){
         if (!Array.isArray(state.tuning)) state.tuning = [];
         if (!Array.isArray(state.octaves)) state.octaves = [];
@@ -516,77 +320,43 @@ var SCALES = {
         }
         if (state.tuning.length > n) { state.tuning.splice(n); state.octaves.splice(n); }
       }
-      function inScale(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
-
-      // ------- Populate selects -------
+      function inScale(pc, rootIdx, scale){ const rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
       function fillSelect(el, arr){ el.innerHTML = arr.map(v=>'<option value="'+v+'">'+v+'</option>').join(''); }
-      fillSelect(rootSel, NOTES_SHARP);
-      fillSelect(scaleSel, Object.keys(SCALES));
-      rootSel.value=state.root; scaleSel.value=state.scaleName; stringCountInput.value=state.strings; labelsSel.value=state.labelMode;
-      waveSel.value=state.wave; volSlider.value=state.volume;
 
-      // ====== AUDIO ENGINE (Web Audio) ======
-      var AudioEngine = (function(){
-        let ctx=null, master=null;
-        let started=false;
+      // ------- AUDIO ENGINE (Web Audio) -------
+      const AudioEngine = (function(){
+        let ctx=null, master=null, started=false, currentWave = state.wave || "sine";
         function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
-        function noteToMidi(name, octave){
-          const pc=noteIndex(name); if(pc<0) return 60;
-          return (octave+1)*12 + pc;
-        }
-        function start(){
-          if(started) return;
-          ctx = new (window.AudioContext||window.webkitAudioContext)();
-          master = ctx.createGain(); master.gain.value = state.volume;
-          master.connect(ctx.destination);
-          started=true;
-        }
+        function noteToMidi(name, octave){ const pc=noteIndex(name); if(pc<0) return 60; return (octave+1)*12 + pc; }
+        function start(){ if(started) return; ctx = new (window.AudioContext||window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = state.volume; master.connect(ctx.destination); started=true; }
         function resumeMaybe(){ if(ctx && ctx.state==="suspended") ctx.resume(); }
         function setVolume(v){ if(master) master.gain.value=v; }
         function setWave(w){ currentWave=w; }
-        let currentWave = state.wave || "sine";
-
         function playFreq(freq, opts){
-          if(!started) start();
-          resumeMaybe();
-          const t=ctx.currentTime;
-          const o=ctx.createOscillator();
-          const g=ctx.createGain();
-
+          if(!started) start(); resumeMaybe();
+          const t=ctx.currentTime, o=ctx.createOscillator(), g=ctx.createGain();
           const A=0.01, D=0.08, S=0.75, R=0.15;
           const vel = (opts && opts.vel)!=null ? opts.vel : 0.9;
           g.gain.setValueAtTime(0, t);
           g.gain.linearRampToValueAtTime(vel, t+A);
           g.gain.linearRampToValueAtTime(vel*S, t+A+D);
-
-          o.type = currentWave;
-          o.frequency.setValueAtTime(freq, t);
-
-          o.connect(g); g.connect(master);
-          o.start(t);
-
-          const dur = (opts && opts.dur) || 0.6;
-          const end = t + dur;
+          o.type = currentWave; o.frequency.setValueAtTime(freq, t);
+          o.connect(g); g.connect(master); o.start(t);
+          const dur = (opts && opts.dur) || 0.6, end = t + dur;
           g.gain.setTargetAtTime(0.0001, end, R);
           o.stop(end + R*3);
         }
-
-        function playNote(name, octave, opts){
-          const midi = noteToMidi(name, octave);
-          const freq = midiToFreq(midi);
-          playFreq(freq, opts);
-        }
-
-        return {start, setVolume, setWave, playNote, noteToMidi};
+        function playNote(name, octave, opts){ const midi = noteToMidi(name, octave); playFreq(midiToFreq(midi), opts); }
+        return {start,setVolume,setWave,playNote,noteToMidi};
       })();
 
       // ------- Tuning editor -------
       function renderTuningEditor(){
         ensureTuningLen(state.strings);
-        var html="";
-        for(var idx=0; idx<state.tuning.length; idx++){
-          var note=state.tuning[idx], stringNum=idx+1, oct=state.octaves[idx] ?? 3;
-          var opts=NOTES_SHARP.map(n=>'<option value="'+n+'"'+(n===note?' selected':'')+'>'+n+'</option>').join('');
+        let html="";
+        for(let idx=0; idx<state.tuning.length; idx++){
+          const note=state.tuning[idx], stringNum=idx+1, oct=state.octaves[idx] ?? 3;
+          const opts=NOTES_SHARP.map(n=>'<option value="'+n+'"'+(n===note?' selected':'')+'>'+n+'</option>').join('');
           html+= '<div class="string-card">'
                +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String '+stringNum+'</div>'
                +   '<div class="row" style="gap:6px; flex-wrap:nowrap;">'
@@ -604,80 +374,78 @@ var SCALES = {
                + '</div>';
         }
         tuningPanel.innerHTML=html;
-        tuningPanel.querySelectorAll('button').forEach(function(btn){
-          btn.addEventListener('click',function(){
-            var i=+btn.dataset.idx; var act=btn.dataset.act;
-            if(act==='up'||act==='down'){
-              state.tuning[i]=cycleNote(state.tuning[i], act==='up'?+1:-1);
-            }else if(act==='octUp'){ state.octaves[i]=Math.min(8, (state.octaves[i]??3)+1); }
+        tuningPanel.querySelectorAll('button').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            const i=+btn.dataset.idx; const act=btn.dataset.act;
+            if(act==='up'||act==='down'){ state.tuning[i]=cycleNote(state.tuning[i], act==='up'?+1:-1); }
+            else if(act==='octUp'){ state.octaves[i]=Math.min(8, (state.octaves[i]??3)+1); }
             else if(act==='octDown'){ state.octaves[i]=Math.max(-2, (state.octaves[i]??3)-1); }
             save(); renderTuningEditor(); renderBoard();
           }, {passive:true});
         });
-        tuningPanel.querySelectorAll('select').forEach(function(sel){
-          sel.addEventListener('change', function(){ var i=+sel.dataset.idx; state.tuning[i]=sel.value; save(); renderBoard(); });
+        tuningPanel.querySelectorAll('select').forEach(sel=>{
+          sel.addEventListener('change', ()=>{ const i=+sel.dataset.idx; state.tuning[i]=sel.value; save(); renderBoard(); });
         });
       }
 
       // ------- Fretboard render -------
-      var FRETS=24;
+      const FRETS=24;
       function renderBoard(){
+        if(!SCALES_READY) return; // no render hasta que lleguen las escalas
         board.innerHTML="";
-        var markerCols=new Set([3,5,7,9,12,15,17,19,21,24]);
-        var scale=SCALES[state.scaleName];
-        var rootIdx=noteIndex(state.root);
-        var degreeBySemitone=new Map();
-        scale.forEach(function(off,i){ degreeBySemitone.set(off%12, String(i+1)); });
+        const markerCols=new Set([3,5,7,9,12,15,17,19,21,24]);
+        const scale=SCALES[state.scaleName] || [];
+        const rootIdx=noteIndex(state.root);
+        const degreeBySemitone=new Map();
+        scale.forEach((off,i)=>degreeBySemitone.set(off%12, String(i+1)));
 
-        for(var s=0; s<state.strings; s++){
-          var openName = state.tuning[s];
-          var openOct  = state.octaves[s] ?? 3;
-          var openIdx=noteIndex(openName);
-          var stringRow=document.createElement('div'); stringRow.className='string';
+        for(let s=0; s<state.strings; s++){
+          const openName = state.tuning[s];
+          const openOct  = state.octaves[s] ?? 3;
+          const openIdx=noteIndex(openName);
+          const stringRow=document.createElement('div'); stringRow.className='string';
 
-          var nut=document.createElement('div'); nut.className='nut open-note';
+          const nut=document.createElement('div'); nut.className='nut open-note';
           if(s>0) nut.style.borderTop='1px solid var(--rule)';
-          var labelSpan=document.createElement('span'); labelSpan.textContent=openName; nut.appendChild(labelSpan);
+          const labelSpan=document.createElement('span'); labelSpan.textContent=openName; nut.appendChild(labelSpan);
 
-          var openSemitone=openIdx%12;
+          const openSemitone=openIdx%12;
           if(inScale(openSemitone, rootIdx, scale)){
-            var m0=document.createElement('div'); m0.className='marker';
-            var d0=document.createElement('div'); d0.className='dot'; d0.dataset.note=openName; d0.dataset.oct=openOct; d0.dataset.src='nut';
+            const m0=document.createElement('div'); m0.className='marker';
+            const d0=document.createElement('div'); d0.className='dot'; d0.dataset.note=openName; d0.dataset.oct=openOct; d0.dataset.src='nut';
             if(((openSemitone-rootIdx+12)%12)===0) d0.classList.add('root');
-            var label0="";
+            let label0="";
             if(state.labelMode==='notes') label0=openName;
-            else if(state.labelMode==='degrees'){ var rel0=(openSemitone-rootIdx+12)%12; label0=degreeBySemitone.get(rel0)||""; }
+            else if(state.labelMode==='degrees'){ const rel0=(openSemitone-rootIdx+12)%12; label0=degreeBySemitone.get(rel0)||""; }
             d0.textContent=label0; m0.appendChild(d0); nut.appendChild(m0);
-            d0.style.pointerEvents='auto';
-            d0.tabIndex=0;
+            d0.style.pointerEvents='auto'; d0.tabIndex=0;
           }
           stringRow.appendChild(nut);
 
-          for(var f=1; f<=FRETS; f++){
-            var cell=document.createElement('div'); cell.className='fret cell';
+          for(let f=1; f<=FRETS; f++){
+            const cell=document.createElement('div'); cell.className='fret cell';
             if(s>0) cell.style.borderTop='1px solid var(--rule)';
-            var semitone=(openIdx+f)%12;
+            const semitone=(openIdx+f)%12;
             if(inScale(semitone, rootIdx, scale)){
-              var m=document.createElement('div'); m.className='marker';
-              var dot=document.createElement('div'); dot.className='dot';
+              const m=document.createElement('div'); m.className='marker';
+              const dot=document.createElement('div'); dot.className='dot';
               dot.dataset.note=NOTES_SHARP[semitone];
-              var midiOpen = AudioEngine.noteToMidi(openName, openOct);
-              var midiFret = midiOpen + f;
-              var oct = Math.floor(midiFret/12) - 1;
+              const midiOpen = AudioEngine.noteToMidi(openName, openOct);
+              const midiFret = midiOpen + f;
+              const oct = Math.floor(midiFret/12) - 1;
               dot.dataset.oct=oct;
               if(((semitone-rootIdx+12)%12)===0) dot.classList.add('root');
-              var label="";
+              let label="";
               if(state.labelMode==='notes') label=NOTES_SHARP[semitone];
-              else if(state.labelMode==='degrees'){ var rel=(semitone-rootIdx+12)%12; label=degreeBySemitone.get(rel)||""; }
+              else if(state.labelMode==='degrees'){ const rel=(semitone-rootIdx+12)%12; label=degreeBySemitone.get(rel)||""; }
               dot.textContent=label; m.appendChild(dot); cell.appendChild(m);
-              dot.style.pointerEvents='auto';
-              dot.tabIndex=0;
+              dot.style.pointerEvents='auto'; dot.tabIndex=0;
             }
             if(s===state.strings-1){
-              var num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
+              const num=document.createElement('div'); num.className='fret-number'; num.textContent=f; cell.appendChild(num);
               if(markerCols.has(f)){
-                var pm=document.createElement('div');
-                if(f===12||f===24){ pm.className='pos-marker double'; var i1=document.createElement('i'); var i2=document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
+                const pm=document.createElement('div');
+                if(f===12||f===24){ pm.className='pos-marker double'; const i1=document.createElement('i'); const i2=document.createElement('i'); pm.appendChild(i1); pm.appendChild(i2); }
                 else { pm.className='pos-marker'; }
                 cell.appendChild(pm);
               }
@@ -687,14 +455,13 @@ var SCALES = {
           board.appendChild(stringRow);
         }
 
-        // attach play handlers
-        board.querySelectorAll('.dot').forEach(function(dot){
-          dot.addEventListener('pointerdown', function(){
+        // play handlers
+        board.querySelectorAll('.dot').forEach(dot=>{
+          dot.addEventListener('pointerdown', ()=>{
             AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
-            dot.classList.add('hit');
-            setTimeout(()=>dot.classList.remove('hit'), 160);
+            dot.classList.add('hit'); setTimeout(()=>dot.classList.remove('hit'), 160);
           }, {passive:true});
-          dot.addEventListener('keydown', function(e){
+          dot.addEventListener('keydown', e=>{
             if(e.key==='Enter' || e.key===' '){
               AudioEngine.playNote(dot.dataset.note, parseInt(dot.dataset.oct,10), {dur:0.5});
               dot.classList.add('hit'); setTimeout(()=>dot.classList.remove('hit'), 160);
@@ -702,69 +469,68 @@ var SCALES = {
           });
         });
 
-        // refresh piano too
         renderPiano();
       }
 
       // ------- Piano (SVG, one octave C4–C5) -------
-      var WHITE = ["C","D","E","F","G","A","B"];
-      var WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n));
-      var BLACK_AT = [0,1,3,4,5];
-      var BLACK_NAMES = ["C#","D#","F#","G#","A#"];
-      var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n));
+      const WHITE = ["C","D","E","F","G","A","B"];
+      const WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n));
+      const BLACK_AT = [0,1,3,4,5];
+      const BLACK_NAMES = ["C#","D#","F#","G#","A#"];
+      const BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n));
 
       function renderPiano(){
-        var w = pianoContainer.clientWidth || 520;
-        var h = 160;
-        var svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        if(!SCALES_READY) return;
+        const w = pianoContainer.clientWidth || 520;
+        const h = 160;
+        const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("viewBox","0 0 "+w+" "+h);
         svg.setAttribute("width","100%");
         svg.setAttribute("height","auto");
         svg.setAttribute("role","img");
         svg.setAttribute("aria-label","Piano octave showing scale tones");
 
-        var ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#2f2a1e';
-        var paper = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim() || '#f5f1e8';
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a08a63';
+        const cs = getComputedStyle(document.documentElement);
+        const ink = cs.getPropertyValue('--ink').trim() || '#2f2a1e';
+        const paper = cs.getPropertyValue('--paper').trim() || '#f5f1e8';
+        const accent = cs.getPropertyValue('--accent').trim() || '#a08a63';
 
-        var pad = 10;
-        var innerW = w - pad*2;
-        var whiteW = innerW / 7.2;
-        var whiteH = h - pad*2;
-        var blackW = whiteW * 0.58;
-        var blackH = whiteH * 0.58;
-        var blackShift = whiteW * 0.74;
+        const pad = 10;
+        const innerW = w - pad*2;
+        const whiteW = innerW / 7.2;
+        const whiteH = h - pad*2;
+        const blackW = whiteW * 0.58;
+        const blackH = whiteH * 0.58;
+        const blackShift = whiteW * 0.74;
 
-        var scale = SCALES[state.scaleName];
-        var rootIdx = noteIndex(state.root);
-        var inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
+        const scale = SCALES[state.scaleName] || [];
+        const rootIdx = noteIndex(state.root);
+        const inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
 
         pianoCaption.textContent = state.root + " " + state.scaleName;
 
         function attachPlay(el, name, octave){
           el.style.cursor='pointer';
-          el.addEventListener('pointerdown', function(){
-            AudioEngine.playNote(name, octave, {dur:0.5});
-          }, {passive:true});
+          el.addEventListener('pointerdown', ()=>{ AudioEngine.playNote(name, octave, {dur:0.5}); }, {passive:true});
         }
 
         // White keys
-        WHITE_PC.forEach(function(pc,i){
-          var x = pad + i*whiteW;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
+        WHITE_PC.forEach((pc,i)=>{
+          const x = pad + i*whiteW;
+          const rect = document.createElementNS(svg.namespaceURI,"rect");
           rect.setAttribute("x",x); rect.setAttribute("y",pad);
           rect.setAttribute("width",whiteW); rect.setAttribute("height",whiteH);
           rect.setAttribute("fill",paper); rect.setAttribute("stroke",accent); rect.setAttribute("stroke-width","1"); rect.setAttribute("rx","4");
           svg.appendChild(rect);
 
-          var label = document.createElementNS(svg.namespaceURI,"text");
+          const label = document.createElementNS(svg.namespaceURI,"text");
           label.setAttribute("x", x + whiteW/2); label.setAttribute("y", pad + whiteH - 8);
           label.setAttribute("font-size","10"); label.setAttribute("text-anchor","middle"); label.setAttribute("fill",accent);
           label.textContent = WHITE[i]; svg.appendChild(label);
 
           if (inScaleSet.has(pc)){
-            var cx = x + whiteW/2, cy = pad + whiteH * 0.75;
-            var circle = document.createElementNS(svg.namespaceURI,"circle");
+            const cx = x + whiteW/2, cy = pad + whiteH * 0.75;
+            const circle = document.createElementNS(svg.namespaceURI,"circle");
             circle.setAttribute("cx",cx); circle.setAttribute("cy",cy); circle.setAttribute("r",whiteW*0.15);
             circle.setAttribute("stroke",ink); circle.setAttribute("stroke-width","2"); circle.setAttribute("fill","none");
             if (pc === rootIdx){ circle.setAttribute("fill",ink); }
@@ -774,12 +540,12 @@ var SCALES = {
         });
 
         // Black keys
-        BLACK_PC.forEach(function(pc,j){
-          var afterWhite = BLACK_AT[j];
-          var xLeft = pad + afterWhite*whiteW;
-          var x = xLeft + blackShift - blackW/2;
-          var y = pad;
-          var rect = document.createElementNS(svg.namespaceURI,"rect");
+        BLACK_PC.forEach((pc,j)=>{
+          const afterWhite = BLACK_AT[j];
+          const xLeft = pad + afterWhite*whiteW;
+          const x = xLeft + blackShift - blackW/2;
+          const y = pad;
+          const rect = document.createElementNS(svg.namespaceURI,"rect");
           rect.setAttribute("x",x); rect.setAttribute("y",y);
           rect.setAttribute("width",blackW); rect.setAttribute("height",blackH);
           rect.setAttribute("rx","3"); rect.setAttribute("fill",ink);
@@ -787,8 +553,8 @@ var SCALES = {
           svg.appendChild(rect);
 
           if (inScaleSet.has(pc)){
-            var cx = x + blackW/2, cy = y + blackH * 0.55;
-            var circ = document.createElementNS(svg.namespaceURI,"circle");
+            const cx = x + blackW/2, cy = y + blackH * 0.55;
+            const circ = document.createElementNS(svg.namespaceURI,"circle");
             circ.setAttribute("cx",cx); circ.setAttribute("cy",cy); circ.setAttribute("r",blackW*0.23);
             circ.setAttribute("stroke",paper); circ.setAttribute("stroke-width","2"); circ.setAttribute("fill","none");
             if (pc === rootIdx){ circ.setAttribute("fill",paper); }
@@ -801,24 +567,84 @@ var SCALES = {
       }
 
       // ------- Events -------
-      rootSel.addEventListener('change', function () { state.root = rootSel.value; save(); renderBoard(); });
-      scaleSel.addEventListener('change', function () { state.scaleName = scaleSel.value; save(); renderBoard(); });
-      labelsSel.addEventListener('change', function () { state.labelMode = labelsSel.value; save(); renderBoard(); });
-      applyStringsBtn.addEventListener('click', function () {
-        var n = Math.max(3, Math.min(10, parseInt(stringCountInput.value || 6, 10)));
+      rootSel.addEventListener('change', () => { state.root = rootSel.value; save(); renderBoard(); });
+      labelsSel.addEventListener('change', () => { state.labelMode = labelsSel.value; save(); renderBoard(); });
+      applyStringsBtn.addEventListener('click', () => {
+        const n = Math.max(3, Math.min(10, parseInt(stringCountInput.value || 6, 10)));
         state.strings = n; ensureTuningLen(n); save(); renderTuningEditor(); renderBoard();
       });
-      waveSel.addEventListener('change', function(){ state.wave=waveSel.value; save(); AudioEngine.setWave(state.wave); });
-      volSlider.addEventListener('input', function(){ state.volume=parseFloat(volSlider.value); save(); AudioEngine.setVolume(state.volume); });
+      waveSel.addEventListener('change', ()=>{ state.wave=waveSel.value; save(); AudioEngine.setWave(state.wave); });
+      volSlider.addEventListener('input', ()=>{ state.volume=parseFloat(volSlider.value); save(); AudioEngine.setVolume(state.volume); });
 
-      // ------- Init -------
-      fillSelect(rootSel, NOTES_SHARP); // ensure
-      renderTuningEditor();
-      renderBoard();
-      rootSel.value=state.root; scaleSel.value=state.scaleName; labelsSel.value=state.labelMode;
+      // ------- Init (roots ya disponibles) -------
+      fillSelect(rootSel, NOTES_SHARP);
+      rootSel.value = state.root;
+      waveSel.value = state.wave; volSlider.value = state.volume; labelsSel.value = state.labelMode; stringCountInput.value=state.strings;
+
+      // ------- Carga externa de escalas -------
+      async function loadScales(){
+        try{
+          const res = await fetch(SCALES_URL, {cache:'no-cache'});
+          if(!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+
+          // Aceptamos objeto plano {name:[...], ...}
+          if(Object.prototype.toString.call(data) === '[object Object]'){
+            SCALES = data;
+          }else{
+            throw new Error('Formato inválido en scales.json');
+          }
+
+          // Poblar select y validar estado
+          const names = Object.keys(SCALES);
+          if(names.length === 0) throw new Error('scales.json está vacío');
+
+          // Si la escala guardada no existe en el JSON, usar la primera
+          if(!SCALES[state.scaleName]) state.scaleName = names[0];
+
+          fillSelect(scaleSel, names);
+          scaleSel.value = state.scaleName;
+          scaleSel.disabled = false;
+
+          // Evento de cambio (ahora que hay datos)
+          scaleSel.addEventListener('change', ()=>{ state.scaleName = scaleSel.value; save(); renderBoard(); });
+
+          SCALES_READY = true;
+          renderTuningEditor();
+          renderBoard();
+        }catch(err){
+          console.error('Error cargando scales.json', err);
+          // Fallback mínimo para no romper la UI
+          SCALES = {
+            "Major (Ionian)": [0,2,4,5,7,9,11],
+            "Natural minor (Aeolian)": [0,2,3,5,7,8,10],
+            "Pentatonic minor": [0,3,5,7,10]
+          };
+          const names = Object.keys(SCALES);
+          if(!SCALES[state.scaleName]) state.scaleName = names[0];
+          fillSelect(scaleSel, names);
+          scaleSel.value = state.scaleName;
+          scaleSel.disabled = false;
+          scaleSel.addEventListener('change', ()=>{ state.scaleName = scaleSel.value; save(); renderBoard(); });
+          SCALES_READY = true;
+          renderTuningEditor();
+          renderBoard();
+
+          // Mensaje suave al usuario
+          const msg = document.createElement('p');
+          msg.style.color = 'var(--muted)';
+          msg.style.fontSize = '.9rem';
+          msg.style.marginTop = '8px';
+          msg.textContent = 'Could not load scales.json. Using a minimal fallback.';
+          document.querySelector('.controls')?.appendChild(msg);
+        }
+      }
 
       // Keep piano crisp on resize
-      var rT; window.addEventListener('resize', function(){ clearTimeout(rT); rT=setTimeout(renderPiano, 120); });
+      let rT; window.addEventListener('resize', ()=>{ clearTimeout(rT); rT=setTimeout(renderPiano, 120); });
+
+      // Lanzar carga
+      loadScales();
     })();
   </script>
 </body>
