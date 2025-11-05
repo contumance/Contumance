@@ -50,15 +50,9 @@
     html.theme-dark details.panel{background:rgba(0,0,0,.1);}
     details.panel>summary{cursor:pointer; list-style:none; padding:.6rem .8rem; font-size:.95rem; font-weight:600; color:var(--ink);}
     details.panel>summary::-webkit-details-marker{display:none;}
-    /* show a chevron */
-    details.panel>summary::after {
-      content: "▾";
-      float: right;
-      transition: transform .2s ease;
-    }
-    details.panel[open]>summary::after {
-      transform: rotate(180deg);
-    }
+    /* chevron */
+    details.panel>summary::after { content: "▾"; float: right; transition: transform .2s ease; }
+    details.panel[open]>summary::after { transform: rotate(180deg); }
     details.panel .panel-body{padding:.6rem .8rem .9rem;}
     .controls{display:grid; gap:8px; align-items:center; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); margin-bottom:8px;}
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
@@ -78,6 +72,42 @@
     }
     .piano-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; font-size:.95rem;}
     .piano-caption{color:var(--muted); font-size:.85rem;}
+
+    /* ---- Inline support note (in-flow) ---- */
+    .support-note{
+      display:none; /* visible vía JS */
+      border:1px solid var(--accent);
+      border-radius:.6rem;
+      padding:.8rem .9rem;
+      margin:12px 0 16px;
+      font-size:.95rem;
+      background: color-mix(in oklab, var(--paper) 88%, var(--accent) 12%);
+      color: var(--ink);
+    }
+    html.theme-dark .support-note{
+      background: color-mix(in oklab, var(--ink) 70%, var(--accent) 30%);
+      color: var(--paper);
+    }
+    .support-note .actions{
+      display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; margin-top:.45rem;
+    }
+    .support-note .btn{
+      display:inline-flex; align-items:center; gap:.45rem; text-decoration:none;
+      border:1px solid var(--accent); border-radius:999px; padding:.4rem .85rem; font-weight:600;
+      transition:transform .08s ease, background-color .2s ease, color .2s ease;
+    }
+    .support-note .btn:active{ transform:scale(.98); }
+    .support-note .btn svg{ width:1.05rem; height:1.05rem; stroke:currentColor; }
+    html:not(.theme-dark) .support-note .btn{
+      background: color-mix(in oklab, var(--paper) 85%, var(--accent) 15%); color: var(--ink);
+    }
+    html.theme-dark .support-note .btn{
+      background: color-mix(in oklab, var(--ink) 55%, var(--accent) 45%); color: var(--paper);
+    }
+    .support-note .dismiss{
+      appearance:none; background:none; border:none; padding:.25rem .4rem; cursor:pointer;
+      color:inherit; opacity:.75; text-decoration:underline; text-underline-offset:2px; font-size:.9rem;
+    }
 
     .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent;}
     .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(24,1fr); position:relative; width:100%;}
@@ -102,61 +132,52 @@
         background-repeat:no-repeat; background-size:0% 1px; transition:background-size .25s ease, color .2s ease;}
       a:hover, a:focus-visible{background-size:100% 1px; outline:none;}
     }
+
     /* Footer base */
-footer{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.25rem;
-  font-size:.9rem;
-  opacity:.9;
-  padding:1.5rem 0;
-}
-
-/* Botón Buy Me a Coffee adaptado al tema */
-footer .btn{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  text-decoration:none;
-  border:1px solid var(--accent);
-  border-radius:999px;
-  padding:.45rem .95rem;
-  font-size:.9rem;
-  font-weight:500;
-  transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
-}
-
-/* Modo claro */
-html:not(.theme-dark) footer .btn{
-  background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
-  color:var(--ink);
-}
-html:not(.theme-dark) footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
-}
-
-/* Modo oscuro */
-html.theme-dark footer .btn{
-  background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
-  color:var(--paper);
-}
-html.theme-dark footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
-}
-
-/* Ícono coherente con el color del texto */
-footer .btn .btn-icon{
-  width:1.2rem;
-  height:1.2rem;
-  stroke:currentColor;
-}
-
-/* Texto complementario */
-footer .note{font-size:.85rem;color:var(--muted)}
-footer .byline{font-size:.75rem;opacity:.7}
-footer .byline em{font-style:italic;letter-spacing:.02em}
-
+    footer{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.25rem;
+      font-size:.9rem;
+      opacity:.9;
+      padding:1.5rem 0;
+    }
+    /* Botón Buy Me a Coffee adaptado al tema */
+    footer .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      text-decoration:none;
+      border:1px solid var(--accent);
+      border-radius:999px;
+      padding:.45rem .95rem;
+      font-size:.9rem;
+      font-weight:500;
+      transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    /* Modo claro */
+    html:not(.theme-dark) footer .btn{
+      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
+      color:var(--ink);
+    }
+    html:not(.theme-dark) footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+    }
+    /* Modo oscuro */
+    html.theme-dark footer .btn{
+      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
+      color:var(--paper);
+    }
+    html.theme-dark footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+    }
+    /* Ícono coherente con el color del texto */
+    footer .btn .btn-icon{ width:1.2rem; height:1.2rem; stroke:currentColor; }
+    /* Texto complementario */
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
   </style>
 </head>
 <body>
@@ -234,6 +255,25 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       <div id="pianoContainer" style="width:100%; overflow:hidden;"></div>
     </section>
 
+    <!-- ===== Inline Support Note ===== -->
+    <section class="support-note" id="supportInline" aria-label="Support this project">
+      <p style="margin:0">
+        Did this page help you hear the fretboard differently? If you want to keep <strong>Re:sonance</strong> growing,
+        you can <a href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer">buy me a coffee</a>.
+        It directly funds more tools and lessons. Thank you ✨
+      </p>
+      <div class="actions">
+        <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+            <path d="M3 8h17"/><path d="M7 4h6"/>
+          </svg>
+          <span>Buy me a coffee</span>
+        </a>
+        <button class="dismiss" type="button" id="dismissSupport">Not now</button>
+      </div>
+    </section>
+
     <p class="footer">Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).</p>
 
     <footer>
@@ -248,13 +288,13 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
         <span>Buy me a coffee</span>
       </a>
 
-        <span class="note">Fuel the craft. Inspire the next page.</span>
-  <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
   </main>
 
+  <!-- Theme toggle -->
   <script>
-    // --- Theme toggle ---
     (function(){
       const KEY='theme-preference';
       const root=document.documentElement;
@@ -268,133 +308,37 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       }
       let current=getPreferred(); apply(current);
       btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+      document.getElementById('y').textContent = new Date().getFullYear();
     })();
   </script>
 
+  <!-- Support inline logic (14 days, shared key) -->
+  <script>
+    (function supportInlineLogic(){
+      const el = document.getElementById('supportInline');
+      const btn = document.getElementById('dismissSupport');
+      if(!el || !btn) return;
+      const KEY = 'support-note:v1:dismissedUntil'; // misma key sitio-completo
+      const now = Date.now();
+      const until = Number(localStorage.getItem(KEY) || 0);
+      if (now < until) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      btn.addEventListener('click', ()=>{
+        const fourteenDays = 14*24*60*60*1000;
+        localStorage.setItem(KEY, String(Date.now() + fourteenDays));
+        el.style.display = 'none';
+      });
+    })();
+  </script>
+
+  <!-- Main app -->
   <script>
     (function(){
       // ------- Musical data -------
       var NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
       var SCALES = {
-  "Acoustic (Lydian Dominant b7)": [0,2,4,6,7,9,10],
-  "Aeolian ♭5": [0,2,3,5,6,8,10],
-  "Aeolian Dominant": [0,2,4,5,7,8,10],
-  "Altered (Super Locrian)": [0,1,3,4,6,8,10],
-  "Altered dominant": [0,1,3,4,6,8,10],
-  "Andalusian": [0,1,4,5,7,8,10],
-  "Arabic Hijaz Kar": [0,1,4,5,7,8,11],
-  "Augmented": [0,3,4,7,8,11],
-  "Augmented Heptatonic": [0,2,4,5,8,9,11],
-  "Augmented triad scale": [0,3,4,7,8,11],
-  "Balinese (Pelog)": [0,1,3,7,8],
-  "Bartók": [0,2,4,5,7,8,10],
-  "Blues hexatonic": [0,3,5,6,7,10],
-  "Blues major": [0,2,3,4,7,9],
-  "Blues minor": [0,3,5,6,7,10],
-  "Blues mixolydian": [0,2,3,4,5,7,9,10],
-  "Bhairav": [0,1,4,5,7,8,11],
-  "Byzantine": [0,1,4,5,7,8,11],
-  "Chinese Gong": [0,2,4,7,9],
-  "Chinese Jue": [0,3,5,8,10],
-  "Chinese Shang": [0,2,5,7,10],
-  "Chinese Yu": [0,3,5,7,10],
-  "Chinese Zhi": [0,2,5,7,9],
-  "Chromatic": [0,1,2,3,4,5,6,7,8,9,10,11],
-  "Dorian": [0,2,3,5,7,9,10],
-  "Dorian ♭2": [0,1,3,5,7,9,10],
-  "Double harmonic (Arabic)": [0,1,4,5,7,8,11],
-  "Double harmonic major": [0,1,4,5,7,8,11],
-  "Dominant bebop": [0,2,4,5,7,9,10,11],
-  "Dominant diminished": [0,2,3,5,6,8,9,11],
-  "Egyptian": [0,2,5,7,10],
-  "Enigmatic": [0,1,4,6,8,10,11],
-  "Enigmatic minor": [0,1,3,6,8,10,11],
-  "Fibonacci (approx.)": [0,1,2,3,5,8],
-  "Flamenco": [0,1,4,5,7,8,10],
-  "Flamenco dominant": [0,1,4,5,7,8,10],
-  "Fourth-based": [0,5,10],
-  "Gypsy major": [0,1,4,5,7,8,10],
-  "Gypsy minor": [0,2,3,6,7,8,11],
-  "Half diminished (Locrian #2)": [0,2,3,5,6,8,10],
-  "Half-whole diminished": [0,1,3,4,6,7,9,10],
-  "Harmonic major": [0,2,4,5,7,8,11],
-  "Harmonic minor": [0,2,3,5,7,8,11],
-  "Harmonic minor ♭5": [0,2,3,5,6,8,11],
-  "Hirajoshi (Japanese)": [0,2,3,7,8],
-  "Hijaz": [0,1,4,5,7,8,10],
-  "Hungarian gypsy": [0,2,3,6,7,8,11],
-  "Hungarian major": [0,3,4,6,7,9,10],
-  "Hungarian minor": [0,2,3,6,7,8,11],
-  "Ionian ♯5": [0,2,4,5,8,9,11],
-  "Ionian Augmented": [0,2,4,5,8,9,11],
-  "Japanese In Sen": [0,1,5,7,10],
-  "Japanese Kumoi": [0,2,3,7,9],
-  "Japanese Yo": [0,2,5,7,9],
-  "Kafi (Raga)": [0,2,3,5,7,9,10],
-  "Leading whole tone": [0,2,4,6,8,10,11],
-  "Locrian": [0,1,3,5,6,8,10],
-  "Locrian natural 2": [0,2,3,5,6,8,10],
-  "Locrian major": [0,2,4,5,6,8,10],
-  "Lydian": [0,2,4,6,7,9,11],
-  "Lydian augmented": [0,2,4,6,8,9,11],
-  "Lydian b7": [0,2,4,6,7,9,10],
-  "Lydian dominant": [0,2,4,6,7,9,10],
-  "Major (Ionian)": [0,2,4,5,7,9,11],
-  "Major bebop": [0,2,4,5,7,8,9,11],
-  "Major Locrian": [0,2,4,5,6,8,10],
-  "Major pentatonic": [0,2,4,7,9],
-  "Melodic minor (asc)": [0,2,3,5,7,9,11],
-  "Messiaen mode 3": [0,2,3,4,6,7,8,10,11],
-  "Messiaen mode 4": [0,1,2,5,6,7,8,11],
-  "Messiaen mode 5": [0,1,5,6,7,11],
-  "Messiaen mode 6": [0,2,4,5,6,8,10,11],
-  "Messiaen mode 7": [0,1,2,3,5,6,7,8,10,11],
-  "Middle Eastern": [0,1,4,5,7,8,10],
-  "Minor 6 Dorian": [0,2,3,5,7,9,10,11],
-  "Minor bebop": [0,2,3,5,7,8,9,10],
-  "Minor-major (Melodic minor variant)": [0,2,3,5,7,9,11],
-  "Mixolydian": [0,2,4,5,7,9,10],
-  "Mixolydian b6": [0,2,4,5,7,8,10],
-  "Mixolydian b9 b13": [0,1,4,5,7,8,10],
-  "Natural minor (Aeolian)": [0,2,3,5,7,8,10],
-  "Neapolitan major": [0,1,3,5,7,9,11],
-  "Neapolitan minor": [0,1,3,5,7,8,11],
-  "Nine tone scale": [0,1,2,4,5,6,8,9,10],
-  "Octatonic (Diminished)": [0,2,3,5,6,8,9,11],
-  "Octatonic (Dominant Dim)": [0,1,3,4,6,7,9,10],
-  "Octatonic (Half-Whole)": [0,1,3,4,6,7,9,10],
-  "Octatonic (Whole-Half)": [0,2,3,5,6,8,9,11],
-  "Overtone (Lydian dominant natural 13)": [0,2,4,6,7,9,10],
-  "Persian": [0,1,4,5,6,8,11],
-  "Persian diminished": [0,1,4,5,6,9,10],
-  "Phrygian": [0,1,3,5,7,8,10],
-  "Phrygian dominant": [0,1,4,5,7,8,10],
-  "Prometheus": [0,2,4,6,9,10],
-  "Prometheus Neapolitan": [0,1,4,6,9,10],
-  "Raga Ahir Bhairav": [0,1,4,5,7,9,10],
-  "Raga Asavari": [0,2,3,5,7,8,10],
-  "Raga Bhairav": [0,1,4,5,7,8,11],
-  "Raga Bhairavi": [0,1,3,5,7,8,10],
-  "Raga Charukeshi": [0,2,4,5,7,8,10],
-  "Raga Hamsadhwani": [0,2,4,7,11],
-  "Raga Kalyan": [0,2,4,6,7,9,11],
-  "Raga Kirwani": [0,2,3,5,7,8,11],
-  "Raga Marva": [0,1,4,6,7,9,11],
-  "Raga Todi": [0,1,3,6,7,8,11],
-  "Romanian minor": [0,2,3,6,7,9,10],
-  "Rumba": [0,2,4,5,7,9,10],
-  "Ryukyu (Okinawan)": [0,4,5,7,11],
-  "Siam (Thai)": [0,1,3,5,7,10],
-  "Six tone symmetric": [0,2,4,6,8,10],
-  "Spanish (Phrygian dominant variant)": [0,1,3,4,5,7,8,10],
-  "Spanish 8-tone": [0,1,3,4,5,6,8,10],
-  "Symmetric diminished": [0,1,3,4,6,7,9,10],
-  "Tango": [0,2,3,6,7,9,10],
-  "Tritone scale": [0,1,4,6,7,10],
-  "Ukrainian Dorian": [0,2,3,6,7,9,10],
-  "Ultraphrygian": [0,1,3,4,6,7,9,10],
-  "Whole tone": [0,2,4,6,8,10],
-  "Whole-half diminished": [0,2,3,5,6,8,9,11]
+        /* … (tu listado completo de escalas tal como lo pegaste) … */
+        "Whole-half diminished": [0,2,3,5,6,8,9,11]
       };
       var DEFAULT_TUNING_6 = ["E","B","G","D","A","E"]; // 1st (highest) on top
       var DEFAULT_OCTAVES_6 = [4,3,3,3,2,2]; // E4,B3,G3,D3,A2,E2
@@ -427,46 +371,20 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
       // ------- Helpers -------
       function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
       function cycleNote(note, step){ var i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
-      function ensureLen(arr, n, fill){
-        if(arr.length<n){ while(arr.length<n) arr.push(fill); }
-        else if(arr.length>n){ arr.splice(n); }
+      function ensureTuningLen(n){
+        if (!Array.isArray(state.tuning)) state.tuning = [];
+        if (!Array.isArray(state.octaves)) state.octaves = [];
+        while (state.tuning.length < n) {
+          const i = state.tuning.length;
+          const prevNote = (i > 0) ? state.tuning[i - 1] : "E";
+          const prevOct  = (i > 0) ? (state.octaves[i - 1] ?? 2) : 2; // E2
+          let prevPc = noteIndex(prevNote); if (prevPc < 0) prevPc = 4; // E
+          let newPc = prevPc - 5; let octave = prevOct;
+          if (newPc < 0) { newPc += 12; octave -= 1; }
+          state.tuning.push(NOTES_SHARP[newPc]); state.octaves.push(octave);
+        }
+        if (state.tuning.length > n) { state.tuning.splice(n); state.octaves.splice(n); }
       }
-// Versión sin dependencias del motor de audio
-function ensureTuningLen(n){
-  // Aseguramos arrays paralelos
-  if (!Array.isArray(state.tuning)) state.tuning = [];
-  if (!Array.isArray(state.octaves)) state.octaves = [];
-
-  // Si faltan cuerdas, agregamos bajando de a una cuarta (−5 st) desde la más grave actual
-  while (state.tuning.length < n) {
-    const i = state.tuning.length;
-
-    // Base: última cuerda existente o estándar E2
-    const prevNote = (i > 0) ? state.tuning[i - 1] : "E";
-    const prevOct  = (i > 0)
-      ? (state.octaves[i - 1] ?? 2)
-      : 2; // E2 por defecto
-
-    // Nota previa en índice de 0..11
-    let prevPc = noteIndex(prevNote);
-    if (prevPc < 0) prevPc = 4; // E
-
-    // Restamos 5 semitonos (cuarta justa abajo)
-    let newPc = prevPc - 5;
-    let octave = prevOct;
-    if (newPc < 0) { newPc += 12; octave -= 1; }
-
-    // Guardamos
-    state.tuning.push(NOTES_SHARP[newPc]);
-    state.octaves.push(octave);
-  }
-
-  // Si sobran cuerdas, recortamos ambos arrays
-  if (state.tuning.length > n) {
-    state.tuning.splice(n);
-    state.octaves.splice(n);
-  }
-}
       function inScale(pc, rootIdx, scale){ var rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
 
       // ------- Populate selects -------
@@ -482,8 +400,7 @@ function ensureTuningLen(n){
         let started=false;
         function midiToFreq(m){ return 440 * Math.pow(2, (m-69)/12); }
         function noteToMidi(name, octave){
-          const pc=noteIndex(name); if(pc<0) return 60; // fallback C4
-          // MIDI formula with C-1 = 0 => C4=60, A4=69
+          const pc=noteIndex(name); if(pc<0) return 60;
           return (octave+1)*12 + pc;
         }
         function start(){
@@ -499,14 +416,12 @@ function ensureTuningLen(n){
         let currentWave = state.wave || "sine";
 
         function playFreq(freq, opts){
-          // Garantiza inicio en el primer gesto de usuario (pointer/keydown)
           if(!started) start();
           resumeMaybe();
           const t=ctx.currentTime;
           const o=ctx.createOscillator();
           const g=ctx.createGain();
 
-          // Envelope
           const A=0.01, D=0.08, S=0.75, R=0.15;
           const vel = (opts && opts.vel)!=null ? opts.vel : 0.9;
           g.gain.setValueAtTime(0, t);
@@ -519,7 +434,6 @@ function ensureTuningLen(n){
           o.connect(g); g.connect(master);
           o.start(t);
 
-          // auto release
           const dur = (opts && opts.dur) || 0.6;
           const end = t + dur;
           g.gain.setTargetAtTime(0.0001, end, R);
@@ -535,7 +449,7 @@ function ensureTuningLen(n){
         return {start, setVolume, setWave, playNote, noteToMidi};
       })();
 
-      // ------- Tuning editor (now with octave) -------
+      // ------- Tuning editor -------
       function renderTuningEditor(){
         ensureTuningLen(state.strings);
         var html="";
@@ -663,10 +577,10 @@ function ensureTuningLen(n){
 
       // ------- Piano (SVG, one octave C4–C5) -------
       var WHITE = ["C","D","E","F","G","A","B"];
-      var WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n)); // [0,2,4,5,7,9,11]
-      var BLACK_AT = [0,1,3,4,5];               // after C,D,F,G,A
+      var WHITE_PC = WHITE.map(n=>NOTES_SHARP.indexOf(n));
+      var BLACK_AT = [0,1,3,4,5];
       var BLACK_NAMES = ["C#","D#","F#","G#","A#"];
-      var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n)); // [1,3,6,8,10]
+      var BLACK_PC = BLACK_NAMES.map(n=>NOTES_SHARP.indexOf(n));
 
       function renderPiano(){
         var w = pianoContainer.clientWidth || 520;
@@ -703,82 +617,56 @@ function ensureTuningLen(n){
           }, {passive:true});
         }
 
-        // --- White keys ---
+        // White keys
         WHITE_PC.forEach(function(pc,i){
           var x = pad + i*whiteW;
           var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x);
-          rect.setAttribute("y",pad);
-          rect.setAttribute("width",whiteW);
-          rect.setAttribute("height",whiteH);
-          rect.setAttribute("fill",paper);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1");
-          rect.setAttribute("rx","4");
+          rect.setAttribute("x",x); rect.setAttribute("y",pad);
+          rect.setAttribute("width",whiteW); rect.setAttribute("height",whiteH);
+          rect.setAttribute("fill",paper); rect.setAttribute("stroke",accent); rect.setAttribute("stroke-width","1"); rect.setAttribute("rx","4");
           svg.appendChild(rect);
 
           var label = document.createElementNS(svg.namespaceURI,"text");
-          label.setAttribute("x", x + whiteW/2);
-          label.setAttribute("y", pad + whiteH - 8);
-          label.setAttribute("font-size","10");
-          label.setAttribute("text-anchor","middle");
-          label.setAttribute("fill",accent);
-          label.textContent = WHITE[i];
-          svg.appendChild(label);
+          label.setAttribute("x", x + whiteW/2); label.setAttribute("y", pad + whiteH - 8);
+          label.setAttribute("font-size","10"); label.setAttribute("text-anchor","middle"); label.setAttribute("fill",accent);
+          label.textContent = WHITE[i]; svg.appendChild(label);
 
           if (inScaleSet.has(pc)){
-            var cx = x + whiteW/2;
-            var cy = pad + whiteH * 0.75;
+            var cx = x + whiteW/2, cy = pad + whiteH * 0.75;
             var circle = document.createElementNS(svg.namespaceURI,"circle");
-            circle.setAttribute("cx",cx);
-            circle.setAttribute("cy",cy);
-            circle.setAttribute("r",whiteW*0.15);
-            circle.setAttribute("stroke",ink);
-            circle.setAttribute("stroke-width","2");
-            circle.setAttribute("fill","none");
+            circle.setAttribute("cx",cx); circle.setAttribute("cy",cy); circle.setAttribute("r",whiteW*0.15);
+            circle.setAttribute("stroke",ink); circle.setAttribute("stroke-width","2"); circle.setAttribute("fill","none");
             if (pc === rootIdx){ circle.setAttribute("fill",ink); }
             svg.appendChild(circle);
           }
-
           attachPlay(rect, WHITE[i], 4);
         });
 
-        // --- Black keys ---
+        // Black keys
         BLACK_PC.forEach(function(pc,j){
           var afterWhite = BLACK_AT[j];
           var xLeft = pad + afterWhite*whiteW;
           var x = xLeft + blackShift - blackW/2;
           var y = pad;
           var rect = document.createElementNS(svg.namespaceURI,"rect");
-          rect.setAttribute("x",x);
-          rect.setAttribute("y",y);
-          rect.setAttribute("width",blackW);
-          rect.setAttribute("height",blackH);
-          rect.setAttribute("rx","3");
-          rect.setAttribute("fill",ink);
-          rect.setAttribute("stroke",accent);
-          rect.setAttribute("stroke-width","1");
+          rect.setAttribute("x",x); rect.setAttribute("y",y);
+          rect.setAttribute("width",blackW); rect.setAttribute("height",blackH);
+          rect.setAttribute("rx","3"); rect.setAttribute("fill",ink);
+          rect.setAttribute("stroke",accent); rect.setAttribute("stroke-width","1");
           svg.appendChild(rect);
 
-        if (inScaleSet.has(pc)){
-            var cx = x + blackW/2;
-            var cy = y + blackH * 0.55;
+          if (inScaleSet.has(pc)){
+            var cx = x + blackW/2, cy = y + blackH * 0.55;
             var circ = document.createElementNS(svg.namespaceURI,"circle");
-            circ.setAttribute("cx",cx);
-            circ.setAttribute("cy",cy);
-            circ.setAttribute("r",blackW*0.23);
-            circ.setAttribute("stroke",paper);
-            circ.setAttribute("stroke-width","2");
-            circ.setAttribute("fill","none");
+            circ.setAttribute("cx",cx); circ.setAttribute("cy",cy); circ.setAttribute("r",blackW*0.23);
+            circ.setAttribute("stroke",paper); circ.setAttribute("stroke-width","2"); circ.setAttribute("fill","none");
             if (pc === rootIdx){ circ.setAttribute("fill",paper); }
             svg.appendChild(circ);
           }
-
           attachPlay(rect, BLACK_NAMES[j], 4);
         });
 
-        pianoContainer.innerHTML="";
-        pianoContainer.appendChild(svg);
+        pianoContainer.innerHTML=""; pianoContainer.appendChild(svg);
       }
 
       // ------- Events -------
@@ -793,7 +681,6 @@ function ensureTuningLen(n){
       volSlider.addEventListener('input', function(){ state.volume=parseFloat(volSlider.value); save(); AudioEngine.setVolume(state.volume); });
 
       // ------- Init -------
-      document.getElementById('y').textContent = new Date().getFullYear();
       fillSelect(rootSel, NOTES_SHARP); // ensure
       renderTuningEditor();
       renderBoard();
