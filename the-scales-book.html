@@ -312,24 +312,38 @@
     })();
   </script>
 
-  <!-- Support inline logic (14 days, shared key) -->
-  <script>
-    (function supportInlineLogic(){
-      const el = document.getElementById('supportInline');
-      const btn = document.getElementById('dismissSupport');
-      if(!el || !btn) return;
-      const KEY = 'support-note:v1:dismissedUntil'; // misma key sitio-completo
-      const now = Date.now();
-      const until = Number(localStorage.getItem(KEY) || 0);
-      if (now < until) { el.style.display = 'none'; return; }
-      el.style.display = 'block';
-      btn.addEventListener('click', ()=>{
-        const fourteenDays = 14*24*60*60*1000;
-        localStorage.setItem(KEY, String(Date.now() + fourteenDays));
-        el.style.display = 'none';
-      });
-    })();
-  </script>
+<!-- Support inline logic (2 days, page-scoped + force flag) -->
+<script>
+  (function supportInlineLogic(){
+    const el  = document.getElementById('supportInline');
+    const btn = document.getElementById('dismissSupport');
+    if(!el || !btn) return;
+
+    // Fuerza mostrar si URL contiene ?support=1 o #support
+    const FORCE = /[?&]support=1\b/.test(location.search) || location.hash === '#support';
+
+    // Key ESPECÍFICA de esta página (Scales)
+    const KEY = 'support-note:scales:v1:dismissedUntil';
+
+    // Si no hay force y aún está dentro del periodo de silencio, no mostrar
+    const now = Date.now();
+    const until = Number(localStorage.getItem(KEY) || 0);
+    if (!FORCE && now < until) {
+      el.style.display = 'none';
+      return;
+    }
+
+    // Mostrar
+    el.style.display = 'block';
+
+    // Al descartar, guardar 14 días de silencio
+    btn.addEventListener('click', () => {
+      const someDaysMs = 2 * 24 * 60 * 60 * 1000;
+      localStorage.setItem(KEY, String(Date.now() + someDaysMs));
+      el.style.display = 'none';
+    });
+  })();
+</script>
 
   <!-- Main app -->
   <script>
