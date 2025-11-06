@@ -240,8 +240,12 @@
     </nav>
 
     <footer>
-      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
-         data-i18n-attr="aria-label,title" aria-label="Support this library on Buy Me a Coffee" title="Support this library on Buy Me a Coffee">
+      <a class="btn" href="https://buymeacoffee.com/Contumance"
+   target="_blank" rel="noopener noreferrer"
+   data-i18n="buyme_aria"
+   data-i18n-attr="aria-label,title"
+   aria-label="Support this library on Buy Me a Coffee"
+   title="Support this library on Buy Me a Coffee">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
           <path d="M3 8h17"/>
@@ -256,201 +260,198 @@
   </main>
 
   <script>
-    // --- THEME TOGGLE (sin cambios) ---
-    (function(){
-      const KEY='theme-preference';
-      const root=document.documentElement;
-      const btn=document.getElementById('themeToggle');
+  // --- I18N (primero) ---
+  (function(){
+    const LANG_KEY = 'resonance-lang';
+    const qs = new URLSearchParams(location.search);
+    const supported = ['en','es','pt'];
 
-      function setIcon(mode){
-        btn.textContent = mode==='dark' ? '☀︎' : '☾';
-        const label = mode==='dark'
-          ? tr('theme_to_light', 'Switch to light mode')
-          : tr('theme_to_dark', 'Switch to dark mode');
-        btn.setAttribute('aria-label', label);
-        btn.setAttribute('title', label);
+    const messages = {
+      en: {
+        doc_title: "Re:sonance — A quiet selection for curious hands.",
+        doc_description: "Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening.",
+        tagline: "A quiet selection for curious hands.",
+        collection: "Collection",
+        app_scales_title: "The Scales Book",
+        app_scales_meta: "Paths that guide the hand toward unseen colors.",
+        app_chords_title: "The Chords Book",
+        app_chords_meta: "Forms of resonance across the strings.",
+        app_daily_title: "The Daily Chord",
+        app_daily_meta: "Each day, a chord — seen anew, to awaken inspiration.",
+        app_bounce_title: "The Bounce Garden",
+        app_bounce_meta: "Where collisions sing — melodic orbits and rhythmic echoes within a circle.",
+        app_modal_title: "The Modal Architect",
+        app_modal_meta: "Design harmonic structures from scale geometry.",
+        app_poly_title: "The Polyrhythm Forge",
+        app_poly_meta: "Concentric rings for polyrhythms & polymeters — Mesh-ish grooves, Euclidean accents, swing & pan.",
+        buyme: "Buy me a coffee",
+        buyme_aria: "Support this library on Buy Me a Coffee",
+        footer_note: "Fuel the craft. Inspire the next page.",
+        lang_label: "Language",
+        theme_to_light: "Switch to light mode",
+        theme_to_dark: "Switch to dark mode"
+      },
+      es: {
+        doc_title: "Re:sonance — Una selección silenciosa para manos curiosas.",
+        doc_description: "Re:sonance — Una biblioteca experimental de sonido, color y movimiento sutil. Senderos de vibración que despiertan nuevas formas de escuchar.",
+        tagline: "Una selección silenciosa para manos curiosas.",
+        collection: "Colección",
+        app_scales_title: "The Scales Book",
+        app_scales_meta: "Caminos que guían la mano hacia colores invisibles.",
+        app_chords_title: "The Chords Book",
+        app_chords_meta: "Formas de resonancia a lo largo de las cuerdas.",
+        app_daily_title: "The Daily Chord",
+        app_daily_meta: "Cada día, un acorde — visto de nuevo, para despertar inspiración.",
+        app_bounce_title: "The Bounce Garden",
+        app_bounce_meta: "Donde las colisiones cantan — órbitas melódicas y ecos rítmicos dentro de un círculo.",
+        app_modal_title: "The Modal Architect",
+        app_modal_meta: "Diseña estructuras armónicas desde la geometría de las escalas.",
+        app_poly_title: "The Polyrhythm Forge",
+        app_poly_meta: "Anillos concéntricos para polirritmos y polímetros — grooves tipo Mesh, acentos euclídeos, swing y paneo.",
+        buyme: "Invítame un café",
+        buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
+        footer_note: "Alimenta el oficio. Inspira la próxima página.",
+        lang_label: "Idioma",
+        theme_to_light: "Cambiar a modo claro",
+        theme_to_dark: "Cambiar a modo oscuro"
+      },
+      pt: {
+        doc_title: "Re:sonance — Uma seleção silenciosa para mãos curiosas.",
+        doc_description: "Re:sonance — Uma biblioteca experimental de som, cor e movimento sutil. Caminhos de vibração que despertam novas formas de escutar.",
+        tagline: "Uma seleção silenciosa para mãos curiosas.",
+        collection: "Coleção",
+        app_scales_title: "The Scales Book",
+        app_scales_meta: "Caminhos que guiam a mão a cores invisíveis.",
+        app_chords_title: "The Chords Book",
+        app_chords_meta: "Formas de ressonância através das cordas.",
+        app_daily_title: "The Daily Chord",
+        app_daily_meta: "A cada dia, um acorde — visto de novo, para despertar inspiração.",
+        app_bounce_title: "The Bounce Garden",
+        app_bounce_meta: "Onde colisões cantam — órbitas melódicas e ecos rítmicos dentro de um círculo.",
+        app_modal_title: "The Modal Architect",
+        app_modal_meta: "Desenhe estruturas harmônicas a partir da geometria das escalas.",
+        app_poly_title: "The Polyrhythm Forge",
+        app_poly_meta: "Anéis concêntricos para polirritmos e polímetros — grooves tipo Mesh, acentos euclidianos, swing e pan.",
+        buyme: "Pague-me um café",
+        buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
+        footer_note: "Alimente o ofício. Inspire a próxima página.",
+        lang_label: "Idioma",
+        theme_to_light: "Alternar para modo claro",
+        theme_to_dark: "Alternar para modo escuro"
       }
-      function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
-      function getPreferred(){
-        const saved=localStorage.getItem(KEY);
-        if(saved==='light' || saved==='dark') return saved;
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
-      let current=getPreferred(); applyTheme(current);
-      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
-      document.getElementById('y').textContent = new Date().getFullYear();
-    })();
+    };
 
-    // --- I18N ---
-    (function(){
-      const LANG_KEY = 'resonance-lang';
-      const qs = new URLSearchParams(location.search);
-      const supported = ['en','es','pt'];
+    function tr(key, fallback){
+      const dict = messages[currentLang] || messages.en;
+      return (dict && dict[key]) || fallback || key;
+    }
+    window.tr = tr;
 
-      const messages = {
-        en: {
-          doc_title: "Re:sonance — A quiet selection for curious hands.",
-          doc_description: "Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening.",
-          tagline: "A quiet selection for curious hands.",
-          collection: "Collection",
-          app_scales_title: "The Scales Book",
-          app_scales_meta: "Paths that guide the hand toward unseen colors.",
-          app_chords_title: "The Chords Book",
-          app_chords_meta: "Forms of resonance across the strings.",
-          app_daily_title: "The Daily Chord",
-          app_daily_meta: "Each day, a chord — seen anew, to awaken inspiration.",
-          app_bounce_title: "The Bounce Garden",
-          app_bounce_meta: "Where collisions sing — melodic orbits and rhythmic echoes within a circle.",
-          app_modal_title: "The Modal Architect",
-          app_modal_meta: "Design harmonic structures from scale geometry.",
-          app_poly_title: "The Polyrhythm Forge",
-          app_poly_meta: "Concentric rings for polyrhythms & polymeters — Mesh-ish grooves, Euclidean accents, swing & pan.",
-          buyme: "Buy me a coffee",
-          buyme_aria: "Support this library on Buy Me a Coffee",
-          footer_note: "Fuel the craft. Inspire the next page.",
-          lang_label: "Language",
-          theme_to_light: "Switch to light mode",
-          theme_to_dark: "Switch to dark mode"
-        },
-        es: {
-          doc_title: "Re:sonance — Una selección silenciosa para manos curiosas.",
-          doc_description: "Re:sonance — Una biblioteca experimental de sonido, color y movimiento sutil. Senderos de vibración que despiertan nuevas formas de escuchar.",
-          tagline: "Una selección silenciosa para manos curiosas.",
-          collection: "Colección",
-          app_scales_title: "The Scales Book",
-          app_scales_meta: "Caminos que guían la mano hacia colores invisibles.",
-          app_chords_title: "The Chords Book",
-          app_chords_meta: "Formas de resonancia a lo largo de las cuerdas.",
-          app_daily_title: "The Daily Chord",
-          app_daily_meta: "Cada día, un acorde — visto de nuevo, para despertar inspiración.",
-          app_bounce_title: "The Bounce Garden",
-          app_bounce_meta: "Donde las colisiones cantan — órbitas melódicas y ecos rítmicos dentro de un círculo.",
-          app_modal_title: "The Modal Architect",
-          app_modal_meta: "Diseña estructuras armónicas desde la geometría de las escalas.",
-          app_poly_title: "The Polyrhythm Forge",
-          app_poly_meta: "Anillos concéntricos para polirritmos y polímetros — grooves tipo Mesh, acentos euclídeos, swing y paneo.",
-          buyme: "Invítame un café",
-          buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
-          footer_note: "Alimenta el oficio. Inspira la próxima página.",
-          lang_label: "Idioma",
-          theme_to_light: "Cambiar a modo claro",
-          theme_to_dark: "Cambiar a modo oscuro"
-        },
-        pt: {
-          doc_title: "Re:sonance — Uma seleção silenciosa para mãos curiosas.",
-          doc_description: "Re:sonance — Uma biblioteca experimental de som, cor e movimento sutil. Caminhos de vibração que despertam novas formas de escutar.",
-          tagline: "Uma seleção silenciosa para mãos curiosas.",
-          collection: "Coleção",
-          app_scales_title: "The Scales Book",
-          app_scales_meta: "Caminhos que guiam a mão a cores invisíveis.",
-          app_chords_title: "The Chords Book",
-          app_chords_meta: "Formas de ressonância através das cordas.",
-          app_daily_title: "The Daily Chord",
-          app_daily_meta: "A cada dia, um acorde — visto de novo, para despertar inspiração.",
-          app_bounce_title: "The Bounce Garden",
-          app_bounce_meta: "Onde colisões cantam — órbitas melódicas e ecos rítmicos dentro de um círculo.",
-          app_modal_title: "The Modal Architect",
-          app_modal_meta: "Desenhe estruturas harmônicas a partir da geometria das escalas.",
-          app_poly_title: "The Polyrhythm Forge",
-          app_poly_meta: "Anéis concêntricos para polirritmos e polímetros — grooves tipo Mesh, acentos euclidianos, swing e pan.",
-          buyme: "Pague-me um café",
-          buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
-          footer_note: "Alimente o ofício. Inspire a próxima página.",
-          lang_label: "Idioma",
-          theme_to_light: "Alternar para modo claro",
-          theme_to_dark: "Alternar para modo escuro"
-        }
-      };
+    function detectInitial(){
+      const fromQuery = (qs.get('lang')||'').toLowerCase();
+      if(supported.includes(fromQuery)) return fromQuery;
+      const saved = localStorage.getItem(LANG_KEY);
+      if(supported.includes(saved)) return saved;
+      const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+      const base = (nav||'en').slice(0,2).toLowerCase();
+      return supported.includes(base)? base : 'en';
+    }
 
-      // util de traducción segura
-      function tr(key, fallback){
-        const dict = messages[currentLang] || messages.en;
-        return (dict && dict[key]) || fallback || key;
-      }
-      window.tr = tr; // usado por el theme toggle
+    function applyI18n(){
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.getAttribute('data-i18n');
+        if(key) el.textContent = tr(key, el.textContent);
+      });
 
-      // detectar idioma
-      function detectInitial(){
-        const fromQuery = (qs.get('lang')||'').toLowerCase();
-        if(supported.includes(fromQuery)) return fromQuery;
-        const saved = localStorage.getItem(LANG_KEY);
-        if(supported.includes(saved)) return saved;
-        const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
-        const base = (nav||'en').slice(0,2).toLowerCase();
-        return supported.includes(base)? base : 'en';
+      document.querySelectorAll('[data-i18n-attr]').forEach(el=>{
+        const keys = el.getAttribute('data-i18n-attr').split(',').map(s=>s.trim());
+        const key = el.getAttribute('data-i18n'); // ahora sí debe existir
+        const val = tr(key, el.getAttribute(keys[0]));
+        keys.forEach(attr=> el.setAttribute(attr, val));
+      });
+
+      document.title = tr('doc_title', document.title);
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', tr('doc_description', metaDesc.getAttribute('content')));
+
+      const langLabel = tr('lang_label','Language');
+      const langSelect = document.getElementById('langSelect');
+      if (langSelect){
+        langSelect.setAttribute('aria-label', langLabel);
+        langSelect.setAttribute('title', langLabel);
       }
 
-      // aplicar idioma a textos y atributos
-      function applyI18n(){
-        // texto
-        document.querySelectorAll('[data-i18n]').forEach(el=>{
-          const key = el.getAttribute('data-i18n');
-          if(key) el.textContent = tr(key, el.textContent);
-        });
-        // atributos múltiples separados por coma en data-i18n-attr
-        document.querySelectorAll('[data-i18n-attr]').forEach(el=>{
-          const keys = el.getAttribute('data-i18n-attr').split(',').map(s=>s.trim());
-          const key = el.getAttribute('data-i18n');
-          const val = tr(key, el.getAttribute(keys[0]));
-          keys.forEach(attr=> el.setAttribute(attr, val));
-        });
-        // título del documento y meta description
-        document.title = tr('doc_title', document.title);
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute('content', tr('doc_description', metaDesc.getAttribute('content')));
+      document.documentElement.setAttribute('lang', currentLang);
+      document.documentElement.setAttribute('dir', 'ltr');
+    }
 
-        // etiquetas accesibles del select
-        const langLabel = tr('lang_label','Language');
-        const langSelect = document.getElementById('langSelect');
-        if (langSelect){
-          langSelect.setAttribute('aria-label', langLabel);
-          langSelect.setAttribute('title', langLabel);
-        }
+    let currentLang = detectInitial();
+    const select = document.getElementById('langSelect');
+    if(select){ select.value = currentLang; }
 
-        // actualizar aria/tooltip del botón BuyMe
-        const buyArias = document.querySelectorAll('[data-i18n="buyme_aria"]');
-        buyArias.forEach(a=>{
-          a.setAttribute('aria-label', tr('buyme_aria', a.getAttribute('aria-label')));
-          a.setAttribute('title', tr('buyme_aria', a.getAttribute('title')));
-        });
+    applyI18n();
 
-        // html lang/dir
-        document.documentElement.setAttribute('lang', currentLang);
-        document.documentElement.setAttribute('dir', 'ltr'); // fácil de extender si agregas árabe/hebreo
-      }
+    if(select){
+      select.addEventListener('change', (e)=>{
+        currentLang = e.target.value;
+        localStorage.setItem(LANG_KEY, currentLang);
+        applyI18n();
+        const url = new URL(location.href);
+        url.searchParams.set('lang', currentLang);
+        window.history.replaceState({}, '', url);
+      });
+    }
 
-      let currentLang = detectInitial();
-      const select = document.getElementById('langSelect');
-      if(select){ select.value = currentLang; }
+    window.ReI18n = {
+      get: ()=>currentLang,
+      set: (lang)=>{
+        if(!supported.includes(lang)) return;
+        if(select){ select.value = lang; }
+        currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n();
+      },
+      t: tr,
+      supported
+    };
+  })();
 
-      // inicializar
-      applyI18n();
+  // --- THEME TOGGLE (después de i18n + con safeTr) ---
+  (function(){
+    const KEY='theme-preference';
+    const root=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    const safeTr=(k,f)=> (window.tr ? window.tr(k,f) : (f||k));
 
-      // cambios de idioma
-      if(select){
-        select.addEventListener('change', (e)=>{
-          currentLang = e.target.value;
-          localStorage.setItem(LANG_KEY, currentLang);
-          applyI18n();
-          // mantener el parámetro ?lang=... en la URL sin recargar
-          const url = new URL(location.href);
-          url.searchParams.set('lang', currentLang);
-          window.history.replaceState({}, '', url);
-        });
-      }
+    function setIcon(mode){
+      if(!btn) return;
+      btn.textContent = mode==='dark' ? '☀︎' : '☾';
+      const label = mode==='dark'
+        ? safeTr('theme_to_light', 'Switch to light mode')
+        : safeTr('theme_to_dark', 'Switch to dark mode');
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+    }
+    function applyTheme(mode){
+      root.classList.toggle('theme-dark', mode==='dark');
+      setIcon(mode);
+    }
+    function getPreferred(){
+      const saved=localStorage.getItem(KEY);
+      if(saved==='light' || saved==='dark') return saved;
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    let current=getPreferred();
+    applyTheme(current);
 
-      // expone una API mínima por si la necesitas desde otras páginas
-      window.ReI18n = {
-        get: ()=>currentLang,
-        set: (lang)=>{
-          if(!supported.includes(lang)) return;
-          if(select){ select.value = lang; }
-          currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n();
-        },
-        t: tr,
-        supported
-      };
-    })();
-  </script>
+    if(btn){
+      btn.addEventListener('click', ()=>{
+        current = current==='dark' ? 'light' : 'dark';
+        localStorage.setItem(KEY,current);
+        applyTheme(current);
+      });
+    }
+    const y=document.getElementById('y');
+    if(y) y.textContent = new Date().getFullYear();
+  })();
+</script>
 </body>
 </html>
