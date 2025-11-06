@@ -25,6 +25,7 @@
     .piano-wrap{border:1px solid var(--accent); border-radius:.6rem; background:transparent; margin:14px 0 18px; padding:10px 10px 14px;}
     .piano-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; font-size:.95rem;}
     .piano-caption{color:var(--muted); font-size:.85rem;}
+    .fretboard-wrap{margin-top:16px;}
     .support-note{margin:12px 0 16px;}
     .fretboard{width:100%; border:1px solid var(--accent); border-radius:.6rem; background:transparent;}
     .board{display:grid; grid-auto-rows:minmax(30px,5vh); grid-template-columns:40px repeat(24,1fr); position:relative; width:100%;}
@@ -140,7 +141,7 @@
       </p>
       <div class="actions">
         <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee" data-i18n="scales_buyme_aria" data-i18n-attr="aria-label">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
             <path d="M3 8h17"/><path d="M7 4h6"/>
           </svg>
@@ -656,10 +657,14 @@
         const h = 160;
         const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("viewBox","0 0 "+w+" "+h);
-        svg.setAttribute("width","100%");
-        svg.setAttribute("height","auto");
+        svg.setAttribute("width", String(w));
+        svg.setAttribute("height", String(h));
         svg.setAttribute("role","img");
         svg.setAttribute("aria-label","Piano octave showing scale tones");
+        svg.setAttribute("preserveAspectRatio","xMidYMid meet");
+        svg.style.width = "100%";
+        svg.style.height = "auto";
+        svg.style.display = "block";
 
         const cs = getComputedStyle(document.documentElement);
         const ink = cs.getPropertyValue('--ink').trim() || '#2f2a1e';
@@ -678,7 +683,10 @@
         const rootIdx = noteIndex(state.root);
         const inScaleSet = new Set(scale.map(off => (rootIdx + off) % 12));
 
-        pianoCaption.textContent = state.root + " " + state.scaleName;
+        if (pianoCaption) {
+          const pianoLabel = (state.root || '') + ' ' + getScaleLabel(state.scaleName || '');
+          pianoCaption.textContent = pianoLabel.trim();
+        }
 
         function attachPlay(el, name, octave){
           el.style.cursor='pointer';

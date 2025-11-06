@@ -218,38 +218,6 @@ html.theme-dark .support-note {
   margin-top: .45rem;
 }
 
-.support-note .btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  text-decoration: none;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  padding: .4rem .85rem;
-  font-weight: 600;
-  transition: transform .08s ease, background-color .2s ease, color .2s ease;
-}
-
-.support-note .btn:active {
-  transform: scale(.98);
-}
-
-.support-note .btn svg {
-  width: 1.05rem;
-  height: 1.05rem;
-  stroke: currentColor;
-}
-
-html:not(.theme-dark) .support-note .btn {
-  background: color-mix(in oklab, var(--paper) 85%, var(--accent) 15%);
-  color: var(--ink);
-}
-
-html.theme-dark .support-note .btn {
-  background: color-mix(in oklab, var(--ink) 55%, var(--accent) 45%);
-  color: var(--paper);
-}
-
 .support-note .dismiss {
   appearance: none;
   background: none;
@@ -273,6 +241,7 @@ footer {
   padding: 1.5rem 0;
 }
 
+.support-note .btn,
 footer .btn {
   display: inline-flex;
   align-items: center;
@@ -286,24 +255,29 @@ footer .btn {
   transition: background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
 }
 
+html:not(.theme-dark) .support-note .btn,
 html:not(.theme-dark) footer .btn {
   background: color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
   color: var(--ink);
 }
 
+html:not(.theme-dark) .support-note .btn:hover,
 html:not(.theme-dark) footer .btn:hover {
   background: color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
 }
 
+html.theme-dark .support-note .btn,
 html.theme-dark footer .btn {
   background: color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
   color: var(--paper);
 }
 
+html.theme-dark .support-note .btn:hover,
 html.theme-dark footer .btn:hover {
   background: color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
 }
 
+.support-note .btn .btn-icon,
 footer .btn .btn-icon {
   width: 1.2rem;
   height: 1.2rem;
