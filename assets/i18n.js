@@ -68,6 +68,7 @@
 
     (root || document).querySelectorAll('[data-i18n]').forEach(el => {
       if(el.hasAttribute('data-i18n-html')) return;
+      if(el.hasAttribute('data-i18n-attr-only')) return;
       const key = el.getAttribute('data-i18n');
       if(!key) return;
       const fallback = el.getAttribute('data-i18n-fallback') || el.textContent;
