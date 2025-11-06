@@ -4,15 +4,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Chords Book — playable positions (open + 0–12)</title>
+  <title data-i18n="chords_doc_title">The Chords Book — playable positions (open + 0–12)</title>
   <meta name="description"
-    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings." />
+    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings." data-i18n="chords_doc_description" data-i18n-attr="content" />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <link rel="stylesheet" href="assets/kindle.css">
   <style>
     .theme-toggle {
       font-size: 1.15rem;
+    }
+
+    .lang-select {
+      border: 1px solid var(--accent);
+      background: var(--btn-bg);
+      color: var(--ink);
+      border-radius: .45rem;
+      padding: .3rem .5rem;
+      font-size: .95rem;
+      line-height: 1;
+      font-family: inherit;
+      appearance: none;
+      cursor: pointer;
+      background-image: linear-gradient(transparent, transparent), linear-gradient(transparent, transparent);
+    }
+
+    .lang-select:focus-visible {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
     }
 
     .controls {
@@ -160,53 +179,61 @@
   <main>
     <div class="topbar">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html">← Back to index</a>
+        <a href="index.html" data-i18n="chords_back">← Back to index</a>
       </nav>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"
-        title="Toggle theme">🌓</button>
+      <div class="row" style="gap:6px; position:relative;">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="pt">PT</option>
+        </select>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"
+          title="Toggle theme">☾</button>
+      </div>
     </div>
 
     <header>
-      <h1>The Chords Book</h1>
-      <div class="subtitle">Explore unusual visions of harmony — each one a doorway to creation.</div>
+      <h1 data-i18n="chords_heading">The Chords Book</h1>
+      <div class="subtitle" data-i18n="chords_subtitle">Explore unusual visions of harmony — each one a doorway to creation.</div>
     </header>
 
     <details class="panel" open>
-      <summary>Guitar setup</summary>
+      <summary data-i18n="chords_panel_summary">Guitar setup</summary>
       <div class="panel-body">
-        <div class="controls" role="group" aria-label="Controls">
+        <div class="controls" role="group" aria-label="Controls" data-i18n="chords_controls_aria" data-i18n-attr="aria-label">
           <div class="row">
-            <label for="root">Root</label>
-            <select id="root" aria-label="Root"></select>
+            <label for="root" data-i18n="chords_control_root">Root</label>
+            <select id="root" aria-label="Root" data-i18n="chords_control_root" data-i18n-attr="aria-label"></select>
           </div>
           <div class="row">
-            <label for="chord">Chord</label>
-            <select id="chord" aria-label="Chord"></select>
+            <label for="chord" data-i18n="chords_control_chord">Chord</label>
+            <select id="chord" aria-label="Chord" data-i18n="chords_control_chord" data-i18n-attr="aria-label"></select>
           </div>
           <div class="row">
-            <label for="labels">Labels</label>
-            <select id="labels" aria-label="Labels">
-              <option value="degrees" selected>Degrees</option>
-              <option value="notes">Notes</option>
-              <option value="off">Hidden</option>
+            <label for="labels" data-i18n="chords_control_labels">Labels</label>
+            <select id="labels" aria-label="Labels" data-i18n="chords_control_labels" data-i18n-attr="aria-label">
+              <option value="degrees" selected data-i18n="chords_label_degrees">Degrees</option>
+              <option value="notes" data-i18n="chords_label_notes">Notes</option>
+              <option value="off" data-i18n="chords_label_off">Hidden</option>
             </select>
           </div>
           <div class="row">
-            <label for="stringCount">Strings (4–8)</label>
+            <label for="stringCount" data-i18n="chords_control_strings">Strings (4–8)</label>
             <input id="stringCount" type="number" min="4" max="8" value="6" style="width:86px" />
-            <button id="applyStrings" type="button">Apply</button>
+            <button id="applyStrings" type="button" data-i18n="chords_apply">Apply</button>
           </div>
         </div>
 
         <details style="margin-top:.5rem;">
-          <summary style="cursor:pointer">Tuning (optional)</summary>
-          <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
+          <summary style="cursor:pointer" data-i18n="chords_tuning_summary">Tuning (optional)</summary>
+          <div id="tuningPanel" class="tuning" aria-label="Tuning editor" data-i18n="chords_tuning_aria" data-i18n-attr="aria-label"></div>
         </details>
       </div>
     </details>
 
     <div class="bank">
-      <div class="counter" id="countWrap"><span id="count">0</span> playable positions</div>
+      <div class="counter" id="countWrap"><span id="count">0</span> <span data-i18n="chords_positions_label">playable positions</span></div>
       <div class="counter" id="context"></div>
     </div>
 
@@ -214,19 +241,141 @@
     <footer>
       <!-- Botón Buy Me a Coffee adaptado al tema (sin script externo) -->
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
-         aria-label="Support this library on Buy Me a Coffee">
+         aria-label="Support this library on Buy Me a Coffee" data-i18n="chords_footer_buyme_aria" data-i18n-attr="aria-label">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
           <path d="M3 8h17"/>
           <path d="M7 4h6"/>
         </svg>
-        <span>Buy me a coffee</span>
+        <span data-i18n="chords_buyme">Buy me a coffee</span>
       </a>
-      
-      <span class="note">Fuel the craft. Inspire the next page.</span>
+
+      <span class="note" data-i18n="chords_footer_note">Fuel the craft. Inspire the next page.</span>
       <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
   </main>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    const chordsMessages = {
+      en: {
+        doc_title: "The Chords Book — playable positions (open + 0–12)",
+        doc_description: "All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings.",
+        lang_label: "Language",
+        chords_back: "← Back to index",
+        chords_heading: "The Chords Book",
+        chords_subtitle: "Explore unusual visions of harmony — each one a doorway to creation.",
+        chords_panel_summary: "Guitar setup",
+        chords_controls_aria: "Controls",
+        chords_control_root: "Root",
+        chords_control_chord: "Chord",
+        chords_control_labels: "Labels",
+        chords_label_degrees: "Degrees",
+        chords_label_notes: "Notes",
+        chords_label_off: "Hidden",
+        chords_control_strings: "Strings (4–8)",
+        chords_apply: "Apply",
+        chords_tuning_summary: "Tuning (optional)",
+        chords_tuning_aria: "Tuning editor",
+        chords_positions_label: "playable positions",
+        chords_context: "{root} {chord} — frets 0–12 ({count} playable positions)",
+        chords_meta_frets: "frets {min}–{max}",
+        chords_meta_strings: "strings {first}–{last}",
+        chords_meta_position: "position ~{pos}",
+        chords_buyme: "Buy me a coffee",
+        chords_footer_note: "Fuel the craft. Inspire the next page.",
+        chords_footer_buyme_aria: "Support this library on Buy Me a Coffee",
+        chords_tuning_string_label: "String {n}",
+        chords_tuning_lower: "Lower",
+        chords_tuning_raise: "Raise",
+        chords_tuning_set_note: "Set note for string {n}",
+        chords_tuning_lower_aria: "Lower string {n}",
+        chords_tuning_raise_aria: "Raise string {n}",
+        theme_to_light: "Switch to light mode",
+        theme_to_dark: "Switch to dark mode"
+      },
+      es: {
+        doc_title: "The Chords Book — posiciones tocables (abiertas + 0–12)",
+        doc_description: "Todas las digitaciones tocables entre los trastes 0 y 12, incluyendo cuerdas al aire. Compatible con guitarras de 4 a 8 cuerdas.",
+        lang_label: "Idioma",
+        chords_back: "← Volver al índice",
+        chords_heading: "The Chords Book",
+        chords_subtitle: "Explora visiones inusuales de la armonía — cada una es una puerta hacia la creación.",
+        chords_panel_summary: "Configuración de guitarra",
+        chords_controls_aria: "Controles",
+        chords_control_root: "Tónica",
+        chords_control_chord: "Acorde",
+        chords_control_labels: "Etiquetas",
+        chords_label_degrees: "Grados",
+        chords_label_notes: "Notas",
+        chords_label_off: "Ocultas",
+        chords_control_strings: "Cuerdas (4–8)",
+        chords_apply: "Aplicar",
+        chords_tuning_summary: "Afinación (opcional)",
+        chords_tuning_aria: "Editor de afinación",
+        chords_positions_label: "posiciones tocables",
+        chords_context: "{root} {chord} — trastes 0–12 ({count} posiciones tocables)",
+        chords_meta_frets: "trastes {min}–{max}",
+        chords_meta_strings: "cuerdas {first}–{last}",
+        chords_meta_position: "posición ~{pos}",
+        chords_buyme: "Invítame un café",
+        chords_footer_note: "Alimenta el oficio. Inspira la siguiente página.",
+        chords_footer_buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
+        chords_tuning_string_label: "Cuerda {n}",
+        chords_tuning_lower: "Bajar",
+        chords_tuning_raise: "Subir",
+        chords_tuning_set_note: "Define la nota de la cuerda {n}",
+        chords_tuning_lower_aria: "Bajar cuerda {n}",
+        chords_tuning_raise_aria: "Subir cuerda {n}",
+        theme_to_light: "Cambiar a modo claro",
+        theme_to_dark: "Cambiar a modo oscuro"
+      },
+      pt: {
+        doc_title: "The Chords Book — posições tocáveis (abertas + 0–12)",
+        doc_description: "Todos os formatos tocáveis entre os trastes 0 e 12, incluindo cordas soltas. Compatível com guitarras de 4 a 8 cordas.",
+        lang_label: "Idioma",
+        chords_back: "← Voltar ao índice",
+        chords_heading: "The Chords Book",
+        chords_subtitle: "Explore visões incomuns da harmonia — cada uma é uma porta para a criação.",
+        chords_panel_summary: "Configuração da guitarra",
+        chords_controls_aria: "Controles",
+        chords_control_root: "Tônica",
+        chords_control_chord: "Acorde",
+        chords_control_labels: "Rótulos",
+        chords_label_degrees: "Graus",
+        chords_label_notes: "Notas",
+        chords_label_off: "Ocultos",
+        chords_control_strings: "Cordas (4–8)",
+        chords_apply: "Aplicar",
+        chords_tuning_summary: "Afinação (opcional)",
+        chords_tuning_aria: "Editor de afinação",
+        chords_positions_label: "posições tocáveis",
+        chords_context: "{root} {chord} — trastes 0–12 ({count} posições tocáveis)",
+        chords_meta_frets: "trastes {min}–{max}",
+        chords_meta_strings: "cordas {first}–{last}",
+        chords_meta_position: "posição ~{pos}",
+        chords_buyme: "Pague-me um café",
+        chords_footer_note: "Alimente o ofício. Inspire a próxima página.",
+        chords_footer_buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
+        chords_tuning_string_label: "Corda {n}",
+        chords_tuning_lower: "Baixar",
+        chords_tuning_raise: "Subir",
+        chords_tuning_set_note: "Defina a nota da corda {n}",
+        chords_tuning_lower_aria: "Baixar corda {n}",
+        chords_tuning_raise_aria: "Subir corda {n}",
+        theme_to_light: "Alternar para modo claro",
+        theme_to_dark: "Alternar para modo escuro"
+      }
+    };
+
+    window.tr = (key, fallback) => (window.ReI18n ? ReI18n.t(key, fallback) : (fallback || key));
+    if (window.ReI18n) {
+      ReI18n.init({
+        messages: chordsMessages,
+        select: document.getElementById('langSelect')
+      });
+    }
+  </script>
 
   <!-- Theme toggle (same logic as Scales page) -->
   <script>
@@ -234,7 +383,18 @@
       const KEY = 'theme-preference';
       const root = document.documentElement;
       const btn = document.getElementById('themeToggle');
-      function setIcon(mode) { btn.textContent = '◑'; }
+      const safeTr = (k, f) => (window.tr ? window.tr(k, f) : (f || k));
+
+      function setIcon(mode) {
+        if (!btn) return;
+        btn.textContent = mode === 'dark' ? '☀︎' : '☾';
+        const label = mode === 'dark'
+          ? safeTr('theme_to_light', 'Switch to light mode')
+          : safeTr('theme_to_dark', 'Switch to dark mode');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      }
+
       function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
       function getPreferred() {
         const saved = localStorage.getItem(KEY);
@@ -243,7 +403,18 @@
       }
       let current = getPreferred();
       apply(current);
-      btn.addEventListener('click', () => { current = current === 'dark' ? 'light' : 'dark'; localStorage.setItem(KEY, current); apply(current); });
+      if (btn) {
+        btn.addEventListener('click', () => {
+          current = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem(KEY, current);
+          apply(current);
+        });
+      }
+      if (window.ReI18n) {
+        ReI18n.onChange(() => { setIcon(current); });
+      }
+      const y = document.getElementById('y');
+      if (y) y.textContent = new Date().getFullYear();
     })();
   </script>
 
@@ -296,6 +467,9 @@
       const stringCountInput = document.getElementById('stringCount');
       const applyBtn = document.getElementById('applyStrings');
 
+      const t = (key, fallback) => (window.tr ? window.tr(key, fallback) : (fallback || key));
+      const format = (template, values = {}) => String(template || '').replace(/\{(\w+)\}/g, (_, k) => (values[k] != null ? values[k] : ''));
+
       // --- Helpers ---
       const wrap = (n) => (n + 12) % 12;
       const idx = (n) => PC[n];
@@ -326,13 +500,20 @@
         for (let i = 0; i < state.tuning.length; i++) {
           const note = state.tuning[i];
           const opts = NOTES.map(n => `<option value="${n}" ${n === note ? 'selected' : ''}>${n}</option>`).join('');
+          const stringNum = i + 1;
+          const stringLabel = format(t('chords_tuning_string_label', 'String {n}'), { n: stringNum });
+          const lowerTitle = t('chords_tuning_lower', 'Lower');
+          const raiseTitle = t('chords_tuning_raise', 'Raise');
+          const setNote = format(t('chords_tuning_set_note', 'Set note for string {n}'), { n: stringNum });
+          const lowerAria = format(t('chords_tuning_lower_aria', 'Lower string {n}'), { n: stringNum });
+          const raiseAria = format(t('chords_tuning_raise_aria', 'Raise string {n}'), { n: stringNum });
           html += `<div class="string-card">
-          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">String ${i + 1}</div>
+          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">${stringLabel}</div>
           <div class="row" style="gap:6px;">
-            <button data-act="down" data-idx="${i}" title="Lower" aria-label="Lower string ${i + 1}">−</button>
+            <button data-act="down" data-idx="${i}" title="${lowerTitle}" aria-label="${lowerAria}">−</button>
             <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
-            <button data-act="up" data-idx="${i}" title="Raise" aria-label="Raise string ${i + 1}">+</button>
-            <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="Set note for string ${i + 1}">${opts}</select>
+            <button data-act="up" data-idx="${i}" title="${raiseTitle}" aria-label="${raiseAria}">+</button>
+            <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="${setNote}">${opts}</select>
           </div>
         </div>`;
         }
@@ -435,15 +616,13 @@
         return dedup;
       }
 
-      // English labels
-      
-      function stringsLabel(s0, s1, total) {
-        return `strings ${s0 + 1}–${s1 + 1}`;
+      function stringsLabel(s0, s1) {
+        return format(t('chords_meta_strings', 'strings {first}–{last}'), { first: s0 + 1, last: s1 + 1 });
       }
-      
+
       function posLabel(median) {
         const near = Math.max(0, Math.min(12, Math.round(median)));
-        return `position ~${near}`;
+        return format(t('chords_meta_position', 'position ~{pos}'), { pos: near });
       }
 
       // SVG card (nut rendered at fret 1 when startF=0, coherent with Scales)
@@ -502,12 +681,16 @@
       function renderCards(list) {
         countEl.textContent = list.length;
         const root = state.root; const chordN = state.chordName;
-        ctxEl.textContent = `${root} ${chordN} — frets 0–12 (${list.length} playable positions)`;
+        ctxEl.textContent = format(t('chords_context', '{root} {chord} — frets 0–12 ({count} playable positions)'), {
+          root,
+          chord: chordN,
+          count: list.length
+        });
 
         cardsEl.innerHTML = list.map(v => {
           const title = `${posLabel(v.median)}`;
-          const meta1 = `frets ${v.minF}–${v.maxF}`;
-          const meta2 = stringsLabel(v.s0, v.s1, state.strings);
+          const meta1 = format(t('chords_meta_frets', 'frets {min}–{max}'), { min: v.minF, max: v.maxF });
+          const meta2 = stringsLabel(v.s0, v.s1);
           const svg = svgCard(v, state.labels);
           return `<article class="card">
           <div class="title">${title}</div>
@@ -545,6 +728,13 @@
         renderTuningEditor();
         computeAndRender();
       })();
+
+      if (window.ReI18n) {
+        ReI18n.onChange(() => {
+          renderTuningEditor();
+          rerender();
+        });
+      }
     })();
   </script>
 </body>
