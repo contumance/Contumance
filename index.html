@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Re:sonance — A quiet selection for curious hands.</title>
-  <meta name="description" content="Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening." />
+  <title data-i18n="doc_title">Re:sonance — A quiet selection for curious hands.</title>
+  <meta name="description" content="Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening." data-i18n-attr="content" data-i18n="doc_description" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
   <style>
     :root{
@@ -27,8 +27,6 @@
       font-family:ui-serif, Georgia, "Iowan Old Style","Palatino Linotype", Palatino, serif;
       line-height:var(--lh); text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
     }
-
-    /* textura sutil tipo papel */
     body::before{
       content:""; position:fixed; inset:0; pointer-events:none; opacity:.06;
       background-image:
@@ -36,18 +34,27 @@
         radial-gradient(circle at 75% 85%, #000 .5px, transparent .5px);
       background-size:3px 3px, 3px 3px; mix-blend-mode:multiply;
     }
-
     main{max-width:var(--maxw); margin:0 auto; padding:9vh 1.25rem 4rem}
 
     header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
     header h1{font-weight:600; margin:0 0 .25rem 0; font-size:clamp(1.8rem,4vw,2.4rem); letter-spacing:.2px}
     header p.desc{margin:0 0 2rem 0; color:var(--muted); font-style:italic}
 
+    .controls{display:flex; gap:.5rem; align-items:center}
+
     .theme-toggle{
       border:1px solid var(--accent); background:transparent; color:var(--ink);
-      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.15rem; line-height:1
+      border-radius:.45rem; padding:.35rem .55rem; cursor:pointer; font-size:1.05rem; line-height:1
     }
     .theme-toggle:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
+
+    .lang-select{
+      border:1px solid var(--accent); background:var(--btn-bg); color:var(--ink);
+      border-radius:.45rem; padding:.3rem .5rem; font-size:.95rem; line-height:1;
+      appearance:none; cursor:pointer;
+      background-image: linear-gradient(transparent,transparent), linear-gradient(transparent,transparent);
+    }
+    .lang-select:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
 
     hr{border:none; border-top:1px solid var(--accent); margin:1.5rem 0; opacity:.5}
 
@@ -68,74 +75,42 @@
       grid-template-areas:
         "icon title"
         "icon meta";
-      column-gap:.75rem;
-      row-gap:.2rem;
-      align-items:center;
-      padding:.85rem 0;
-      width:100%;
+      column-gap:.75rem; row-gap:.2rem; align-items:center;
+      padding:.85rem 0; width:100%;
     }
     .item:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
-    .item:hover .title,
-    .item:focus-visible .title{text-decoration:underline}
+    .item:hover .title,.item:focus-visible .title{text-decoration:underline}
 
     .icon{grid-area:icon; width:1.15rem; height:1.15rem; margin:0; color:currentColor; opacity:.9}
     .title{grid-area:title; line-height:1.25}
     .meta{grid-area:meta; color:var(--muted); font-size:.95rem; margin-top:.1rem}
 
-/* Footer base */
-footer{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:.25rem;
-  font-size:.9rem;
-  opacity:.9;
-  padding:1.5rem 0;
-}
-
-/* Botón Buy Me a Coffee adaptado al tema */
-footer .btn{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  text-decoration:none;
-  border:1px solid var(--accent);
-  border-radius:999px;
-  padding:.45rem .95rem;
-  font-size:.9rem;
-  font-weight:500;
-  transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
-}
-
-/* Modo claro */
-html:not(.theme-dark) footer .btn{
-  background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
-  color:var(--ink);
-}
-html:not(.theme-dark) footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
-}
-
-/* Modo oscuro */
-html.theme-dark footer .btn{
-  background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
-  color:var(--paper);
-}
-html.theme-dark footer .btn:hover{
-  background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
-}
-
-/* Ícono coherente con el color del texto */
-footer .btn .btn-icon{
-  width:1.2rem;
-  height:1.2rem;
-  stroke:currentColor;
-}
-
-/* Texto complementario */
-footer .note{font-size:.85rem;color:var(--muted)}
-footer .byline{font-size:.75rem;opacity:.7}
-footer .byline em{font-style:italic;letter-spacing:.02em}
+    footer{
+      display:flex; flex-direction:column; align-items:center; gap:.25rem;
+      font-size:.9rem; opacity:.9; padding:1.5rem 0;
+    }
+    footer .btn{
+      display:inline-flex; align-items:center; gap:.5rem; text-decoration:none;
+      border:1px solid var(--accent); border-radius:999px; padding:.45rem .95rem;
+      font-size:.9rem; font-weight:500;
+      transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+    }
+    html:not(.theme-dark) footer .btn{
+      background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%); color:var(--ink);
+    }
+    html:not(.theme-dark) footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+    }
+    html.theme-dark footer .btn{
+      background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%); color:var(--paper);
+    }
+    html.theme-dark footer .btn:hover{
+      background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+    }
+    footer .btn .btn-icon{width:1.2rem; height:1.2rem; stroke:currentColor;}
+    footer .note{font-size:.85rem;color:var(--muted)}
+    footer .byline{font-size:.75rem;opacity:.7}
+    footer .byline em{font-style:italic;letter-spacing:.02em}
 
     @media (prefers-reduced-motion:no-preference){
       a{position:relative; background-image:linear-gradient(currentColor, currentColor);
@@ -155,15 +130,23 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
     <header class="header">
       <div>
         <h1>Re:sonance</h1>
-        <p class="desc">A quiet selection for curious hands.</p>
+        <p class="desc" data-i18n="tagline">A quiet selection for curious hands.</p>
       </div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+      <div class="controls">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
+          <option value="en">🌐 EN</option>
+          <option value="es">🌐 ES</option>
+          <option value="pt">🌐 PT</option>
+        </select>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+      </div>
     </header>
 
     <hr>
 
     <nav aria-label="Library">
-      <h2>Collection</h2>
+      <h2 data-i18n="collection">Collection</h2>
       <ul class="index">
 
         <!-- SCALES -->
@@ -175,8 +158,8 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
               <circle cx="14" cy="10.6" r="1.6"></circle>
               <circle cx="18.5" cy="8" r="1.6"></circle>
             </svg>
-            <span class="title">The Scales Book</span>
-            <span class="meta">Paths that guide the hand toward unseen colors.</span>
+            <span class="title" data-i18n="app_scales_title">The Scales Book</span>
+            <span class="meta" data-i18n="app_scales_meta">Paths that guide the hand toward unseen colors.</span>
           </a>
         </li>
 
@@ -189,12 +172,12 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
               <circle cx="12" cy="7" r="2.4"></circle>
               <path d="M7.9 16.2 L10.4 8.8 M16.1 16.2 L13.6 8.8" />
             </svg>
-            <span class="title">The Chords Book</span>
-            <span class="meta">Forms of resonance across the strings.</span>
+            <span class="title" data-i18n="app_chords_title">The Chords Book</span>
+            <span class="meta" data-i18n="app_chords_meta">Forms of resonance across the strings.</span>
           </a>
         </li>
 
-        <!-- DAILY CHORD / APP -->
+        <!-- DAILY CHORD -->
         <li>
           <a class="item" href="the-daily-chord.html">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -202,87 +185,78 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
               <path d="M7 4 v3 M17 4 v3 M3.5 9 h17" />
               <path d="M12 13.1 v-1.7 M12 13.1 l1.15 1.15 M12 13.1 l-1.15 1.15 M12 13.1 v1.7" />
             </svg>
-            <span class="title">The Daily Chord</span>
-            <span class="meta">Each day, a chord — seen anew, to awaken inspiration.</span>
+            <span class="title" data-i18n="app_daily_title">The Daily Chord</span>
+            <span class="meta" data-i18n="app_daily_meta">Each day, a chord — seen anew, to awaken inspiration.</span>
           </a>
         </li>
-        
+
         <!-- BOUNCE GARDEN -->
-<li>
-  <a class="item" href="the-bounce-garden.html">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
-      <!-- Círculo principal -->
-      <circle cx="12" cy="12" r="9" />
-      <!-- Nodos internos -->
-      <circle cx="8" cy="10" r="1.2" />
-      <circle cx="16" cy="14" r="1.2" />
-    </svg>
-    <span class="title">The Bounce Garden</span>
-    <span class="meta">Where collisions sing — melodic orbits and rhythmic echoes within a circle.</span>
-  </a>
-</li>
+        <li>
+          <a class="item" href="the-bounce-garden.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="8" cy="10" r="1.2" />
+              <circle cx="16" cy="14" r="1.2" />
+            </svg>
+            <span class="title" data-i18n="app_bounce_title">The Bounce Garden</span>
+            <span class="meta" data-i18n="app_bounce_meta">Where collisions sing — melodic orbits and rhythmic echoes within a circle.</span>
+          </a>
+        </li>
 
-<!-- MODAL ARCHITECT -->
-<li>
-  <a class="item" href="modal-architect.html">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"
-         fill="none" stroke="currentColor" stroke-width="1.5"
-         stroke-linecap="round" stroke-linejoin="round">
-      <!-- base structure -->
-      <rect x="3" y="10" width="5" height="10" rx="0.8"></rect>
-      <rect x="10" y="6" width="4" height="14" rx="0.8"></rect>
-      <rect x="16" y="3" width="5" height="17" rx="0.8"></rect>
-      <!-- harmonic connection lines -->
-      <path d="M3 10 L10 6 L16 3" />
-      <path d="M8 20 L14 20 L21 20" />
-    </svg>
-    <span class="title">The Modal Architect</span>
-    <span class="meta">Design harmonic structures from scale geometry.</span>
-  </a>
-</li>
+        <!-- MODAL ARCHITECT -->
+        <li>
+          <a class="item" href="modal-architect.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="10" width="5" height="10" rx="0.8"></rect>
+              <rect x="10" y="6" width="4" height="14" rx="0.8"></rect>
+              <rect x="16" y="3" width="5" height="17" rx="0.8"></rect>
+              <path d="M3 10 L10 6 L16 3" />
+              <path d="M8 20 L14 20 L21 20" />
+            </svg>
+            <span class="title" data-i18n="app_modal_title">The Modal Architect</span>
+            <span class="meta" data-i18n="app_modal_meta">Design harmonic structures from scale geometry.</span>
+          </a>
+        </li>
 
-<!-- POLYRHYTHM FORGE -->
-<li>
-  <a class="item" href="polyrhythm-forge.html">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-      <!-- Anillos -->
-      <circle cx="12" cy="12" r="8.5" />
-      <circle cx="12" cy="12" r="5.5" />
-      <circle cx="12" cy="12" r="2.5" />
-      <!-- Playhead -->
-      <line x1="12" y1="12" x2="12" y2="3.5" />
-      <!-- Pasos (puntos) -->
-      <circle cx="12" cy="3.5" r="1.1" fill="currentColor" stroke="none"/>
-      <circle cx="19.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
-      <circle cx="12" cy="20.5" r="0.9" fill="currentColor" stroke="none"/>
-      <circle cx="4.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
-    </svg>
-    <span class="title">The Polyrhythm Forge</span>
-    <span class="meta">Concentric rings for polyrhythms & polymeters — Mesh-ish grooves, Euclidean accents, swing & pan.</span>
-  </a>
-</li>
+        <!-- POLYRHYTHM FORGE -->
+        <li>
+          <a class="item" href="polyrhythm-forge.html">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8.5" />
+              <circle cx="12" cy="12" r="5.5" />
+              <circle cx="12" cy="12" r="2.5" />
+              <line x1="12" y1="12" x2="12" y2="3.5" />
+              <circle cx="12" cy="3.5" r="1.1" fill="currentColor" stroke="none"/>
+              <circle cx="19.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+              <circle cx="12" cy="20.5" r="0.9" fill="currentColor" stroke="none"/>
+              <circle cx="4.5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
+            </svg>
+            <span class="title" data-i18n="app_poly_title">The Polyrhythm Forge</span>
+            <span class="meta" data-i18n="app_poly_meta">Concentric rings for polyrhythms & polymeters — Mesh-ish grooves, Euclidean accents, swing & pan.</span>
+          </a>
+        </li>
 
       </ul>
     </nav>
 
- <footer>
-  <!-- Botón Buy Me a Coffee adaptado al tema (sin script externo) -->
-  <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
-     aria-label="Support this library on Buy Me a Coffee">
-    <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
-      <path d="M3 8h17"/>
-      <path d="M7 4h6"/>
-    </svg>
-    <span>Buy me a coffee</span>
-  </a>
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         data-i18n-attr="aria-label,title" aria-label="Support this library on Buy Me a Coffee" title="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span data-i18n="buyme">Buy me a coffee</span>
+      </a>
 
-  <span class="note">Fuel the craft. Inspire the next page.</span>
-  <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
-</footer>
+      <span class="note" data-i18n="footer_note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
   </main>
 
   <script>
+    // --- THEME TOGGLE (sin cambios) ---
     (function(){
       const KEY='theme-preference';
       const root=document.documentElement;
@@ -290,18 +264,192 @@ footer .byline em{font-style:italic;letter-spacing:.02em}
 
       function setIcon(mode){
         btn.textContent = mode==='dark' ? '☀︎' : '☾';
-        btn.setAttribute('aria-label', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
-        btn.setAttribute('title', mode==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        const label = mode==='dark'
+          ? tr('theme_to_light', 'Switch to light mode')
+          : tr('theme_to_dark', 'Switch to dark mode');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
       }
-      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+      function applyTheme(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
       function getPreferred(){
         const saved=localStorage.getItem(KEY);
         if(saved==='light' || saved==='dark') return saved;
         return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
       }
-      let current=getPreferred(); apply(current);
-      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); apply(current); });
+      let current=getPreferred(); applyTheme(current);
+      btn.addEventListener('click', ()=>{ current = current==='dark' ? 'light' : 'dark'; localStorage.setItem(KEY,current); applyTheme(current); });
       document.getElementById('y').textContent = new Date().getFullYear();
+    })();
+
+    // --- I18N ---
+    (function(){
+      const LANG_KEY = 'resonance-lang';
+      const qs = new URLSearchParams(location.search);
+      const supported = ['en','es','pt'];
+
+      const messages = {
+        en: {
+          doc_title: "Re:sonance — A quiet selection for curious hands.",
+          doc_description: "Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening.",
+          tagline: "A quiet selection for curious hands.",
+          collection: "Collection",
+          app_scales_title: "The Scales Book",
+          app_scales_meta: "Paths that guide the hand toward unseen colors.",
+          app_chords_title: "The Chords Book",
+          app_chords_meta: "Forms of resonance across the strings.",
+          app_daily_title: "The Daily Chord",
+          app_daily_meta: "Each day, a chord — seen anew, to awaken inspiration.",
+          app_bounce_title: "The Bounce Garden",
+          app_bounce_meta: "Where collisions sing — melodic orbits and rhythmic echoes within a circle.",
+          app_modal_title: "The Modal Architect",
+          app_modal_meta: "Design harmonic structures from scale geometry.",
+          app_poly_title: "The Polyrhythm Forge",
+          app_poly_meta: "Concentric rings for polyrhythms & polymeters — Mesh-ish grooves, Euclidean accents, swing & pan.",
+          buyme: "Buy me a coffee",
+          buyme_aria: "Support this library on Buy Me a Coffee",
+          footer_note: "Fuel the craft. Inspire the next page.",
+          lang_label: "Language",
+          theme_to_light: "Switch to light mode",
+          theme_to_dark: "Switch to dark mode"
+        },
+        es: {
+          doc_title: "Re:sonance — Una selección silenciosa para manos curiosas.",
+          doc_description: "Re:sonance — Una biblioteca experimental de sonido, color y movimiento sutil. Senderos de vibración que despiertan nuevas formas de escuchar.",
+          tagline: "Una selección silenciosa para manos curiosas.",
+          collection: "Colección",
+          app_scales_title: "The Scales Book",
+          app_scales_meta: "Caminos que guían la mano hacia colores invisibles.",
+          app_chords_title: "The Chords Book",
+          app_chords_meta: "Formas de resonancia a lo largo de las cuerdas.",
+          app_daily_title: "The Daily Chord",
+          app_daily_meta: "Cada día, un acorde — visto de nuevo, para despertar inspiración.",
+          app_bounce_title: "The Bounce Garden",
+          app_bounce_meta: "Donde las colisiones cantan — órbitas melódicas y ecos rítmicos dentro de un círculo.",
+          app_modal_title: "The Modal Architect",
+          app_modal_meta: "Diseña estructuras armónicas desde la geometría de las escalas.",
+          app_poly_title: "The Polyrhythm Forge",
+          app_poly_meta: "Anillos concéntricos para polirritmos y polímetros — grooves tipo Mesh, acentos euclídeos, swing y paneo.",
+          buyme: "Invítame un café",
+          buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
+          footer_note: "Alimenta el oficio. Inspira la próxima página.",
+          lang_label: "Idioma",
+          theme_to_light: "Cambiar a modo claro",
+          theme_to_dark: "Cambiar a modo oscuro"
+        },
+        pt: {
+          doc_title: "Re:sonance — Uma seleção silenciosa para mãos curiosas.",
+          doc_description: "Re:sonance — Uma biblioteca experimental de som, cor e movimento sutil. Caminhos de vibração que despertam novas formas de escutar.",
+          tagline: "Uma seleção silenciosa para mãos curiosas.",
+          collection: "Coleção",
+          app_scales_title: "The Scales Book",
+          app_scales_meta: "Caminhos que guiam a mão a cores invisíveis.",
+          app_chords_title: "The Chords Book",
+          app_chords_meta: "Formas de ressonância através das cordas.",
+          app_daily_title: "The Daily Chord",
+          app_daily_meta: "A cada dia, um acorde — visto de novo, para despertar inspiração.",
+          app_bounce_title: "The Bounce Garden",
+          app_bounce_meta: "Onde colisões cantam — órbitas melódicas e ecos rítmicos dentro de um círculo.",
+          app_modal_title: "The Modal Architect",
+          app_modal_meta: "Desenhe estruturas harmônicas a partir da geometria das escalas.",
+          app_poly_title: "The Polyrhythm Forge",
+          app_poly_meta: "Anéis concêntricos para polirritmos e polímetros — grooves tipo Mesh, acentos euclidianos, swing e pan.",
+          buyme: "Pague-me um café",
+          buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
+          footer_note: "Alimente o ofício. Inspire a próxima página.",
+          lang_label: "Idioma",
+          theme_to_light: "Alternar para modo claro",
+          theme_to_dark: "Alternar para modo escuro"
+        }
+      };
+
+      // util de traducción segura
+      function tr(key, fallback){
+        const dict = messages[currentLang] || messages.en;
+        return (dict && dict[key]) || fallback || key;
+      }
+      window.tr = tr; // usado por el theme toggle
+
+      // detectar idioma
+      function detectInitial(){
+        const fromQuery = (qs.get('lang')||'').toLowerCase();
+        if(supported.includes(fromQuery)) return fromQuery;
+        const saved = localStorage.getItem(LANG_KEY);
+        if(supported.includes(saved)) return saved;
+        const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+        const base = (nav||'en').slice(0,2).toLowerCase();
+        return supported.includes(base)? base : 'en';
+      }
+
+      // aplicar idioma a textos y atributos
+      function applyI18n(){
+        // texto
+        document.querySelectorAll('[data-i18n]').forEach(el=>{
+          const key = el.getAttribute('data-i18n');
+          if(key) el.textContent = tr(key, el.textContent);
+        });
+        // atributos múltiples separados por coma en data-i18n-attr
+        document.querySelectorAll('[data-i18n-attr]').forEach(el=>{
+          const keys = el.getAttribute('data-i18n-attr').split(',').map(s=>s.trim());
+          const key = el.getAttribute('data-i18n');
+          const val = tr(key, el.getAttribute(keys[0]));
+          keys.forEach(attr=> el.setAttribute(attr, val));
+        });
+        // título del documento y meta description
+        document.title = tr('doc_title', document.title);
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', tr('doc_description', metaDesc.getAttribute('content')));
+
+        // etiquetas accesibles del select
+        const langLabel = tr('lang_label','Language');
+        const langSelect = document.getElementById('langSelect');
+        if (langSelect){
+          langSelect.setAttribute('aria-label', langLabel);
+          langSelect.setAttribute('title', langLabel);
+        }
+
+        // actualizar aria/tooltip del botón BuyMe
+        const buyArias = document.querySelectorAll('[data-i18n="buyme_aria"]');
+        buyArias.forEach(a=>{
+          a.setAttribute('aria-label', tr('buyme_aria', a.getAttribute('aria-label')));
+          a.setAttribute('title', tr('buyme_aria', a.getAttribute('title')));
+        });
+
+        // html lang/dir
+        document.documentElement.setAttribute('lang', currentLang);
+        document.documentElement.setAttribute('dir', 'ltr'); // fácil de extender si agregas árabe/hebreo
+      }
+
+      let currentLang = detectInitial();
+      const select = document.getElementById('langSelect');
+      if(select){ select.value = currentLang; }
+
+      // inicializar
+      applyI18n();
+
+      // cambios de idioma
+      if(select){
+        select.addEventListener('change', (e)=>{
+          currentLang = e.target.value;
+          localStorage.setItem(LANG_KEY, currentLang);
+          applyI18n();
+          // mantener el parámetro ?lang=... en la URL sin recargar
+          const url = new URL(location.href);
+          url.searchParams.set('lang', currentLang);
+          window.history.replaceState({}, '', url);
+        });
+      }
+
+      // expone una API mínima por si la necesitas desde otras páginas
+      window.ReI18n = {
+        get: ()=>currentLang,
+        set: (lang)=>{
+          if(!supported.includes(lang)) return;
+          if(select){ select.value = lang; }
+          currentLang = lang; localStorage.setItem(LANG_KEY, lang); applyI18n();
+        },
+        t: tr,
+        supported
+      };
     })();
   </script>
 </body>
