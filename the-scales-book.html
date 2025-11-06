@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Scales Book — Contumance</title>
-  <meta name="description" content="The Scales Book — minimal interactive fretboard with e-ink-style aesthetics." />
+  <title data-i18n="scales_doc_title">The Scales Book — Contumance</title>
+  <meta name="description" content="The Scales Book — minimal interactive fretboard with e-ink-style aesthetics." data-i18n="scales_doc_description" data-i18n-attr="content" />
   <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <link rel="stylesheet" href="assets/kindle.css">
@@ -50,56 +50,62 @@
   <main>
     <div class="topbar">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html">← Back to index</a>
+        <a href="index.html" data-i18n="scales_back">← Back to index</a>
       </nav>
-      <div class="row" style="gap:6px;">
+      <div class="row" style="gap:6px; position:relative;">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="pt">PT</option>
+        </select>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
       </div>
     </div>
 
     <header>
-      <h1>The Scales Book</h1>
-      <div class="subtitle">Paths that lead the hand to the new colors.</div>
+      <h1 data-i18n="scales_heading">The Scales Book</h1>
+      <div class="subtitle" data-i18n="scales_subtitle">Paths that lead the hand to the new colors.</div>
     </header>
 
     <details class="panel" id="panel" open>
-      <summary>Guitar setup</summary>
+      <summary data-i18n="scales_panel_summary">Guitar setup</summary>
       <div class="panel-body">
         <div class="controls" role="group" aria-label="Controls">
           <div class="row">
-            <label for="stringCount">Strings</label>
+            <label for="stringCount" data-i18n="scales_control_strings">Strings</label>
             <input id="stringCount" type="number" min="3" max="10" value="6" style="width:86px" />
-            <button id="applyStrings">Apply</button>
+            <button id="applyStrings" data-i18n="scales_apply">Apply</button>
           </div>
           <div class="row">
-            <label for="root">Root</label>
+            <label for="root" data-i18n="scales_control_root">Root</label>
             <select id="root"></select>
           </div>
           <div class="row">
-            <label for="scale">Scale</label>
-            <select id="scale" disabled>
-              <option>Loading scales…</option>
+            <label for="scale" data-i18n="scales_control_scale">Scale</label>
+            <select id="scale" disabled title="Choose a scale" data-i18n-attr="title" data-i18n="scales_scale_select_title">
+              <option data-i18n="scales_loading">Loading scales…</option>
             </select>
           </div>
           <div class="row">
-            <label for="labels">Labels</label>
+            <label for="labels" data-i18n="scales_control_labels">Labels</label>
             <select id="labels">
-              <option value="notes">Notes</option>
-              <option value="degrees">Degrees</option>
-              <option value="off">Hidden</option>
+              <option value="notes" data-i18n="scales_labels_notes">Notes</option>
+              <option value="degrees" data-i18n="scales_labels_degrees">Degrees</option>
+              <option value="off" data-i18n="scales_labels_off">Hidden</option>
             </select>
           </div>
           <div class="row">
-            <label for="wave">Wave</label>
+            <label for="wave" data-i18n="scales_control_wave">Wave</label>
             <select id="wave">
-              <option>sine</option>
-              <option>triangle</option>
-              <option>square</option>
-              <option>sawtooth</option>
+              <option data-i18n="scales_wave_sine">sine</option>
+              <option data-i18n="scales_wave_triangle">triangle</option>
+              <option data-i18n="scales_wave_square">square</option>
+              <option data-i18n="scales_wave_saw">sawtooth</option>
             </select>
           </div>
           <div class="row" style="min-width:190px;">
-            <label for="volume">Volume</label>
+            <label for="volume" data-i18n="scales_control_volume">Volume</label>
             <input id="volume" type="range" min="0" max="1" step="0.01" value="0.6" style="width:120px;">
           </div>
         </div>
@@ -113,48 +119,215 @@
       </div>
     </section>
 
-    <section class="piano-wrap" aria-label="Piano octave">
+    <section class="piano-wrap" aria-label="Piano octave" data-i18n="scales_piano_region" data-i18n-attr="aria-label">
       <div class="piano-head">
-        <div><strong>Piano</strong> - one octave</div>
+        <div><strong data-i18n="scales_piano_word">Piano</strong> <span data-i18n="scales_piano_one_octave">— one octave</span></div>
         <div class="piano-caption" id="pianoCaption">C Major (Ionian)</div>
       </div>
       <div id="pianoContainer" style="width:100%; overflow:hidden;"></div>
     </section>
 
-    <section class="support-note" id="supportInline" aria-label="Support this project">
+    <section class="support-note" id="supportInline" aria-label="Support this project" data-i18n="scales_support_label" data-i18n-attr="aria-label">
       <p style="margin:0">
-        Did this page help you hear the fretboard differently? If you want to keep <strong>Re:sonance</strong> growing,
-        you can <a href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer">buy me a coffee</a>.
-        It directly funds more tools and lessons. Thank you ✨
+        <span data-i18n="scales_support_intro">Did this page help you hear the fretboard differently?</span>
+        <span data-i18n="scales_support_keep_prefix">If you want to keep </span>
+        <strong>Re:sonance</strong>
+        <span data-i18n="scales_support_keep_suffix"> growing,</span>
+        <span data-i18n="scales_support_cta_prefix">you can </span>
+        <a href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" data-i18n="scales_buyme">buy me a coffee</a>
+        <span data-i18n="scales_support_cta_suffix">.</span>
+        <span data-i18n="scales_support_note">It directly funds more tools and lessons. Thank you ✨</span>
       </p>
       <div class="actions">
-        <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee">
+        <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" aria-label="Buy me a coffee" data-i18n="scales_buyme_aria" data-i18n-attr="aria-label">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
             <path d="M3 8h17"/><path d="M7 4h6"/>
           </svg>
-          <span>Buy me a coffee</span>
+          <span data-i18n="scales_buyme">Buy me a coffee</span>
         </a>
-        <button class="dismiss" type="button" id="dismissSupport">Not now</button>
+        <button class="dismiss" type="button" id="dismissSupport" data-i18n="scales_support_dismiss">Not now</button>
       </div>
     </section>
 
-    <p class="footer">Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).</p>
+    <p class="footer" data-i18n="scales_tip">Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).</p>
 
     <footer>
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
-         aria-label="Support this library on Buy Me a Coffee">
+         aria-label="Support this library on Buy Me a Coffee" data-i18n="scales_footer_buyme_aria" data-i18n-attr="aria-label">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
           <path d="M3 8h17"/>
           <path d="M7 4h6"/>
         </svg>
-        <span>Buy me a coffee</span>
+        <span data-i18n="scales_buyme">Buy me a coffee</span>
       </a>
-      <span class="note">Fuel the craft. Inspire the next page.</span>
+      <span class="note" data-i18n="scales_footer_note">Fuel the craft. Inspire the next page.</span>
       <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
   </main>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    const scalesMessages = {
+      en: {
+        doc_title: "The Scales Book — Contumance",
+        doc_description: "The Scales Book — minimal interactive fretboard with e-ink-style aesthetics.",
+        lang_label: "Language",
+        scales_back: "← Back to index",
+        scales_heading: "The Scales Book",
+        scales_subtitle: "Paths that lead the hand to the new colors.",
+        scales_panel_summary: "Guitar setup",
+        scales_control_strings: "Strings",
+        scales_apply: "Apply",
+        scales_control_root: "Root",
+        scales_control_scale: "Scale",
+        scales_scale_select_title: "Choose a scale",
+        scales_loading: "Loading scales…",
+        scales_control_labels: "Labels",
+        scales_labels_notes: "Notes",
+        scales_labels_degrees: "Degrees",
+        scales_labels_off: "Hidden",
+        scales_control_wave: "Wave",
+        scales_wave_sine: "sine",
+        scales_wave_triangle: "triangle",
+        scales_wave_square: "square",
+        scales_wave_saw: "sawtooth",
+        scales_control_volume: "Volume",
+        scales_piano_region: "Piano octave",
+        scales_piano_word: "Piano",
+        scales_piano_one_octave: "— one octave",
+        scales_support_label: "Support this project",
+        scales_support_intro: "Did this page help you hear the fretboard differently?",
+        scales_support_keep_prefix: "If you want to keep ",
+        scales_support_keep_suffix: " growing,",
+        scales_support_cta_prefix: "you can ",
+        scales_support_cta_suffix: ".",
+        scales_support_note: "It directly funds more tools and lessons. Thank you ✨",
+        scales_buyme: "Buy me a coffee",
+        scales_buyme_aria: "Buy me a coffee",
+        scales_support_dismiss: "Not now",
+        scales_tip: "Tip: use ± to shift each string by semitones. Everything is saved on this device (no backend).",
+        scales_footer_buyme_aria: "Support this library on Buy Me a Coffee",
+        scales_footer_note: "Fuel the craft. Inspire the next page.",
+        theme_to_light: "Switch to light mode",
+        theme_to_dark: "Switch to dark mode",
+        scales_string_label: "String {n}",
+        scales_octave_label: "Octave",
+        scales_lower_note: "Lower note",
+        scales_raise_note: "Raise note",
+        scales_octave_down: "Octave -1",
+        scales_octave_up: "Octave +1",
+        scales_fallback_msg: "Could not load scales.json. Using a minimal fallback."
+      },
+      es: {
+        doc_title: "The Scales Book — Contumance",
+        doc_description: "The Scales Book — diapasón interactivo minimalista con estética de tinta electrónica.",
+        lang_label: "Idioma",
+        scales_back: "← Volver al índice",
+        scales_heading: "The Scales Book",
+        scales_subtitle: "Caminos que llevan la mano hacia nuevos colores.",
+        scales_panel_summary: "Configuración de guitarra",
+        scales_control_strings: "Cuerdas",
+        scales_apply: "Aplicar",
+        scales_control_root: "Tónica",
+        scales_control_scale: "Escala",
+        scales_scale_select_title: "Elige una escala",
+        scales_loading: "Cargando escalas…",
+        scales_control_labels: "Etiquetas",
+        scales_labels_notes: "Notas",
+        scales_labels_degrees: "Grados",
+        scales_labels_off: "Ocultas",
+        scales_control_wave: "Onda",
+        scales_wave_sine: "seno",
+        scales_wave_triangle: "triángulo",
+        scales_wave_square: "cuadrada",
+        scales_wave_saw: "diente de sierra",
+        scales_control_volume: "Volumen",
+        scales_piano_region: "Octava de piano",
+        scales_piano_word: "Piano",
+        scales_piano_one_octave: "— una octava",
+        scales_support_label: "Apoya este proyecto",
+        scales_support_intro: "¿Esta página te ayudó a escuchar el diapasón de otra forma?",
+        scales_support_keep_prefix: "Si quieres que ",
+        scales_support_keep_suffix: " siga creciendo,",
+        scales_support_cta_prefix: "puedes ",
+        scales_support_cta_suffix: ".",
+        scales_support_note: "Financia directamente más herramientas y lecciones. Gracias ✨",
+        scales_buyme: "Invítame un café",
+        scales_buyme_aria: "Invítame un café",
+        scales_support_dismiss: "Ahora no",
+        scales_tip: "Truco: usa ± para mover cada cuerda por semitonos. Todo se guarda en este dispositivo (sin backend).",
+        scales_footer_buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
+        scales_footer_note: "Alimenta el oficio. Inspira la siguiente página.",
+        theme_to_light: "Cambiar a modo claro",
+        theme_to_dark: "Cambiar a modo oscuro",
+        scales_string_label: "Cuerda {n}",
+        scales_octave_label: "Octava",
+        scales_lower_note: "Bajar nota",
+        scales_raise_note: "Subir nota",
+        scales_octave_down: "Octava -1",
+        scales_octave_up: "Octava +1",
+        scales_fallback_msg: "No se pudo cargar scales.json. Usando un respaldo mínimo."
+      },
+      pt: {
+        doc_title: "The Scales Book — Contumance",
+        doc_description: "The Scales Book — escala interativa minimalista com estética de e-ink.",
+        lang_label: "Idioma",
+        scales_back: "← Voltar ao índice",
+        scales_heading: "The Scales Book",
+        scales_subtitle: "Caminhos que conduzem a mão a novas cores.",
+        scales_panel_summary: "Configuração da guitarra",
+        scales_control_strings: "Cordas",
+        scales_apply: "Aplicar",
+        scales_control_root: "Tônica",
+        scales_control_scale: "Escala",
+        scales_scale_select_title: "Escolha uma escala",
+        scales_loading: "Carregando escalas…",
+        scales_control_labels: "Rótulos",
+        scales_labels_notes: "Notas",
+        scales_labels_degrees: "Graus",
+        scales_labels_off: "Ocultos",
+        scales_control_wave: "Onda",
+        scales_wave_sine: "seno",
+        scales_wave_triangle: "triângulo",
+        scales_wave_square: "quadrada",
+        scales_wave_saw: "serra",
+        scales_control_volume: "Volume",
+        scales_piano_region: "Oitava do piano",
+        scales_piano_word: "Piano",
+        scales_piano_one_octave: "— uma oitava",
+        scales_support_label: "Apoie este projeto",
+        scales_support_intro: "Esta página ajudou você a ouvir o braço de outra forma?",
+        scales_support_keep_prefix: "Se quiser que ",
+        scales_support_keep_suffix: " continue crescendo,",
+        scales_support_cta_prefix: "você pode ",
+        scales_support_cta_suffix: ".",
+        scales_support_note: "Isso financia diretamente mais ferramentas e lições. Obrigado ✨",
+        scales_buyme: "Me pague um café",
+        scales_buyme_aria: "Me pague um café",
+        scales_support_dismiss: "Agora não",
+        scales_tip: "Dica: use ± para deslocar cada corda por semitons. Tudo fica salvo neste dispositivo (sem backend).",
+        scales_footer_buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
+        scales_footer_note: "Alimente o ofício. Inspire a próxima página.",
+        theme_to_light: "Alternar para modo claro",
+        theme_to_dark: "Alternar para modo escuro",
+        scales_string_label: "Corda {n}",
+        scales_octave_label: "Oitava",
+        scales_lower_note: "Baixar nota",
+        scales_raise_note: "Subir nota",
+        scales_octave_down: "Oitava -1",
+        scales_octave_up: "Oitava +1",
+        scales_fallback_msg: "Não foi possível carregar scales.json. Usando um fallback mínimo."
+      }
+    };
+
+    window.tr = (key, fallback) => (window.ReI18n ? ReI18n.t(key, fallback) : (fallback || key));
+    ReI18n.init({
+      messages: scalesMessages,
+      select: document.getElementById('langSelect')
+    });
+  </script>
 
   <!-- Theme toggle -->
   <script>
@@ -162,7 +335,16 @@
       const KEY='theme-preference';
       const root=document.documentElement;
       const btn=document.getElementById('themeToggle');
-      function setIcon(mode){ btn.textContent = '◑'; }
+      const safeTr=(k,f)=> (window.ReI18n ? ReI18n.t(k,f) : (f||k));
+      function setIcon(mode){
+        if(!btn) return;
+        btn.textContent = '◑';
+        const label = mode==='dark'
+          ? safeTr('theme_to_light', 'Switch to light mode')
+          : safeTr('theme_to_dark', 'Switch to dark mode');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      }
       function apply(mode){ root.classList.toggle('theme-dark',mode==='dark'); setIcon(mode); }
       function getPreferred(){
         const saved=localStorage.getItem(KEY);
@@ -170,7 +352,12 @@
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
       }
       let current=getPreferred(); apply(current);
-      btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+      if(btn){
+        btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+      }
+      if(window.ReI18n){
+        ReI18n.onChange(()=>{ setIcon(current); });
+      }
       document.getElementById('y').textContent = new Date().getFullYear();
     })();
   </script>
@@ -203,6 +390,7 @@
       const NOTES_SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
       // SCALES ahora viene del JSON externo
       let SCALES = {};               // mapa nombre → [intervalos]
+      let SCALE_LABELS = {};         // mapa nombre → labels por idioma
       let SCALES_READY = false;      // flag
       const SCALES_URL = 'scales.json'; // mismo directorio
 
@@ -238,6 +426,10 @@
       const volSlider=document.getElementById("volume");
 
       // ------- Helpers -------
+      const t = (key, fallback) => (window.ReI18n ? ReI18n.t(key, fallback) : (fallback || key));
+      function format(template, values){
+        return template.replace(/\{(\w+)\}/g, (_, k) => (values && values[k] != null) ? values[k] : '');
+      }
       function noteIndex(name){ return NOTES_SHARP.indexOf(name); }
       function cycleNote(note, step){ let i=noteIndex(note); if(i<0) i=0; i=(i+step+12)%12; return NOTES_SHARP[i]; }
       function ensureTuningLen(n){
@@ -255,7 +447,41 @@
         if (state.tuning.length > n) { state.tuning.splice(n); state.octaves.splice(n); }
       }
       function inScale(pc, rootIdx, scale){ const rel=(pc-rootIdx+12)%12; return scale.indexOf(rel)!==-1; }
-      function fillSelect(el, arr){ el.innerHTML = arr.map(v=>'<option value="'+v+'">'+v+'</option>').join(''); }
+      function fillSelect(el, arr){
+        el.innerHTML = arr.map(item => {
+          if(typeof item === 'string'){
+            return '<option value="'+item+'">'+item+'</option>';
+          }
+          const value = item && item.value != null ? item.value : '';
+          const label = item && item.label != null ? item.label : value;
+          const attrs = item && item.disabled ? ' disabled' : '';
+          return '<option value="'+value+'"'+attrs+'>'+label+'</option>';
+        }).join('');
+      }
+      function getScaleLabel(name){
+        const data = SCALE_LABELS[name];
+        if(window.ReI18n && data){
+          return ReI18n.translateLabel(data, name);
+        }
+        if(data){
+          if(typeof data === 'string') return data;
+          if(data.en) return data.en;
+        }
+        return name;
+      }
+      function buildScaleOptions(){
+        return Object.keys(SCALES).map(name => ({ value: name, label: getScaleLabel(name) }));
+      }
+      function refreshScaleSelect(){
+        if(!scaleSel) return;
+        const names = Object.keys(SCALES);
+        if(!names.length) return;
+        const options = buildScaleOptions();
+        fillSelect(scaleSel, options);
+        if(state.scaleName && SCALES[state.scaleName]){
+          scaleSel.value = state.scaleName;
+        }
+      }
 
       // ------- AUDIO ENGINE (Web Audio) -------
       const AudioEngine = (function(){
@@ -291,19 +517,25 @@
         for(let idx=0; idx<state.tuning.length; idx++){
           const note=state.tuning[idx], stringNum=idx+1, oct=state.octaves[idx] ?? 3;
           const opts=NOTES_SHARP.map(n=>'<option value="'+n+'"'+(n===note?' selected':'')+'>'+n+'</option>').join('');
+          const stringLabel=format(t('scales_string_label','String {n}'), {n:stringNum});
+          const octaveLabel=t('scales_octave_label','Octave');
+          const lowerTitle=t('scales_lower_note','Lower note');
+          const raiseTitle=t('scales_raise_note','Raise note');
+          const octaveDown=t('scales_octave_down','Octave -1');
+          const octaveUp=t('scales_octave_up','Octave +1');
           html+= '<div class="string-card">'
-               +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">String '+stringNum+'</div>'
+               +   '<div style="font-size:12px; opacity:.8; margin-bottom:6px;">'+stringLabel+'</div>'
                +   '<div class="row" style="gap:6px; flex-wrap:nowrap;">'
-               +     '<button data-act="down" data-idx="'+idx+'" title="Lower note">−</button>'
+               +     '<button data-act="down" data-idx="'+idx+'" title="'+lowerTitle+'">−</button>'
                +     '<div class="open-note" style="min-width:40px; text-align:center">'+note+'</div>'
-               +     '<button data-act="up" data-idx="'+idx+'" title="Raise note">+</button>'
+               +     '<button data-act="up" data-idx="'+idx+'" title="'+raiseTitle+'">+</button>'
                +     '<select data-act="set" data-idx="'+idx+'" style="flex:1; min-width:0;">'+opts+'</select>'
                +   '</div>'
                +   '<div class="octv">'
-               +     '<label>Octave</label>'
-               +     '<button data-act="octDown" data-idx="'+idx+'" title="Octave -1">−</button>'
+               +     '<label>'+octaveLabel+'</label>'
+               +     '<button data-act="octDown" data-idx="'+idx+'" title="'+octaveDown+'">−</button>'
                +     '<span id="oct'+idx+'" style="min-width:1.5ch; text-align:center;">'+oct+'</span>'
-               +     '<button data-act="octUp" data-idx="'+idx+'" title="Octave +1">+</button>'
+               +     '<button data-act="octUp" data-idx="'+idx+'" title="'+octaveUp+'">+</button>'
                +   '</div>'
                + '</div>';
         }
@@ -332,6 +564,11 @@
         const rootIdx=noteIndex(state.root);
         const degreeBySemitone=new Map();
         scale.forEach((off,i)=>degreeBySemitone.set(off%12, String(i+1)));
+
+        if(pianoCaption){
+          const display = getScaleLabel(state.scaleName || '');
+          pianoCaption.textContent = (state.root || '') + ' ' + display;
+        }
 
         for(let s=0; s<state.strings; s++){
           const openName = state.tuning[s];
@@ -515,6 +752,14 @@
       rootSel.value = state.root;
       waveSel.value = state.wave; volSlider.value = state.volume; labelsSel.value = state.labelMode; stringCountInput.value=state.strings;
 
+      if(window.ReI18n){
+        ReI18n.onChange(()=>{
+          renderTuningEditor();
+          refreshScaleSelect();
+          if(SCALES_READY) renderBoard();
+        });
+      }
+
       // ------- Carga externa de escalas -------
       async function loadScales(){
         try{
@@ -522,9 +767,36 @@
           if(!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
 
-          // Aceptamos objeto plano {name:[...], ...}
+          // Aceptamos objeto plano {name:[...], ...} o {name:{intervals:[], labels:{...}}}
           if(Object.prototype.toString.call(data) === '[object Object]'){
-            SCALES = data;
+            const processed = {};
+            const labels = {};
+            Object.entries(data).forEach(([name, value]) => {
+              if(Array.isArray(value)){
+                processed[name] = value;
+                labels[name] = labels[name] || { en: name };
+                return;
+              }
+              if(value && typeof value === 'object'){
+                let intervals = [];
+                if(Array.isArray(value.intervals)) intervals = value.intervals;
+                else if(Array.isArray(value.steps)) intervals = value.steps;
+                else if(Array.isArray(value.scale)) intervals = value.scale;
+                else if(Array.isArray(value.values)) intervals = value.values;
+                else if(Array.isArray(value.notes)) intervals = value.notes;
+                else if(Array.isArray(value)) intervals = Array.from(value);
+                if(intervals.length){ processed[name] = intervals; }
+                if(value.labels && typeof value.labels === 'object') labels[name] = value.labels;
+                else if(value.label && typeof value.label === 'object') labels[name] = value.label;
+                else if(typeof value.label === 'string') labels[name] = { en: value.label };
+              }
+              if(!processed[name]){
+                processed[name] = [];
+              }
+              if(!labels[name]) labels[name] = { en: name };
+            });
+            SCALES = processed;
+            SCALE_LABELS = labels;
           }else{
             throw new Error('Formato inválido en scales.json');
           }
@@ -536,8 +808,7 @@
           // Si la escala guardada no existe en el JSON, usar la primera
           if(!SCALES[state.scaleName]) state.scaleName = names[0];
 
-          fillSelect(scaleSel, names);
-          scaleSel.value = state.scaleName;
+          refreshScaleSelect();
           scaleSel.disabled = false;
 
           // Evento de cambio (ahora que hay datos)
@@ -554,10 +825,14 @@
             "Natural minor (Aeolian)": [0,2,3,5,7,8,10],
             "Pentatonic minor": [0,3,5,7,10]
           };
+          SCALE_LABELS = {
+            "Major (Ionian)": { en: "Major (Ionian)", es: "Mayor (Jónica)", pt: "Maior (Jônica)" },
+            "Natural minor (Aeolian)": { en: "Natural minor (Aeolian)", es: "Menor natural (Eolia)", pt: "Menor natural (Eólia)" },
+            "Pentatonic minor": { en: "Pentatonic minor", es: "Pentatónica menor", pt: "Pentatônica menor" }
+          };
           const names = Object.keys(SCALES);
           if(!SCALES[state.scaleName]) state.scaleName = names[0];
-          fillSelect(scaleSel, names);
-          scaleSel.value = state.scaleName;
+          refreshScaleSelect();
           scaleSel.disabled = false;
           scaleSel.addEventListener('change', ()=>{ state.scaleName = scaleSel.value; save(); renderBoard(); });
           SCALES_READY = true;
@@ -569,7 +844,7 @@
           msg.style.color = 'var(--muted)';
           msg.style.fontSize = '.9rem';
           msg.style.marginTop = '8px';
-          msg.textContent = 'Could not load scales.json. Using a minimal fallback.';
+          msg.textContent = t('scales_fallback_msg', 'Could not load scales.json. Using a minimal fallback.');
           document.querySelector('.controls')?.appendChild(msg);
         }
       }
