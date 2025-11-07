@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern Djent Riff Library — Re:sonance</title>
+  <meta name="description" content="Explora riffs djent precompuestos, visualízalos en un lienzo tipo DAW y reprodúcelos directamente desde el navegador." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.8em' font-size='86'>⚡</text></svg>">
+  <link rel="stylesheet" href="assets/kindle.css">
+  <style>
+    :root{ color-scheme: light dark; }
+    body{ min-height:100vh; }
+    main{ display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3rem; }
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-top:1rem; }
+    .breadcrumb a{ text-decoration:none; color:var(--ink); }
+    .theme-toggle{ background:transparent; border:1px solid var(--accent); border-radius:999px; padding:.35rem .85rem; cursor:pointer; color:var(--ink); }
+    .layout{ display:grid; gap:1.4rem; grid-template-columns: minmax(220px, 320px) 1fr; }
+    .library{ border:1px solid var(--accent); border-radius:.8rem; padding:1rem; display:flex; flex-direction:column; gap:.9rem; background:transparent; }
+    .library h2{ margin:0; font-size:1rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+    .riff-list{ display:flex; flex-direction:column; gap:.55rem; }
+    .riff-button{ border:1px solid var(--accent-soft); background:transparent; border-radius:.7rem; padding:.6rem .7rem; text-align:left; cursor:pointer; transition:background .2s,border-color .2s; }
+    .riff-button strong{ display:block; font-size:.98rem; }
+    .riff-button span{ display:block; font-size:.8rem; color:var(--muted); }
+    .riff-button.active{ border-color:var(--ink); background:var(--ink); color:var(--paper); }
+    .viewer{ border:1px solid var(--accent); border-radius:.9rem; padding:1rem; display:flex; flex-direction:column; gap:1.2rem; }
+    header h1{ margin:0; font-size:2.1rem; }
+    header p{ margin:.4rem 0 0; color:var(--muted); max-width:48ch; }
+    .meta-grid{ display:grid; gap:.75rem; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .meta-card{ border:1px solid var(--accent-soft); border-radius:.7rem; padding:.75rem .85rem; display:flex; flex-direction:column; gap:.4rem; background:transparent; }
+    .meta-card h3{ margin:0; font-size:.82rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+    .meta-card .body{ font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; font-size:.9rem; line-height:1.5; }
+    .tagchips{ display:flex; flex-wrap:wrap; gap:.35rem; }
+    .chip{ border:1px solid var(--accent); border-radius:999px; padding:.2rem .6rem; font-size:.78rem; background:transparent; }
+    .actions{ display:flex; gap:.6rem; flex-wrap:wrap; }
+    .actions button{ border:1px solid var(--accent); background:transparent; color:var(--ink); border-radius:.65rem; padding:.55rem .9rem; cursor:pointer; font-size:.9rem; }
+    .actions button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    .daw-card{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; background:transparent; display:flex; flex-direction:column; gap:.75rem; }
+    .daw-card h2{ margin:0; font-size:1rem; }
+    .daw-wrap{ position:relative; }
+    canvas{ width:100%; height:auto; display:block; aspect-ratio:5/2; border:1px solid var(--accent-soft); border-radius:.6rem; background:transparent; }
+    .lane-legend{ position:absolute; left:.4rem; top:.4rem; bottom:.4rem; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
+    .lane-legend .lab{ font-size:.7rem; color:var(--muted); border:1px solid var(--accent-soft); border-radius:.4rem; padding:.1rem .35rem; backdrop-filter:blur(3px); background:color-mix(in srgb, var(--paper) 85%, transparent); }
+    .timeline{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; display:flex; flex-direction:column; gap:.75rem; }
+    .bar{ border:1px solid var(--accent-soft); border-radius:.7rem; padding:.75rem; }
+    .bar-header{ display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--muted); margin-bottom:.45rem; }
+    .events{ display:grid; gap:.5rem; }
+    .event{ border:1px solid var(--accent); border-radius:.65rem; padding:.55rem .7rem; display:grid; gap:.35rem; background:rgba(0,0,0,0.02); }
+    html.theme-dark .event{ background:rgba(255,255,255,0.04); }
+    .event.playing{ border-color:var(--ink); background:var(--ink); color:var(--paper); }
+    .event-line{ display:flex; justify-content:space-between; font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; font-size:.86rem; }
+    .event-line .label{ color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:.68rem; }
+    .empty{ color:var(--muted); font-style:italic; font-size:.88rem; }
+    .notes{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; font-size:.95rem; line-height:1.6; background:transparent; }
+    .library-empty{ font-style:italic; color:var(--muted); }
+    @media (max-width:980px){ .layout{ grid-template-columns:1fr; } }
+    @media (max-width:640px){
+      .topbar{ flex-direction:column; align-items:flex-start; }
+      .lane-legend .lab{ font-size:.62rem; }
+      canvas{ aspect-ratio:4/3; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">← Back to index</a></nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+    </div>
+
+    <header>
+      <h1>Modern Djent Riff Library</h1>
+      <p>Explora riffs precompuestos, inspírate con su estructura y estudia los matices de dinámica, acentos y técnica mientras los escuchas.</p>
+    </header>
+
+    <section class="layout">
+      <aside class="library" aria-label="Riff library">
+        <h2>Riffs</h2>
+        <div id="riffList" class="riff-list" role="list">
+          <p class="library-empty" id="libraryEmpty">Loading library…</p>
+        </div>
+      </aside>
+
+      <section class="viewer" aria-live="polite">
+        <div class="meta-grid">
+          <article class="meta-card">
+            <h3>Identidad</h3>
+            <div class="body" id="identityInfo">Select a riff to begin.</div>
+          </article>
+          <article class="meta-card">
+            <h3>Tempo</h3>
+            <div class="body" id="tempoInfo">—</div>
+          </article>
+          <article class="meta-card">
+            <h3>Tuning</h3>
+            <div class="body" id="tuningInfo">—</div>
+          </article>
+          <article class="meta-card">
+            <h3>Mix Chain</h3>
+            <div class="body" id="mixInfo">—</div>
+          </article>
+        </div>
+
+        <div class="actions" aria-label="Playback controls">
+          <button id="playBtn" class="primary" type="button">Play</button>
+          <button id="stopBtn" type="button">Stop</button>
+        </div>
+
+        <section class="daw-card" aria-label="DAW style visualisation">
+          <h2>Loop View</h2>
+          <div class="daw-wrap">
+            <canvas id="dawCanvas" width="1280" height="420" aria-hidden="true"></canvas>
+            <div id="laneLegend" class="lane-legend" aria-hidden="true"></div>
+          </div>
+          <p style="font-size:.82rem; color:var(--muted); margin:0;">Lineas horizontales = cuerdas (arriba = 1ª). Rectángulos muestran notas; el playhead sigue el audio.</p>
+        </section>
+
+        <section class="timeline" aria-label="Timeline">
+          <h2 style="margin:0; font-size:1rem;">Timeline</h2>
+          <div id="timeline" role="list"></div>
+        </section>
+
+        <section class="notes" id="performanceNotes" aria-label="Performance notes">—</section>
+      </section>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const state = {
+      library:null,
+      current:null,
+      prepared:null,
+      ac:null,
+      master:null,
+      playingNodes:new Set(),
+      raf:null,
+      playStart:null,
+      playheadEvent:null
+    };
+
+    const riffList = document.getElementById('riffList');
+    const identityInfo = document.getElementById('identityInfo');
+    const tempoInfo = document.getElementById('tempoInfo');
+    const tuningInfo = document.getElementById('tuningInfo');
+    const mixInfo = document.getElementById('mixInfo');
+    const timelineEl = document.getElementById('timeline');
+    const notesEl = document.getElementById('performanceNotes');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const dawCanvas = document.getElementById('dawCanvas');
+    const dawCtx = dawCanvas.getContext('2d');
+    const laneLegend = document.getElementById('laneLegend');
+
+    fetch('modern_djent_riff_library.json')
+      .then(res => res.json())
+      .then(data => {
+        state.library = data;
+        populateLibrary(data.riffs||[]);
+        if (data.riffs && data.riffs.length){
+          loadRiff(data.riffs[0]);
+        }
+      })
+      .catch(err => {
+        riffList.innerHTML = `<p class="library-empty">Error loading library: ${err}</p>`;
+      });
+
+    function populateLibrary(riffs){
+      riffList.innerHTML = '';
+      if(!riffs.length){
+        riffList.innerHTML = '<p class="library-empty">No riffs found.</p>';
+        return;
+      }
+      riffs.forEach(riff => {
+        const btn = document.createElement('button');
+        btn.type='button';
+        btn.className='riff-button';
+        btn.dataset.id = riff.id;
+        btn.innerHTML = `<strong>${riff.title}</strong><span>${riff.influences.join(' · ')}</span>`;
+        btn.addEventListener('click', ()=>loadRiff(riff));
+        riffList.appendChild(btn);
+      });
+    }
+
+    function setActiveButton(id){
+      $$('.riff-button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.id === id);
+      });
+    }
+
+    function loadRiff(riff){
+      stopPlayback();
+      state.current = riff;
+      state.prepared = prepareRiff(riff);
+      setActiveButton(riff.id);
+      renderInfo(riff, state.prepared);
+      renderTimeline(state.prepared);
+      drawDAW();
+    }
+
+    function renderInfo(riff, prepared){
+      identityInfo.innerHTML = `
+        <div><strong>${riff.title}</strong></div>
+        <div>${riff.feel}</div>
+        <div class="tagchips">${riff.influences.map(inf => `<span class="chip">${inf}</span>`).join('')}</div>
+      `;
+      const polyr = riff.tempo.polyrhythm_overlay ? `${riff.tempo.polyrhythm_overlay.ratio} overlay` : '—';
+      const swing = riff.tempo.swing ? 'with swing' : 'straight';
+      tempoInfo.innerHTML = `BPM ${riff.tempo.bpm}<br>${riff.tempo.time_signature}<br>Grid ${riff.tempo.grid_resolution}<br>${swing}<br>${polyr}`;
+      tuningInfo.innerHTML = `
+        <div>${riff.tuning.instrument}</div>
+        <div>${riff.tuning.scale_length_inches}&Prime; scale</div>
+        <div class="tagchips">${riff.tuning.strings_low_to_high.map(s => `<span class="chip">${s}</span>`).join('')}</div>
+      `;
+      mixInfo.textContent = describeMix(riff.mix_chain);
+      notesEl.textContent = riff.performance_notes || '—';
+      laneLegend.innerHTML = '';
+      const strings = riff.tuning.strings_low_to_high;
+      for(let i=strings.length-1;i>=0;i--){
+        const span=document.createElement('span');
+        span.className='lab';
+        span.textContent=strings[i];
+        laneLegend.appendChild(span);
+      }
+    }
+
+    function describeMix(mix){
+      if(!mix) return '—';
+      const parts = [];
+      if(mix.amp_model) parts.push(`Amp: ${mix.amp_model}`);
+      if(mix.cabinet) parts.push(`Cab: ${mix.cabinet}`);
+      Object.keys(mix).forEach(key => {
+        if(['amp_model','cabinet'].includes(key)) return;
+        const val = mix[key];
+        if(typeof val === 'object'){
+          const inner = Object.entries(val).map(([k,v]) => `${k}:${v}`).join(', ');
+          parts.push(`${key}: ${inner}`);
+        }
+      });
+      return parts.join('\n');
+    }
+
+    function prepareRiff(riff){
+      const [num, den] = riff.tempo.time_signature.split('/').map(n => parseInt(n,10));
+      const strings = riff.tuning.strings_low_to_high.slice();
+      const events = [];
+      const bars = [];
+      let totalSteps = 0;
+      let totalDuration = 0;
+      let globalIndex = 0;
+      riff.bars.forEach((bar, barIdx) => {
+        const beats = num;
+        const beatDuration = (60 / riff.tempo.bpm) * (4 / den);
+        const barDuration = beatDuration * beats;
+        const stepDuration = bar.length_steps ? barDuration / bar.length_steps : barDuration;
+        const barStartStep = totalSteps;
+        const barStartTime = totalDuration;
+        const barEvents = [];
+        (bar.notes || []).forEach(note => {
+          const startStep = barStartStep + note.step;
+          const startTime = barStartTime + note.step * stepDuration;
+          const durationTime = note.duration_steps * stepDuration;
+          const midi = noteNameToMidi(note.pitch);
+          const stringIndex = mapStringIndex(strings.length, note.string);
+          const ev = {
+            idx: globalIndex++,
+            bar: barIdx,
+            startStep,
+            startTime,
+            duration: durationTime,
+            lengthSteps: note.duration_steps,
+            midi,
+            velocity: note.velocity || 100,
+            accent: (note.techniques||[]).includes('accent'),
+            techniques: note.techniques || [],
+            stringNumber: note.string,
+            stringIndex,
+            stringName: strings[strings.length - note.string] || strings[0],
+            fret: note.fret,
+            pitch: note.pitch
+          };
+          events.push(ev);
+          barEvents.push(ev);
+        });
+        bars.push({
+          index: barIdx,
+          startStep: barStartStep,
+          startTime: barStartTime,
+          lengthSteps: bar.length_steps,
+          duration: barDuration,
+          accents: bar.accents || [],
+          events: barEvents,
+          stepDuration
+        });
+        totalSteps += bar.length_steps;
+        totalDuration += barDuration;
+      });
+      events.sort((a,b)=>a.startTime - b.startTime);
+      return { events, bars, totalSteps, totalDuration, strings, timeSig:{num,den}, bpm:riff.tempo.bpm };
+    }
+
+    function mapStringIndex(total, stringNumber){
+      // library numbers strings from 1 (highest) to total (lowest)
+      const fromTop = (stringNumber-1);
+      return fromTop;
+    }
+
+    function noteNameToMidi(note){
+      if(!note) return 60;
+      const match = note.trim().match(/^([A-Ga-g])([#b]?)(-?\d+)$/);
+      if(!match) return 60;
+      const base = match[1].toUpperCase();
+      const accidental = match[2];
+      const octave = parseInt(match[3],10);
+      const key = base + (accidental||'');
+      const semitones = {
+        'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'Fb':4,'E#':5,'F':5,
+        'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,'Cb':11,'B#':0
+      };
+      const semi = key in semitones ? semitones[key] : 0;
+      return (octave + 1) * 12 + semi;
+    }
+
+    function midiToFreq(midi){
+      return 440 * Math.pow(2, (midi - 69) / 12);
+    }
+
+    function midiToName(midi){
+      const names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+      const pitch = names[midi % 12];
+      const octave = Math.floor(midi/12) - 1;
+      return `${pitch}${octave}`;
+    }
+
+    function renderTimeline(prepared){
+      const container = timelineEl;
+      container.innerHTML = '';
+      if(!prepared || !prepared.bars.length){
+        container.innerHTML = '<p class="empty">Select a riff to view its timeline.</p>';
+        return;
+      }
+      prepared.bars.forEach(bar => {
+        const barDiv = document.createElement('article');
+        barDiv.className='bar';
+        const header = document.createElement('div');
+        header.className='bar-header';
+        header.innerHTML = `<span>Bar ${bar.index+1}</span><span>${bar.lengthSteps} steps · accents: ${bar.accents.join(', ')||'—'}</span>`;
+        const eventsWrap = document.createElement('div');
+        eventsWrap.className='events';
+        if(!bar.events.length){
+          const empty=document.createElement('div');
+          empty.className='empty';
+          empty.textContent='(rests)';
+          eventsWrap.appendChild(empty);
+        } else {
+          bar.events.forEach(ev => {
+            const card = document.createElement('div');
+            card.className='event';
+            card.dataset.idx = ev.idx;
+            card.innerHTML = `
+              <div class="event-line"><span class="label">when</span><span>step ${ev.startStep} (${(ev.startTime).toFixed(2)}s)</span></div>
+              <div class="event-line"><span class="label">note</span><span>${ev.pitch || midiToName(ev.midi)} · string ${ev.stringNumber} (${ev.stringName}) · fret ${ev.fret}</span></div>
+              <div class="event-line"><span class="label">len</span><span>${ev.lengthSteps} step${ev.lengthSteps>1?'s':''}</span></div>
+              <div class="event-line"><span class="label">vel</span><span>${ev.velocity}${ev.accent?' (accent)':''}</span></div>`;
+            eventsWrap.appendChild(card);
+          });
+        }
+        barDiv.appendChild(header);
+        barDiv.appendChild(eventsWrap);
+        container.appendChild(barDiv);
+      });
+    }
+
+    function getAC(){
+      if(!state.ac){
+        const AC = new (window.AudioContext || window.webkitAudioContext)();
+        const master = AC.createGain();
+        master.gain.value = 0.7;
+        master.connect(AC.destination);
+        state.ac = AC;
+        state.master = master;
+      }
+      if(state.ac.state === 'suspended') state.ac.resume();
+      return state.ac;
+    }
+
+    function createDistortionCurve(amount=30){
+      const n = 1024;
+      const curve = new Float32Array(n);
+      const deg = Math.PI/180;
+      for(let i=0;i<n;i++){
+        const x = i*2/n - 1;
+        curve[i] = (3+amount)*x*20*deg / (Math.PI + amount*Math.abs(x));
+      }
+      return curve;
+    }
+
+    function triggerNote(ev, when){
+      const ac = getAC();
+      const freq = midiToFreq(ev.midi);
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const noiseBuf = ac.createBuffer(1, ac.sampleRate*0.08, ac.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1)*0.35; }
+      const noise = ac.createBufferSource();
+      noise.buffer = noiseBuf;
+      const chug = ac.createGain();
+      const filter = ac.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(freq*2.5, when);
+      filter.Q.value = 0.8;
+      const shaper = ac.createWaveShaper();
+      shaper.curve = createDistortionCurve(45);
+      const gain = ac.createGain();
+      const vel = ev.velocity/127;
+
+      gain.gain.setValueAtTime(0.0001, when);
+      gain.gain.linearRampToValueAtTime(vel*0.85, when+0.015);
+      const sustain = Math.max(0.1, ev.duration*1.4);
+      gain.gain.exponentialRampToValueAtTime(0.0001, when + sustain);
+
+      chug.gain.setValueAtTime(0.0001, when);
+      chug.gain.linearRampToValueAtTime(vel*0.9, when+0.01);
+      chug.gain.exponentialRampToValueAtTime(0.0001, when+0.12);
+
+      osc1.type='sawtooth';
+      osc2.type='square';
+      osc1.frequency.setValueAtTime(freq*0.5, when);
+      osc2.frequency.setValueAtTime(freq, when);
+
+      noise.connect(chug);
+      chug.connect(filter);
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(shaper);
+      shaper.connect(gain);
+      gain.connect(state.master);
+
+      noise.start(when);
+      osc1.start(when);
+      osc2.start(when);
+      const stopTime = when + sustain + 0.05;
+      noise.stop(when+0.12);
+      osc1.stop(stopTime);
+      osc2.stop(stopTime);
+
+      const nodeRef = {osc1, osc2, noise, gain};
+      state.playingNodes.add(nodeRef);
+      const cleanup = () => { try{gain.disconnect();}catch(_){} state.playingNodes.delete(nodeRef); };
+      osc2.onended = cleanup;
+    }
+
+    function playRiff(){
+      if(!state.prepared || !state.prepared.events.length) return;
+      const ac = getAC();
+      const start = ac.currentTime + 0.05;
+      const total = state.prepared.totalDuration;
+      state.playStart = start;
+      state.playheadEvent = null;
+      state.prepared.events.forEach(ev => {
+        triggerNote(ev, start + ev.startTime);
+      });
+      if(state.raf) cancelAnimationFrame(state.raf);
+      const loop = () => {
+        const now = ac.currentTime;
+        const elapsed = now - start;
+        if(elapsed >= total){
+          highlightEvent(null);
+          drawDAW();
+          state.raf = null;
+          return;
+        }
+        const currentEvent = findCurrentEvent(elapsed);
+        highlightEvent(currentEvent ? currentEvent.idx : null);
+        drawDAW(elapsed);
+        state.raf = requestAnimationFrame(loop);
+      };
+      state.raf = requestAnimationFrame(loop);
+    }
+
+    function findCurrentEvent(elapsed){
+      if(!state.prepared) return null;
+      for(let i=state.prepared.events.length-1;i>=0;i--){
+        const ev = state.prepared.events[i];
+        if(elapsed >= ev.startTime){
+          return ev;
+        }
+      }
+      return null;
+    }
+
+    function stopPlayback(){
+      if(state.raf){ cancelAnimationFrame(state.raf); state.raf=null; }
+      state.playStart = null;
+      state.playheadEvent = null;
+      highlightEvent(null);
+      drawDAW();
+      if(state.playingNodes.size){
+        state.playingNodes.forEach(node => {
+          try{ node.osc1.stop(); }catch(_){ }
+          try{ node.osc2.stop(); }catch(_){ }
+          try{ node.noise.stop(); }catch(_){ }
+          try{ node.gain.disconnect(); }catch(_){ }
+        });
+        state.playingNodes.clear();
+      }
+    }
+
+    function highlightEvent(idx){
+      state.playheadEvent = idx;
+      $$('.event').forEach(el => {
+        el.classList.toggle('playing', idx!==null && parseInt(el.dataset.idx,10)===idx);
+      });
+    }
+
+    function drawDAW(playheadSec=null){
+      const ctx = dawCtx, c = dawCanvas;
+      ctx.clearRect(0,0,c.width,c.height);
+      if(!state.prepared){ return; }
+      const styles = getComputedStyle(document.documentElement);
+      const ink = styles.getPropertyValue('--ink').trim() || '#222';
+      const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
+      const muted = styles.getPropertyValue('--muted').trim() || '#777';
+      const accent = styles.getPropertyValue('--accent').trim() || '#f08';
+
+      const padding = {l:60,r:24,t:28,b:24};
+      const innerW = c.width - padding.l - padding.r;
+      const innerH = c.height - padding.t - padding.b;
+      const strings = state.prepared.strings.length;
+
+      ctx.save();
+      ctx.strokeStyle = rule;
+      ctx.strokeRect(padding.l, padding.t, innerW, innerH);
+      ctx.restore();
+
+      const laneH = innerH / strings;
+      for(let i=0;i<=strings;i++){
+        const y = padding.t + i*laneH;
+        ctx.strokeStyle = rule;
+        ctx.globalAlpha = (i===0 || i===strings) ? 1 : 0.6;
+        ctx.beginPath();
+        ctx.moveTo(padding.l, y);
+        ctx.lineTo(padding.l+innerW, y);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+
+      const totalTime = Math.max(state.prepared.totalDuration, 0.001);
+      state.prepared.bars.forEach(bar => {
+        const barStartRatio = bar.startTime / totalTime;
+        const barEndRatio = (bar.startTime + bar.duration) / totalTime;
+        const x0 = padding.l + barStartRatio * innerW;
+        const x1 = padding.l + barEndRatio * innerW;
+        ctx.strokeStyle = rule;
+        ctx.beginPath();
+        ctx.moveTo(x0, padding.t);
+        ctx.lineTo(x0, padding.t+innerH);
+        ctx.stroke();
+        ctx.fillStyle = muted;
+        ctx.font = '12px ui-serif, Georgia, serif';
+        ctx.fillText(`Bar ${bar.index+1}`, x0+6, padding.t-6);
+        // beat lines
+        const beats = state.prepared.timeSig.num;
+        const beatDur = bar.duration / beats;
+        for(let b=1;b<beats;b++){
+          const beatTime = bar.startTime + beatDur*b;
+          const bx = padding.l + (beatTime/totalTime)*innerW;
+          ctx.globalAlpha = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(bx, padding.t);
+          ctx.lineTo(bx, padding.t+innerH);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+        // accents overlay
+        if(bar.accents && bar.accents.length){
+          bar.accents.forEach(step => {
+            const time = bar.startTime + step * bar.stepDuration;
+            const ax = padding.l + (time/totalTime) * innerW;
+            ctx.strokeStyle = accent;
+            ctx.globalAlpha = 0.35;
+            ctx.beginPath();
+            ctx.moveTo(ax, padding.t);
+            ctx.lineTo(ax, padding.t+innerH);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          });
+        }
+      });
+
+      state.prepared.events.forEach(ev => {
+        const startRatio = ev.startTime / totalTime;
+        const endRatio = (ev.startTime + ev.duration) / totalTime;
+        const x = padding.l + startRatio * innerW;
+        const w = Math.max(4, (endRatio - startRatio) * innerW);
+        const lane = ev.stringIndex;
+        const y = padding.t + lane * laneH;
+        const rectH = laneH * 0.75;
+        ctx.fillStyle = ev.idx === state.playheadEvent ? ink : 'rgba(0,0,0,0.12)';
+        if(document.documentElement.classList.contains('theme-dark') && ev.idx !== state.playheadEvent){
+          ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        }
+        if(ev.idx === state.playheadEvent){
+          ctx.fillStyle = ink;
+        }
+        ctx.fillRect(x, y + (laneH-rectH)/2, w, rectH);
+        ctx.strokeStyle = ev.accent ? accent : rule;
+        ctx.lineWidth = ev.idx === state.playheadEvent ? 2 : 1;
+        ctx.strokeRect(x, y + (laneH-rectH)/2, w, rectH);
+        ctx.fillStyle = ev.idx === state.playheadEvent ? '#fff' : ink;
+        ctx.font = '11px "Iosevka","JetBrains Mono",monospace';
+        ctx.fillText(ev.pitch || midiToName(ev.midi), x+4, y + laneH/2 + 3);
+      });
+
+      if(playheadSec != null){
+        const clamped = Math.min(playheadSec, totalTime);
+        const px = padding.l + (clamped / totalTime) * innerW;
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px, padding.t);
+        ctx.lineTo(px, padding.t+innerH);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+    }
+
+    playBtn.addEventListener('click', ()=>{
+      if(state.prepared){
+        playRiff();
+      }
+    });
+    stopBtn.addEventListener('click', ()=>{
+      stopPlayback();
+    });
+
+    // theme toggle reused from other apps
+    const themeToggle=document.getElementById('themeToggle');
+    const themeKey='resonance_theme';
+    function setTheme(mode){
+      document.documentElement.classList.toggle('theme-dark', mode==='dark');
+      localStorage.setItem(themeKey, mode);
+    }
+    function initTheme(){
+      const stored=localStorage.getItem(themeKey);
+      if(stored){ setTheme(stored); }
+    }
+    themeToggle.addEventListener('click', ()=>{
+      const isDark=document.documentElement.classList.toggle('theme-dark');
+      localStorage.setItem(themeKey, isDark?'dark':'light');
+    });
+    initTheme();
+  })();
+  </script>
+</body>
+</html>
