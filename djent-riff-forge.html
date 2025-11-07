@@ -197,10 +197,14 @@
       { id:'dropB', name:'Drop B — B F# B E G# C#', strings:['B1','F#2','B2','E3','G#3','C#4'] },
       { id:'dropA', name:'Drop A — A E A D F# B', strings:['A1','E2','A2','D3','F#3','B3'] },
       { id:'sevenB', name:'7-string Standard — B E A D G B E', strings:['B1','E2','A2','D3','G3','B3','E4'] },
-      { id:'eightF', name:'8-string Low F# — F#1 B1 E2 A2 D3 G3 B3 E4', strings:['F#1','B1','E2','A2','D3','G3','B3','E4'] }
+      { id:'sevenDropA', name:'7-string Drop A — A E A D G B E', strings:['A1','E2','A2','D3','G3','B3','E4'] },
+      { id:'sevenDropG', name:'7-string Drop G — G1 D2 G2 C3 F3 A3 D4', strings:['G1','D2','G2','C3','F3','A3','D4'] },
+      { id:'eightF', name:'8-string Standard — F#1 B1 E2 A2 D3 G3 B3 E4', strings:['F#1','B1','E2','A2','D3','G3','B3','E4'] },
+      { id:'eightE', name:'8-string Drop E — E1 B1 E2 A2 D3 G3 B3 E4', strings:['E1','B1','E2','A2','D3','G3','B3','E4'] },
+      { id:'eightD', name:'8-string Drop D — D1 A1 D2 G2 C3 F3 A3 D4', strings:['D1','A1','D2','G2','C3','F3','A3','D4'] }
     ];
 
-    const SCALES = [
+    const DEFAULT_SCALES = [
       { id:'phrygianDom', name:'Phrygian Dominant', intervals:[0,1,4,5,7,8,10] },
       { id:'aeolian', name:'Aeolian', intervals:[0,2,3,5,7,8,10] },
       { id:'dorian', name:'Dorian ♭2', intervals:[0,1,3,5,7,9,10] },
@@ -208,6 +212,8 @@
       { id:'harmMinor', name:'Harmonic Minor', intervals:[0,2,3,5,7,8,11] },
       { id:'messCombo', name:'Mess Combo (1♭2 3 4 5 ♭6 ♭7)', intervals:[0,1,4,5,7,8,10] }
     ];
+
+    let SCALES = DEFAULT_SCALES.slice();
 
     const ROOTS = (()=>{
       const list=[];
@@ -221,6 +227,28 @@
       return list;
     })();
 
+    async function loadScales(){
+      try{
+        const resp = await fetch('scales.json');
+        if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const parsed = Object.entries(data).map(([name, intervals], idx) => ({
+          id:`json-${idx}`,
+          name,
+          intervals: Array.isArray(intervals) ? intervals : []
+        })).filter(s => s.intervals.length);
+        if(!parsed.length) throw new Error('No valid scales parsed');
+        parsed.sort((a,b)=>a.name.localeCompare(b.name, 'en', {sensitivity:'base'}));
+        SCALES = parsed;
+      }catch(err){
+        console.error('Failed to load scales.json, using fallback list.', err);
+        SCALES = DEFAULT_SCALES.slice();
+      }
+      if(SCALES.length){
+        state.meta.scale = SCALES[0];
+      }
+    }
+
     const state = {
       riff: [],
       meta: {
@@ -230,7 +258,7 @@
         bars: 4,
         tuning: TUNINGS[0],
         root: midiFromInput('E2'),
-        scale: SCALES[0]
+        scale: DEFAULT_SCALES[0]
       },
       timers: [],
       playingNodes: new Set(),
@@ -238,13 +266,19 @@
     };
 
     function populateSelect(select, options){
+      if(!options.length){
+        select.innerHTML = '<option value="">—</option>';
+        select.disabled = true;
+        return;
+      }
+      select.disabled = false;
       select.innerHTML = options.map(opt => `<option value="${opt.value || opt.id}">${opt.label || opt.name}</option>`).join('');
     }
 
     function updateLabels(){
       $('#tuningLabel').textContent = state.meta.tuning.name;
       $('#rootLabel').textContent = midiToName(state.meta.root);
-      $('#scaleLabel').textContent = state.meta.scale.name;
+      $('#scaleLabel').textContent = state.meta.scale ? state.meta.scale.name : '—';
       $('#bpmLabel').textContent = `${state.meta.bpm} bpm`;
       $('#densityLabel').textContent = `${$('#density').value}%`;
       $('#syncLabel').textContent = `${$('#syncopation').value}%`;
@@ -261,7 +295,8 @@
 
     function readMeta(){
       const tuning = TUNINGS[$('#tuning').selectedIndex] || TUNINGS[0];
-      const scale = SCALES[$('#scale').selectedIndex] || SCALES[0];
+      const scaleIdx = $('#scale').selectedIndex;
+      const scale = (scaleIdx>=0 && SCALES[scaleIdx]) || SCALES[0] || state.meta.scale || DEFAULT_SCALES[0];
       const rootMidi = midiFromInput($('#root').value) || midiFromInput('E2');
       const bpm = clamp(parseInt($('#bpm').value,10)||140, 40, 260);
       const bars = clamp(parseInt($('#bars').value,10)||4, 1, 8);
@@ -272,9 +307,12 @@
     }
 
     function buildPalette(rootMidi, scale){
+      const reference = (scale && Array.isArray(scale.intervals) && scale.intervals.length)
+        ? scale
+        : DEFAULT_SCALES[0];
       const pool = new Set();
       for(let oct=-1; oct<=6; oct++){
-        scale.intervals.forEach(intv => {
+        reference.intervals.forEach(intv => {
           const midi = rootMidi + intv + 12*oct;
           if(midi>=24 && midi<=96) pool.add(midi);
         });
@@ -377,7 +415,7 @@
       const meta = state.meta;
       const struct = `${meta.bars} bar${meta.bars>1?'s':''} · ${meta.timeSig[0]}/${meta.timeSig[1]} · ${meta.subdiv} steps/quarter`;
       $('#structureSummary').textContent = `${struct}\n${state.riff.length} notes forged`;
-      const scaleName = meta.scale.name;
+      const scaleName = meta.scale ? meta.scale.name : '—';
       const rootName = midiToName(meta.root);
       $('#paletteSummary').textContent = `${rootName} ${scaleName}\n${meta.tuning.name}`;
       if(state.riff.length){
@@ -599,6 +637,10 @@
     function attach(){
       populateSelect($('#tuning'), TUNINGS.map(t=>({value:t.id,label:t.name})));
       populateSelect($('#scale'), SCALES.map(s=>({value:s.id,label:s.name})));
+      if(SCALES.length){
+        $('#scale').selectedIndex = 0;
+        state.meta.scale = SCALES[0];
+      }
       populateSelect($('#root'), ROOTS);
       $('#root').value='E2';
       updateLabels();
@@ -618,7 +660,8 @@
       $('#download').addEventListener('click', exportMIDI);
     }
 
-    document.addEventListener('DOMContentLoaded',()=>{
+    document.addEventListener('DOMContentLoaded',async ()=>{
+      await loadScales();
       attach();
       readMeta();
       updateLabels();
