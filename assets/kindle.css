@@ -235,7 +235,7 @@ body.home .hero-surface::after {
 }
 
 html.theme-dark body.home .hero-surface {
-  background: color-mix(in oklab, var(--ink) 88%, var(--accent) 12%);
+  background: color-mix(in oklab, var(--paper) 88%, var(--accent) 12%);
   box-shadow: 0 22px 40px rgba(0, 0, 0, .55), 0 5px 16px rgba(0, 0, 0, .4);
 }
 
@@ -315,7 +315,7 @@ body.home .collection-surface {
 }
 
 html.theme-dark body.home .collection-surface {
-  background: color-mix(in oklab, var(--ink) 85%, var(--accent) 15%);
+  background: color-mix(in oklab, var(--paper) 88%, var(--accent) 12%);
   box-shadow: 0 14px 28px rgba(0, 0, 0, .55), 0 4px 12px rgba(0, 0, 0, .45);
 }
 
@@ -360,7 +360,7 @@ body.home .item {
 }
 
 html.theme-dark body.home .item {
-  background: color-mix(in oklab, var(--ink) 82%, var(--accent) 18%);
+  background: color-mix(in oklab, var(--paper) 86%, var(--accent) 14%);
   box-shadow: 0 6px 16px rgba(0, 0, 0, .5);
 }
 
@@ -372,7 +372,7 @@ body.home .item:hover {
 
 html.theme-dark body.home .item:hover {
   box-shadow: 0 12px 26px rgba(0, 0, 0, .6);
-  background: color-mix(in oklab, var(--ink) 76%, var(--accent) 24%);
+  background: color-mix(in oklab, var(--paper) 82%, var(--accent) 18%);
 }
 
 body.home .item .icon {
