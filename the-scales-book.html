@@ -72,7 +72,7 @@
     <details class="panel" id="panel" open>
       <summary data-i18n="scales_panel_summary">Guitar setup</summary>
       <div class="panel-body">
-        <div class="controls" role="group" aria-label="Controls">
+        <div class="controls" role="group" aria-label="Controls" data-i18n="scales_controls_aria" data-i18n-attr="aria-label">
           <div class="row">
             <label for="stringCount" data-i18n="scales_control_strings">Strings</label>
             <input id="stringCount" type="number" min="3" max="10" value="6" style="width:86px" />
@@ -110,13 +110,13 @@
             <input id="volume" type="range" min="0" max="1" step="0.01" value="0.6" style="width:120px;">
           </div>
         </div>
-        <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
+        <div id="tuningPanel" class="tuning" aria-label="Tuning editor" data-i18n="scales_tuning_aria" data-i18n-attr="aria-label"></div>
       </div>
     </details>
 
     <section class="fretboard-wrap">
       <div id="fretboard" class="fretboard">
-        <div id="board" class="board" role="grid" aria-label="Fretboard"></div>
+        <div id="board" class="board" role="grid" aria-label="Fretboard" data-i18n="scales_fretboard_aria" data-i18n-attr="aria-label"></div>
       </div>
     </section>
 
@@ -172,8 +172,8 @@
   <script>
     const scalesMessages = {
       en: {
-        doc_title: "The Scales Book — Contumance",
-        doc_description: "The Scales Book — minimal interactive fretboard with e-ink-style aesthetics.",
+        scales_doc_title: "The Scales Book — Contumance",
+        scales_doc_description: "The Scales Book — minimal interactive fretboard with e-ink-style aesthetics.",
         lang_label: "Language",
         scales_back: "← Back to index",
         scales_heading: "The Scales Book",
@@ -186,6 +186,7 @@
         scales_scale_select_title: "Choose a scale",
         scales_loading: "Loading scales…",
         scales_control_labels: "Labels",
+        scales_controls_aria: "Controls",
         scales_labels_notes: "Notes",
         scales_labels_degrees: "Degrees",
         scales_labels_off: "Hidden",
@@ -195,6 +196,8 @@
         scales_wave_square: "square",
         scales_wave_saw: "sawtooth",
         scales_control_volume: "Volume",
+        scales_tuning_aria: "Tuning editor",
+        scales_fretboard_aria: "Fretboard",
         scales_piano_region: "Piano octave",
         scales_piano_word: "Piano",
         scales_piano_one_octave: "— one octave",
@@ -222,8 +225,8 @@
         scales_fallback_msg: "Could not load scales.json. Using a minimal fallback."
       },
       es: {
-        doc_title: "The Scales Book — Contumance",
-        doc_description: "The Scales Book — diapasón interactivo minimalista con estética de tinta electrónica.",
+        scales_doc_title: "The Scales Book — Contumance",
+        scales_doc_description: "The Scales Book — diapasón interactivo minimalista con estética de tinta electrónica.",
         lang_label: "Idioma",
         scales_back: "← Volver al índice",
         scales_heading: "The Scales Book",
@@ -236,6 +239,7 @@
         scales_scale_select_title: "Elige una escala",
         scales_loading: "Cargando escalas…",
         scales_control_labels: "Etiquetas",
+        scales_controls_aria: "Controles",
         scales_labels_notes: "Notas",
         scales_labels_degrees: "Grados",
         scales_labels_off: "Ocultas",
@@ -245,6 +249,8 @@
         scales_wave_square: "cuadrada",
         scales_wave_saw: "diente de sierra",
         scales_control_volume: "Volumen",
+        scales_tuning_aria: "Editor de afinación",
+        scales_fretboard_aria: "Diapasón",
         scales_piano_region: "Octava de piano",
         scales_piano_word: "Piano",
         scales_piano_one_octave: "— una octava",
@@ -272,8 +278,8 @@
         scales_fallback_msg: "No se pudo cargar scales.json. Usando un respaldo mínimo."
       },
       pt: {
-        doc_title: "The Scales Book — Contumance",
-        doc_description: "The Scales Book — escala interativa minimalista com estética de e-ink.",
+        scales_doc_title: "The Scales Book — Contumance",
+        scales_doc_description: "The Scales Book — escala interativa minimalista com estética de e-ink.",
         lang_label: "Idioma",
         scales_back: "← Voltar ao índice",
         scales_heading: "The Scales Book",
@@ -286,6 +292,7 @@
         scales_scale_select_title: "Escolha uma escala",
         scales_loading: "Carregando escalas…",
         scales_control_labels: "Rótulos",
+        scales_controls_aria: "Controles",
         scales_labels_notes: "Notas",
         scales_labels_degrees: "Graus",
         scales_labels_off: "Ocultos",
@@ -295,6 +302,8 @@
         scales_wave_square: "quadrada",
         scales_wave_saw: "serra",
         scales_control_volume: "Volume",
+        scales_tuning_aria: "Editor de afinação",
+        scales_fretboard_aria: "Braço",
         scales_piano_region: "Oitava do piano",
         scales_piano_word: "Piano",
         scales_piano_one_octave: "— uma oitava",
