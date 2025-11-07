@@ -23,6 +23,9 @@
     .stage{ border:1px solid var(--accent); border-radius:.6rem; background:transparent; margin-top:12px; padding:.5rem; }
     .stage canvas{ width:100%; height:auto; display:block; aspect-ratio:1/1; }
 
+    .timeline{ border:1px solid var(--accent); border-radius:.6rem; background:transparent; margin-top:12px; padding:.5rem; }
+    .timeline canvas{ width:100%; height:auto; display:block; aspect-ratio:5/1; }
+
     .tracklist{ margin-top:12px; display:grid; gap:.5rem; }
     .track{
       border:1px solid var(--accent); border-radius:.6rem; padding:.6rem .6rem .65rem;
@@ -43,7 +46,7 @@
 
     <header>
       <h1>The Polyrhythm Forge</h1>
-      <div class="subtitle">Forge polyrhythms and polymeters with ring visuals — Mesh-ish + palm-mutes + MIDI export.</div>
+      <div class="subtitle">Forge polyrhythms and polymeters with ring + loop views — Mesh-ish + palm-mutes + MIDI export.</div>
     </header>
 
     <details class="panel" open>
@@ -111,6 +114,10 @@
       <canvas id="ringCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
     </section>
 
+    <section class="timeline" aria-label="Loop View">
+      <canvas id="lineCanvas" width="1400" height="280" aria-hidden="true"></canvas>
+    </section>
+
     <section class="tracklist" id="tracks" aria-label="Tracks"></section>
 
     <footer>
@@ -167,7 +174,7 @@
     }
 
     /* ===== WebAudio Engine ===== */
-    let AC = null, master, lookaheadId = null, drawing = false;
+    let AC = null, master, lookaheadId = null;
     const schedule = [];
     const tracks = [];
     let isPlaying = false;
@@ -235,7 +242,7 @@
       const f = midiToFreq(midi);
       o1.frequency.value = f; o2.frequency.value = f;
 
-      const a = 0.002, d = 0.06, s = 0.0, r = 0.06;
+      const a = 0.002, d = 0.06, r = 0.06;
       g.gain.setValueAtTime(0.0001, when);
       g.gain.linearRampToValueAtTime(vol, when + a);
       g.gain.exponentialRampToValueAtTime(0.0001, when + a + d + r);
@@ -247,8 +254,31 @@
 
     /* ===== Pattern helpers (Euclidean) ===== */
     function clampInt(v, lo, hi){ return Math.max(lo, Math.min(hi, v|0)); }
+
+    // Rota el patrón para que, si hay silencios, el/los 0 queden al final (ej: 3 en 4 => 1,1,1,0)
+    function rotateSilenceToEnd(arr){
+      if(!arr || !arr.length) return arr;
+      let pattern = arr.slice();
+      const hasZero = pattern.includes(0);
+      if(!hasZero) return pattern; // todo hits
+      // mover hasta que el último sea 0
+      let guard = 0;
+      while(pattern[pattern.length-1] !== 0 && guard < pattern.length+1){
+        pattern.push(pattern.shift());
+        guard++;
+      }
+      // asegurar que el primero sea 1
+      guard = 0;
+      while(pattern[0] !== 1 && guard < pattern.length+1){
+        pattern.push(pattern.shift());
+        guard++;
+      }
+      return pattern;
+    }
+
     function euclidean(steps, hits){
       steps = clampInt(steps,1,256); hits = clampInt(hits,0,steps);
+      // Bjorklund simple + rotación “batero-friendly”
       let pattern = new Array(steps).fill(0);
       for(let i=0;i<hits;i++){ pattern[i] = 1; }
       let counts = new Array(steps).fill(0);
@@ -261,7 +291,7 @@
         if (a > b) a = a - b; else b = b - a;
       }
       pattern = groups.flat();
-      return pattern;
+      return rotateSilenceToEnd(pattern);
     }
 
     /* ===== Tracks UI / State ===== */
@@ -276,9 +306,12 @@
         note: opts.note || '',
         pan: opts.pan ?? 0,
         volume: opts.volume ?? 0.9,
+        accent: opts.accent || (opts.sound==='hat' ? 'alt' : 'none'), // 'none' | 'alt'
         mute: !!opts.mute,
         solo: !!opts.solo,
         pattern: [],
+        _playCount: 0,    // para alternar acentos en tiempo real
+        _midiCount: 0     // para alternar acentos en export MIDI
       };
       t.pattern = euclidean(t.steps, t.hits);
       tracks.push(t);
@@ -297,21 +330,31 @@
           <span class="tag">offset: <b class="offLab">${t.offset}</b></span>
           <span class="tag sndTag">sound: <b class="sndLab">${t.sound}</b></span>
           <span class="tag noteTag" style="display:none">note: <b class="noteLab">${t.note||'-'}</b></span>
+          <span class="tag accTag" ${t.sound==='hat'?'':'style="display:none"'}>accent: <b class="accLab">${t.accent}</b></span>
         </div>
         <div class="line">
           <label>Steps</label><input class="steps" type="number" min="1" max="64" value="${t.steps}" style="width:5rem">
           <label>Hits</label><input class="hits" type="number" min="0" max="64" value="${t.hits}" style="width:5rem">
           <label>Offset</label><input class="offset" type="number" min="0" max="128" value="${t.offset}" style="width:5rem">
+
           <label class="labSound">Sound</label>
-            <select class="sound">
-              <option ${t.sound==='kick'?'selected':''} value="kick">kick</option>
-              <option ${t.sound==='snare'?'selected':''} value="snare">snare</option>
-              <option ${t.sound==='hat'?'selected':''} value="hat">hat</option>
-              <option ${t.sound==='clave'?'selected':''} value="clave">clave</option>
-              <option ${t.sound==='click'?'selected':''} value="click">click</option>
-            </select>
+          <select class="sound">
+            <option ${t.sound==='kick'?'selected':''} value="kick">kick</option>
+            <option ${t.sound==='snare'?'selected':''} value="snare">snare</option>
+            <option ${t.sound==='hat'?'selected':''} value="hat">hat</option>
+            <option ${t.sound==='clave'?'selected':''} value="clave">clave</option>
+            <option ${t.sound==='click'?'selected':''} value="click">click</option>
+          </select>
+
+          <label class="labAccent" ${t.sound==='hat'?'':'style="display:none"'}>Accent</label>
+          <select class="accent" ${t.sound==='hat'?'':'style="display:none"'}>
+            <option ${t.accent==='none'?'selected':''} value="none">none</option>
+            <option ${t.accent==='alt'?'selected':''} value="alt">alt (soft/hard)</option>
+          </select>
+
           <label class="labNote" style="display:none">Note</label>
-            <input class="note" type="text" value="${t.note}" placeholder="E2 / 40" style="width:5.5rem; display:none">
+          <input class="note" type="text" value="${t.note}" placeholder="E2 / 40" style="width:5.5rem; display:none">
+
           <label>Pan</label><input class="pan" type="range" min="-1" max="1" step="0.01" value="${t.pan}">
           <label>Vol</label><input class="vol" type="range" min="0" max="1.2" step="0.01" value="${t.volume}">
         </div>
@@ -327,7 +370,17 @@
       q('.steps').addEventListener('change', e => { t.steps = Math.max(1, Math.min(64, e.target.value|0)); t.pattern = euclidean(t.steps, t.hits); q('.stepsLab').textContent = t.steps; });
       q('.hits').addEventListener('change', e => { t.hits = Math.max(0, Math.min(64, e.target.value|0)); t.pattern = euclidean(t.steps, t.hits); q('.hitsLab').textContent = t.hits; });
       q('.offset').addEventListener('change', e => { t.offset = Math.max(0, Math.min(128, e.target.value|0)); q('.offLab').textContent = t.offset; });
-      q('.sound').addEventListener('change', e => { t.sound = e.target.value; q('.sndLab').textContent = t.sound; });
+      q('.sound').addEventListener('change', e => {
+        t.sound = e.target.value; q('.sndLab').textContent = t.sound;
+        const isHat = t.sound==='hat';
+        q('.labAccent').style.display = isHat ? '' : 'none';
+        q('.accent').style.display = isHat ? 'inline-block' : 'none';
+        q('.accTag').style.display = isHat ? '' : 'none';
+        if(isHat && t.accent==='none') t.accent='alt'; // por defecto en hat
+        q('.accLab').textContent = t.accent;
+        // toggle Note inputs for non-drums handled elsewhere
+      });
+      q('.accent').addEventListener('change', e => { t.accent = e.target.value; q('.accLab').textContent = t.accent; });
       q('.note').addEventListener('change', e => { t.note = e.target.value.trim(); q('.noteLab').textContent = t.note||'-'; });
       q('.pan').addEventListener('input', e => { t.pan = parseFloat(e.target.value)||0; });
       q('.vol').addEventListener('input', e => { t.volume = parseFloat(e.target.value)||0.8; });
@@ -346,6 +399,10 @@
         q('.sound').style.display = showDrums ? 'inline-block' : 'none';
         q('.sndTag').style.display = showDrums ? '' : 'none';
 
+        q('.labAccent').style.display = showDrums && t.sound==='hat' ? '' : 'none';
+        q('.accent').style.display = showDrums && t.sound==='hat' ? 'inline-block' : 'none';
+        q('.accTag').style.display = showDrums && t.sound==='hat' ? '' : 'none';
+
         q('.labNote').style.display = showDrums ? 'none' : '';
         q('.note').style.display = showDrums ? 'none' : 'inline-block';
         q('.noteTag').style.display = showDrums ? 'none' : '';
@@ -355,22 +412,38 @@
     }
 
     /* ===== Transport / Scheduler ===== */
+    const ringCanvas = document.getElementById('ringCanvas');
+    const ringCtx = ringCanvas.getContext('2d');
+    const lineCanvas = document.getElementById('lineCanvas');
+    const lineCtx = lineCanvas.getContext('2d');
+
     function now(){ return getAC().currentTime; }
     function enqueue(when, cb){ schedule.push({when, cb}); schedule.sort((a,b)=>a.when-b.when); }
     function pump(){ const t=now(); while(schedule.length && schedule[0].when <= t + scheduleAhead){ const job=schedule.shift(); try{job.cb(job.when);}catch(e){console.error(e);} } }
     function loop(){ pump(); }
+
+    function resetCounters(){
+      tracks.forEach(t=>{ t._playCount = 0; });
+    }
 
     function start(){
       const ac = getAC();
       isPlaying = true;
       startAt = ac.currentTime + 0.05;
       visStart = performance.now() + 50;
+      resetCounters();
       if(lookaheadId) clearInterval(lookaheadId);
       lookaheadId = setInterval(loop, lookahead*1000);
-      requestAnimationFrame(draw);
+      requestAnimationFrame(drawAll);
       scheduleNext();
     }
-    function stop(){ isPlaying=false; clearInterval(lookaheadId); lookaheadId=null; }
+    function stop(){ isPlaying=false; clearInterval(lookaheadId); lookaheadId=null; drawAll(); }
+
+    function hatAccentFactor(t){
+      if(t.accent !== 'alt') return 1.0;
+      const k = t._playCount % 2; // 0 soft, 1 hard
+      return k===0 ? 0.65 : 1.0;
+    }
 
     function scheduleNext(){
       if(!isPlaying) return;
@@ -414,8 +487,10 @@
 
           enqueue(when + swingOff, (w)=>{
             if(inst==='drums'){
+              let vol = tr.volume;
+              if(tr.sound==='hat'){ vol *= hatAccentFactor(tr); tr._playCount++; }
               const fn = SOUND_MAP[tr.sound] || SOUND_MAP.click;
-              fn(w, tr.volume, tr.pan);
+              fn(w, vol, tr.pan);
             }else{
               const isBass = (inst==='bass');
               const midi = tr.note ? midiFromInput(tr.note) : rootMidi;
@@ -428,10 +503,15 @@
       setTimeout(scheduleNext, (scheduleAhead*0.5)*1000);
     }
 
-    /* ===== Visual (Rings) ===== */
-    const canvas = document.getElementById('ringCanvas');
-    const ctx = canvas.getContext('2d');
-    function draw(){
+    /* ===== Visuals ===== */
+    function drawAll(){
+      drawRings();
+      drawTimeline();
+      if(isPlaying) requestAnimationFrame(drawAll);
+    }
+
+    function drawRings(){
+      const ctx = ringCtx, canvas = ringCanvas;
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0,0,W,H);
       const cx = W/2, cy = H/2;
@@ -450,8 +530,17 @@
       const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
       const muted = styles.getPropertyValue('--muted').trim() || '#777';
 
+      // Start marker (triangulito arriba)
+      ctx.save();
+      ctx.fillStyle = muted; ctx.beginPath();
+      ctx.moveTo(cx, cy - radiusBase - 16);
+      ctx.lineTo(cx - 8, cy - radiusBase - 28);
+      ctx.lineTo(cx + 8, cy - radiusBase - 28);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+
       ctx.save(); ctx.fillStyle = muted; ctx.font = '16px ui-serif, Georgia, serif'; ctx.textAlign='center';
-      ctx.fillText(`${mode==='polyrhythm'?'Polyrhythm (common cycle)':'Polymeter (common step)'} · ${TP} BPM`, cx, cy - radiusBase - tracks.length*ringGap*0.08 - 20);
+      ctx.fillText(`${mode==='polyrhythm'?'Polyrhythm (common cycle)':'Polymeter (common step)'} · ${TP} BPM`, cx, cy - radiusBase - tracks.length*ringGap*0.08 - 36);
       ctx.restore();
 
       tracks.forEach((tr,i)=>{
@@ -474,7 +563,12 @@
         if(isPlaying){
           let phase;
           if(mode==='polyrhythm'){ phase = (elapsed % barDur) / barDur; }
-          else{ const stepDurCommon = (60/TP)/4; const totalSteps = Math.floor(elapsed/stepDurCommon); const frac = (elapsed%stepDurCommon)/stepDurCommon; phase = ((totalSteps + frac) / steps) % 1; }
+          else{
+            const stepDurCommon = (60/TP)/4;
+            const totalSteps = Math.floor(elapsed/stepDurCommon);
+            const frac = (elapsed%stepDurCommon)/stepDurCommon;
+            phase = ((totalSteps + frac) / steps) % 1;
+          }
           const ang = -Math.PI/2 + phase*Math.PI*2;
           const px = cx + Math.cos(ang)*r, py = cy + Math.sin(ang)*r;
           ctx.save(); ctx.fillStyle = ink; ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(px,py,11,0,Math.PI*2); ctx.fill(); ctx.restore();
@@ -482,12 +576,95 @@
 
         ctx.save(); ctx.fillStyle = muted; ctx.font = '12px ui-serif, Georgia, serif'; ctx.textAlign='center';
         const inst = $('#instMode').value;
-        const tag = (inst==='drums') ? `${tr.sound}` : `${tr.note||$('#rootNote').value||'E2'}`;
+        const tag = (inst==='drums') ? `${tr.sound}${tr.sound==='hat' && tr.accent!=='none' ? '·acc' : ''}` : `${tr.note||$('#rootNote').value||'E2'}`;
         ctx.fillText(`${tr.name} · ${tr.steps}:${tr.hits} · pan ${tr.pan>=0?'+':''}${tr.pan.toFixed(2)} · ${tag}`, cx, cy - r - 10);
         ctx.restore();
       });
+    }
 
-      if(isPlaying) requestAnimationFrame(draw);
+    function drawTimeline(){
+      const ctx = lineCtx, canvas = lineCanvas;
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+
+      const TP = parseFloat($('#tempo').value)||120;
+      const barBeats = parseFloat($('#barLen').value)||4;
+      const barDur = (60/TP)*barBeats;
+      const mode = $('#mode').value;
+
+      const nowPerf = performance.now();
+      const elapsed = isPlaying ? (nowPerf - visStart)/1000 : 0;
+
+      const styles = getComputedStyle(document.documentElement);
+      const ink = styles.getPropertyValue('--ink').trim() || '#222';
+      const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
+      const muted = styles.getPropertyValue('--muted').trim() || '#777';
+
+      const laneH = Math.max(24, Math.floor((H-40)/Math.max(1,tracks.length)))|0; // padding top 20, bottom 20
+      const top = 20;
+
+      // grid de compases
+      ctx.save();
+      ctx.strokeStyle = rule; ctx.lineWidth = 1;
+      const barsToShow = 2; // 2 ciclos
+      for(let b=0;b<=barsToShow;b++){
+        const x = (b/barsToShow)*W;
+        ctx.beginPath(); ctx.moveTo(x, 10); ctx.lineTo(x, H-10); ctx.stroke();
+        if(b<barsToShow){
+          ctx.fillStyle = muted; ctx.font='12px ui-serif, Georgia, serif';
+          ctx.fillText(`Bar ${b+1}`, x+6, 16);
+        }
+      }
+      ctx.restore();
+
+      tracks.forEach((tr,i)=>{
+        const y = top + i*laneH;
+        const steps = Math.max(1, Math.min(256, tr.steps|0));
+        const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
+        const offset = ((tr.offset%steps)+steps)%steps;
+
+        // carril
+        ctx.save();
+        ctx.strokeStyle = rule; ctx.strokeRect(10, y, W-20, laneH-6);
+        // dibujar steps
+        const totalPx = W-20;
+        const stepCount = (mode==='polyrhythm') ? steps : Math.round((4*steps)); // en polymeter, step común = negra; mostramos 1 compás
+        const stepW = totalPx / steps;
+
+        for(let s=0;s<steps;s++){
+          const on = patt[(s+offset)%steps];
+          const x = 10 + s*stepW;
+          ctx.fillStyle = on ? ink : muted;
+          ctx.globalAlpha = on ? 0.9 : 0.25;
+          ctx.fillRect(x+1, y+2, Math.max(2, stepW-2), laneH-10);
+
+          // marca de acento en hat (si aplica)
+          if(on && tr.sound==='hat' && tr.accent==='alt'){
+            // alterna visualmente: semicírculo arriba/abajo
+            const k = s%2; // solo indicativo en vista
+            ctx.globalAlpha = 1;
+            ctx.beginPath();
+            const cx = x + stepW*0.5, cy = y + (k?6: (laneH-12));
+            ctx.arc(cx, cy, 3, 0, Math.PI*2);
+            ctx.fillStyle = ink;
+            ctx.fill();
+          }
+        }
+
+        // etiqueta
+        ctx.fillStyle = muted; ctx.font='12px ui-serif, Georgia, serif';
+        ctx.fillText(`${tr.name} — ${tr.steps}:${tr.hits}${tr.sound==='hat'&&tr.accent!=='none'?' (acc)':''}`, 14, y-4);
+        ctx.restore();
+      });
+
+      // playhead
+      ctx.save();
+      const cyc = (mode==='polyrhythm') ? barDur : (60/TP)*4;
+      const phase = isPlaying ? ( (elapsed % cyc) / cyc ) : 0;
+      const x = 10 + phase * (W-20);
+      ctx.strokeStyle = ink; ctx.globalAlpha = 0.4;
+      ctx.beginPath(); ctx.moveTo(x, 10); ctx.lineTo(x, H-10); ctx.stroke();
+      ctx.restore();
     }
 
     /* ===== Presets externos con grupos (JSON) ===== */
@@ -496,10 +673,8 @@
     let FLAT_PRESETS = {};   // presets||legacy
     function populatePresetSelect(){
       const sel = $('#preset');
-      // eliminar todo menos el placeholder
       [...sel.querySelectorAll('optgroup, option:not([value=""])')].forEach(n=>n.remove());
 
-      // 1) grupos
       (GROUPS||[]).forEach(g=>{
         const og = document.createElement('optgroup');
         og.label = g.label || g.id || 'Group';
@@ -515,7 +690,6 @@
         if(og.children.length) sel.appendChild(og);
       });
 
-      // 2) plano (si hay)
       const flatKeys = Object.keys(FLAT_PRESETS||{});
       if(flatKeys.length){
         const og = document.createElement('optgroup');
@@ -546,7 +720,6 @@
         if(!resp.ok) throw new Error('HTTP '+resp.status);
         const data = await resp.json();
         GROUPS = Array.isArray(data.groups) ? data.groups : [];
-        // compat: admite “presets” plano en la raíz
         FLAT_PRESETS = (data && data.presets && typeof data.presets==='object') ? data.presets : {};
         populatePresetSelect();
       }catch(err){
@@ -571,11 +744,10 @@
 
       clearTracks();
       (obj.tracks||[]).forEach(t=> makeTrack(t));
-      draw();
+      drawAll();
     }
 
     function findPresetByToken(token){
-      // token: "group::groupId::key"  |  "flat::key"
       if(!token) return null;
       const parts = token.split('::');
       if(parts[0]==='group' && parts.length===3){
@@ -607,7 +779,7 @@
         rootNote: $('#rootNote').value,
         tracks: tracks.map(t=>({
           name:t.name, steps:t.steps, hits:t.hits, offset:t.offset,
-          sound:t.sound, note:t.note, pan:t.pan, volume:t.volume, mute:t.mute, solo:t.solo
+          sound:t.sound, note:t.note, pan:t.pan, volume:t.volume, mute:t.mute, solo:t.solo, accent:t.accent
         }))
       };
       const txt = JSON.stringify(data, null, 2);
@@ -650,6 +822,8 @@
       function nextChannel(){ const ch = nextMelCh % 8; nextMelCh++; return ch; }
       const drumNoteMap = { kick:36, snare:38, hat:42, clave:75, click:37 };
 
+      tracks.forEach(tr => { tr._midiCount = 0; });
+
       tracks.forEach(tr => {
         const steps = Math.max(1, Math.min(256, tr.steps|0));
         const patt = tr.pattern.length ? tr.pattern : euclidean(tr.steps, tr.hits);
@@ -683,7 +857,12 @@
           const tBeats = i*stepDurBeats + swingOffBeats;
           const tTicks = Math.round(tBeats * tpq);
           const durTicks = Math.max(30, Math.round(stepDurBeats * tpq * 0.5));
-          const vel = Math.max(1, Math.min(127, Math.round((tr.volume||0.9)*100)+20));
+
+          let vel = Math.max(1, Math.min(127, Math.round((tr.volume||0.9)*100)+20));
+          if(mode==='drums' && tr.sound==='hat' && tr.accent==='alt'){
+            vel = Math.round( vel * ( (tr._midiCount%2===0) ? 0.65 : 1.0 ) );
+            tr._midiCount++;
+          }
 
           events.push({ t:tTicks, data:[0x90 | (ch&0x0F), noteNumber&0x7F, vel] });
           events.push({ t:tTicks+durTicks, data:[0x80 | (ch&0x0F), noteNumber&0x7F, 0x40] });
@@ -716,7 +895,7 @@
     /* ===== Wire UI ===== */
     $('#play').addEventListener('click', () => { if(!isPlaying){ start(); } });
     $('#stop').addEventListener('click', stop);
-    $('#addTrack').addEventListener('click', () => { makeTrack({ name:`Track ${tracks.length+1}`, steps:16, hits:8, sound:'click' }); draw(); });
+    $('#addTrack').addEventListener('click', () => { makeTrack({ name:`Track ${tracks.length+1}`, steps:16, hits:8, sound:'click' }); drawAll(); });
     $('#preset').addEventListener('change', e => { const tok=e.target.value; if(tok) applyPresetByToken(tok); e.target.value=''; });
     $('#export').addEventListener('click', exportJSON);
     $('#import').addEventListener('click', importJSON);
@@ -732,8 +911,8 @@
       // estado inicial
       makeTrack({ name:'Kick',  steps:16, hits:4,  sound:'kick',  pan:-0.05, volume:1.0 });
       makeTrack({ name:'Snare', steps:16, hits:4,  offset:8, sound:'snare', pan:0,    volume:0.9 });
-      makeTrack({ name:'Hat',   steps:16, hits:8,  sound:'hat',   pan:0.1,  volume:0.6 });
-      draw();
+      makeTrack({ name:'Hat',   steps:16, hits:8,  sound:'hat',   pan:0.1,  volume:0.6, accent:'alt' });
+      drawAll();
     })();
   </script>
 </body>
