@@ -45,14 +45,18 @@
     .tuning-display{ display:flex; gap:.35rem; flex-wrap:wrap; font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; }
     .tuning-chip{ border:1px solid var(--accent); border-radius:999px; padding:.15rem .6rem; font-size:.85rem; }
 
-    /* --- DAW view --- */
+    /* --- DAW view (tablatura por cuerdas) --- */
     .loopview{ border:1px solid var(--accent); border-radius:.75rem; padding:.75rem; display:flex; flex-direction:column; gap:.5rem; }
     .loopview h2{ margin:0; font-size:1rem; }
-    .loopview canvas{ width:100%; height:auto; display:block; aspect-ratio:5/1; border:1px solid var(--accent-soft); border-radius:.5rem; }
+    .loopwrap{ position:relative; }
+    .loopview canvas{ width:100%; height:auto; display:block; aspect-ratio:5/2; border:1px solid var(--accent-soft); border-radius:.5rem; }
+    .lane-legend{ position:absolute; left:.35rem; top:.35rem; bottom:.35rem; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between; }
+    .lane-legend .lab{ font-size:.72rem; color:var(--muted); background:var(--paper); padding:.1rem .35rem; border:1px solid var(--accent-soft); border-radius:.35rem; opacity:.85; }
 
     @media (max-width:720px){
       .controls{ grid-template-columns:1fr; }
       .summary-block{ min-width:140px; }
+      .lane-legend .lab{ font-size:.66rem; padding:.06rem .3rem; }
     }
   </style>
 </head>
@@ -140,11 +144,15 @@
       </div>
     </section>
 
-    <!-- NUEVA VISTA DAW -->
+    <!-- LOOP VIEW con lanes por cuerda -->
     <section class="loopview" aria-label="Loop View">
       <h2>Loop View</h2>
-      <canvas id="dawCanvas" width="1400" height="280" aria-hidden="true"></canvas>
-      <div class="hint" style="font-size:.8rem; color:var(--muted);">Visual grid shows bars, beats and note blocks. Playhead is synced to audio.</div>
+      <div class="loopwrap">
+        <canvas id="dawCanvas" width="1400" height="400" aria-hidden="true"></canvas>
+        <!-- etiquetas de cuerdas (se llenan por JS) -->
+        <div id="laneLegend" class="lane-legend" aria-hidden="true"></div>
+      </div>
+      <div class="hint" style="font-size:.8rem; color:var(--muted);">Bars/beats + lanes por cuerda (arriba = 1ª “e”). Playhead sincronizado al audio.</div>
     </section>
 
     <section class="riff-visual" aria-label="Generated riff grid">
@@ -293,6 +301,8 @@
       $('#densityLabel').textContent = `${$('#density').value}%`;
       $('#syncLabel').textContent = `${$('#syncopation').value}%`;
       $('#accentLabel').textContent = `${$('#pulse').value}%`;
+
+      // Tuning chips (arriba=agudas)
       const display = $('#tuningDisplay');
       display.innerHTML = '';
       state.meta.tuning.strings.slice().reverse().forEach(str => {
@@ -301,7 +311,24 @@
         chip.textContent=str;
         display.appendChild(chip);
       });
-      drawDAW(); // refrescar por si cambió compás/bpm/etc.
+
+      // Leyenda lateral de cuerdas en Loop View
+      renderLaneLegend();
+
+      drawDAW(); // refrescar grilla
+    }
+
+    function renderLaneLegend(){
+      const legend = $('#laneLegend');
+      legend.innerHTML = '';
+      // Mostrar de arriba (agudas) a abajo (graves)
+      const names = state.meta.tuning.strings.slice().reverse();
+      names.forEach(n=>{
+        const div=document.createElement('div');
+        div.className='lab';
+        div.textContent=n;
+        legend.appendChild(div);
+      });
     }
 
     function readMeta(){
@@ -549,7 +576,7 @@
       });
     }
 
-    /* ==== DAW drawing ==== */
+    /* ==== DAW drawing (tablatura) ==== */
     const dawCanvas = document.getElementById('dawCanvas');
     const dawCtx = dawCanvas.getContext('2d');
 
@@ -557,7 +584,8 @@
       const m = state.meta;
       const stepsPerMeasure = Math.round(m.subdiv * (m.timeSig[0] * (4/m.timeSig[1])));
       const totalSteps = stepsPerMeasure * m.bars;
-      return { stepsPerMeasure, totalSteps };
+      const strings = m.tuning.strings.length;
+      return { stepsPerMeasure, totalSteps, strings };
     }
 
     function drawDAW(playheadStep = null){
@@ -570,15 +598,25 @@
       const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
       const muted = styles.getPropertyValue('--muted').trim() || '#777';
 
-      const { stepsPerMeasure, totalSteps } = dawMetrics();
-      const padding = { l:16, r:16, t:18, b:16 };
+      const { stepsPerMeasure, totalSteps, strings } = dawMetrics();
+      const padding = { l:44, r:16, t:22, b:16 }; // l más ancho para labels
       const innerW = W - padding.l - padding.r;
       const innerH = H - padding.t - padding.b;
 
-      // Fondo y borde
+      // Marco
       ctx.save();
       ctx.strokeStyle = rule; ctx.strokeRect(padding.l, padding.t, innerW, innerH);
       ctx.restore();
+
+      // Lanes horizontales (arriba = 1ª e)
+      const laneH = innerH / strings;
+      for(let i=0;i<=strings;i++){
+        const y = padding.t + i*laneH;
+        ctx.strokeStyle = rule;
+        ctx.globalAlpha = i===0 || i===strings ? 1 : 0.65;
+        ctx.beginPath(); ctx.moveTo(padding.l, y); ctx.lineTo(padding.l+innerW, y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
 
       // Grid de compases y beats
       const beatsPerBar = state.meta.timeSig[0];
@@ -592,28 +630,32 @@
           ctx.fillText(`Bar ${bar+1}`, x+6, padding.t - 4);
         }
       }
-      // líneas de beat dentro de cada bar
+      // líneas de beat
       for(let bar=0; bar<state.meta.bars; bar++){
         for(let b=1; b<beatsPerBar; b++){
           const stepX = (bar*stepsPerMeasure + b*stepsPerBeat) / (totalSteps);
           const x = padding.l + stepX * innerW;
           ctx.strokeStyle = rule; ctx.globalAlpha = 0.5;
           ctx.beginPath(); ctx.moveTo(x, padding.t); ctx.lineTo(x, padding.t+innerH); ctx.stroke();
-          ctx.globalAlpha = 1;
         }
       }
+      ctx.globalAlpha = 1;
 
-      // Notas como bloques
-      const blockH = Math.max(14, innerH * 0.55); // carril único centrado
-      const blockY = padding.t + (innerH - blockH)/2;
+      // Notas como bloques en su lane (invertimos Y para estilo tablatura)
       state.riff.forEach(ev => {
-        const x0 = padding.l + (ev.start / totalSteps) * innerW;
-        const x1 = padding.l + ((ev.start + ev.length) / totalSteps) * innerW;
+        const lane = (strings - 1 - ev.stringIndex); // 0 = arriba = 1ª cuerda (aguda)
+        const y0 = padding.t + lane * laneH + 3;
+        const y1 = y0 + laneH - 6;
+
+        const x0 = padding.l + (ev.start / totalSteps) * innerW + 1;
+        const x1 = padding.l + ((ev.start + ev.length) / totalSteps) * innerW - 1;
         const w = Math.max(2, x1 - x0);
+
         ctx.fillStyle = ink;
-        ctx.globalAlpha = ev.accent ? 0.95 : 0.55;
-        ctx.fillRect(x0+1, blockY+1, w-2, blockH-2);
+        ctx.globalAlpha = ev.accent ? 0.95 : 0.6;
+        ctx.fillRect(x0, y0, w, Math.max(8, y1 - y0));
       });
+      ctx.globalAlpha = 1;
 
       // Playhead
       if(playheadStep!=null){
@@ -640,7 +682,7 @@
         const playheadStep = (elapsed % loopDur) / stepDur;
         drawDAW(playheadStep);
 
-        // Highlight tarjetas sincronizadas (opcional, mantiene lo que tenías)
+        // Opcional: resaltar tarjetas por step entero
         const stepInt = Math.round(playheadStep);
         highlight(stepInt);
 
@@ -669,10 +711,8 @@
         state.timers.push(timer);
       });
 
-      // Iniciar animación DAW sincronizada
       scheduleDAWAnimation();
 
-      // Parada automática tras el loop (una vuelta)
       const totalDur = stepDur * (state.meta.bars * state.meta.subdiv * state.meta.timeSig[0] * (4/state.meta.timeSig[1]) + 2);
       const endTimer = setTimeout(()=>stopPlayback(), totalDur*1000);
       state.timers.push(endTimer);
@@ -757,7 +797,6 @@
       $('#play').addEventListener('click', playRiff);
       $('#stop').addEventListener('click', ()=>stopPlayback());
       $('#download').addEventListener('click', exportMIDI);
-      // primera pintura de la DAW
       drawDAW();
     }
 
