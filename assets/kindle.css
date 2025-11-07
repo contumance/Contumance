@@ -200,6 +200,249 @@ h1 {
   line-height: 1.65;
 }
 
+body.home main {
+  max-width: min(72rem, calc(100% - 4rem));
+  padding: clamp(4rem, 9vh, 7rem) clamp(1.5rem, 6vw, 3.5rem) 4.5rem;
+}
+
+body.home .hero {
+  margin-bottom: clamp(2.75rem, 8vh, 4rem);
+}
+
+body.home .hero-surface {
+  position: relative;
+  border: 1px solid var(--accent);
+  border-radius: calc(var(--radius) + 2px);
+  padding: clamp(1.8rem, 5vw, 2.9rem);
+  background: color-mix(in oklab, var(--paper) 92%, var(--accent) 8%);
+  box-shadow: 0 24px 44px rgba(0, 0, 0, .08), 0 6px 18px rgba(0, 0, 0, .06);
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.6rem);
+}
+
+body.home .hero-surface::after {
+  content: "";
+  position: absolute;
+  top: clamp(1rem, 4vw, 2.2rem);
+  right: clamp(1rem, 6vw, 2.6rem);
+  width: clamp(9rem, 22vw, 12.5rem);
+  height: clamp(9rem, 22vw, 12.5rem);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, color-mix(in oklab, var(--accent) 32%, transparent 68%) 0%, transparent 70%);
+  opacity: .55;
+  filter: blur(0.5px);
+  pointer-events: none;
+}
+
+html.theme-dark body.home .hero-surface {
+  background: color-mix(in oklab, var(--ink) 88%, var(--accent) 12%);
+  box-shadow: 0 22px 40px rgba(0, 0, 0, .55), 0 5px 16px rgba(0, 0, 0, .4);
+}
+
+html.theme-dark body.home .hero-surface::after {
+  background: radial-gradient(circle at center, color-mix(in oklab, var(--accent) 55%, transparent 45%) 0%, transparent 70%);
+  opacity: .4;
+}
+
+body.home .hero-header {
+  grid-column: 1 / -1;
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 65%, transparent 35%);
+  padding-bottom: 1rem;
+}
+
+body.home .hero-header h1 {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  letter-spacing: .04em;
+}
+
+body.home .hero-header .desc {
+  max-width: 38ch;
+  margin-bottom: 0;
+}
+
+body.home .hero-intro {
+  display: grid;
+  gap: .9rem;
+  max-width: 54ch;
+}
+
+body.home .hero-intro p {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+body.home .hero-glance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.home .hero-glance span {
+  display: inline-flex;
+  align-items: center;
+}
+
+body.home .hero-glance span + span::before {
+  content: "•";
+  margin: 0 .95rem 0 .95rem;
+  opacity: .4;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  margin: clamp(2.5rem, 6vh, 3.5rem) 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent) 70%, transparent 30%), transparent);
+  opacity: .75;
+}
+
+body.home .library {
+  display: grid;
+  gap: clamp(2rem, 6vw, 3.5rem);
+}
+
+body.home .collection-surface {
+  border: 1px solid color-mix(in oklab, var(--accent) 65%, transparent 35%);
+  border-radius: calc(var(--radius) + 4px);
+  padding: clamp(1.6rem, 5vw, 2.5rem);
+  background: color-mix(in oklab, var(--paper) 97%, var(--accent) 3%);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, .07), 0 4px 12px rgba(0, 0, 0, .05);
+}
+
+html.theme-dark body.home .collection-surface {
+  background: color-mix(in oklab, var(--ink) 85%, var(--accent) 15%);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .55), 0 4px 12px rgba(0, 0, 0, .45);
+}
+
+body.home .collection-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+body.home .collection-header .note {
+  margin: 0;
+  max-width: 36ch;
+  font-size: .92rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+body.home .index {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1.4rem 1.8rem;
+}
+
+body.home .index li,
+body.home .index li + li {
+  border: none;
+}
+
+body.home .item {
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent 55%);
+  border-radius: calc(var(--radius) - 6px);
+  padding: 1.1rem 1.25rem;
+  background: color-mix(in oklab, var(--paper) 94%, var(--accent) 6%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .06);
+  grid-template-columns: minmax(0, 2rem) 1fr;
+  column-gap: 1rem;
+  row-gap: .35rem;
+  align-items: start;
+  transition: transform .18s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+html.theme-dark body.home .item {
+  background: color-mix(in oklab, var(--ink) 82%, var(--accent) 18%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .5);
+}
+
+body.home .item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .12);
+  background: color-mix(in oklab, var(--paper) 90%, var(--accent) 10%);
+}
+
+html.theme-dark body.home .item:hover {
+  box-shadow: 0 12px 26px rgba(0, 0, 0, .6);
+  background: color-mix(in oklab, var(--ink) 76%, var(--accent) 24%);
+}
+
+body.home .item .icon {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+body.home .item .title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+body.home .item .meta {
+  font-size: .95rem;
+}
+
+body.home footer {
+  align-items: flex-start;
+  text-align: left;
+  margin-top: clamp(3rem, 8vh, 4.5rem);
+}
+
+@media (max-width: 900px) {
+  body.home main {
+    padding: clamp(3.5rem, 9vh, 6rem) clamp(1.25rem, 6vw, 2.5rem) 4rem;
+  }
+
+  body.home .hero-surface {
+    border-radius: var(--radius);
+    padding: clamp(1.6rem, 6vw, 2.4rem);
+  }
+
+  body.home .collection-surface {
+    padding: clamp(1.4rem, 6vw, 2.1rem);
+  }
+}
+
+@media (max-width: 640px) {
+  body.home main {
+    max-width: min(40rem, calc(100% - 2.5rem));
+    padding: 3rem 1.25rem 3.5rem;
+  }
+
+  body.home .hero-surface {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, .08);
+  }
+
+  body.home .hero-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  body.home .library {
+    gap: 2rem;
+  }
+
+  body.home .collection-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  body.home .collection-header .note {
+    font-size: .88rem;
+  }
+
+  body.home .index {
+    grid-template-columns: 1fr;
+  }
+}
+
 .section-title {
   font-size: 1rem;
   font-weight: 600;
@@ -267,7 +510,7 @@ h1 {
   margin-top: .1rem;
 }
 
-hr {
+hr:not(.divider) {
   border: none;
   border-top: 1px solid var(--accent);
   margin: 1.25rem 0;
@@ -438,6 +681,10 @@ footer .byline em {
 
   .index li:hover {
     transform: translateX(2px);
+  }
+
+  body.home .index li:hover {
+    transform: none;
   }
 
   .support-note .btn:hover,
