@@ -6,15 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title data-i18n="chords_doc_title">The Chords Book — playable positions (open + 0–12)</title>
   <meta name="description"
-    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings." data-i18n="chords_doc_description" data-i18n-attr="content" />
+    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings."
+    data-i18n="chords_doc_description" data-i18n-attr="content" />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <link rel="stylesheet" href="assets/kindle.css">
   <style>
-    .theme-toggle {
-      font-size: 1.15rem;
-    }
-
+    .theme-toggle { font-size: 1.15rem; }
     .lang-select {
       border: 1px solid var(--accent);
       background: var(--btn-bg);
@@ -28,150 +26,32 @@
       cursor: pointer;
       background-image: linear-gradient(transparent, transparent), linear-gradient(transparent, transparent);
     }
-
-    .lang-select:focus-visible {
-      outline: 2px dashed var(--accent);
-      outline-offset: 2px;
+    .lang-select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    .controls { display: grid; gap: 8px; align-items: center; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 8px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    label { font-size: 12px; opacity: .9; }
+    select, button, input[type="number"] {
+      appearance: none; border: 1px solid var(--accent); background: transparent; color: var(--ink);
+      padding: 10px 12px; border-radius: .5rem; font-family: inherit; font-size: 14px; line-height: 1; min-width: 0; outline: none;
     }
-
-    .controls {
-      display: grid;
-      gap: 8px;
-      align-items: center;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      margin-bottom: 8px;
-    }
-
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    label {
-      font-size: 12px;
-      opacity: .9;
-    }
-
-    select,
-    button,
-    input[type="number"] {
-      appearance: none;
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--ink);
-      padding: 10px 12px;
-      border-radius: .5rem;
-      font-family: inherit;
-      font-size: 14px;
-      line-height: 1;
-      min-width: 0;
-      outline: none;
-    }
-
-    select:focus-visible,
-    button:focus-visible,
-    input[type="number"]:focus-visible {
-      outline: 2px dashed var(--accent);
-      outline-offset: 2px;
-    }
-
-    .tuning {
-      display: grid;
-      gap: 8px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .string-card {
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      padding: 8px;
-      background: transparent;
-    }
-
-    .bank {
-      margin: 12px 0 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .counter {
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    .grid {
-      display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-
-    .card {
-      border: 1px solid var(--accent);
-      border-radius: .6rem;
-      padding: .8rem .8rem .9rem;
-      background: transparent;
-    }
-
-    .title {
-      font-weight: 700;
-      letter-spacing: .01em;
-      margin-bottom: .25rem;
-    }
-
-    .meta {
-      color: var(--muted);
-      font-size: .85rem;
-      display: flex;
-      gap: .6rem;
-      flex-wrap: wrap;
-    }
-
-    .fb svg {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .fb-grid line {
-      stroke: var(--rule);
-      stroke-width: 1;
-    }
-
-    .fb-grid .nut {
-      stroke: var(--ink);
-      stroke-width: 3;
-    }
-
-    .fb-note circle {
-      fill: var(--ink);
-    }
-
-    .fb-note text {
-      font-size: 10px;
-      font-weight: 700;
-      fill: var(--paper);
-    }
-
-    .fb-grid text {
-      fill: var(--muted);
-    }
-
-    html.theme-dark .fb-grid text {
-      fill: var(--ink);
-      opacity: .85;
-    }
-
-    html.theme-dark .fb-grid line {
-      stroke: #3b3a34;
-    }
-
-    html.theme-dark .fb-note text {
-      fill: var(--paper);
-      font-weight: 800;
-    }
+    select:focus-visible, button:focus-visible, input[type="number"]:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    .tuning { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .string-card { border: 1px solid var(--accent); border-radius: .6rem; padding: 8px; background: transparent; }
+    .bank { margin: 12px 0 6px; display: flex; justify-content: space-between; align-items: center; }
+    .counter { color: var(--muted); font-size: .9rem; }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .card { border: 1px solid var(--accent); border-radius: .6rem; padding: .8rem .8rem .9rem; background: transparent; }
+    .title { font-weight: 700; letter-spacing: .01em; margin-bottom: .25rem; }
+    .meta { color: var(--muted); font-size: .85rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+    .fb svg { max-width: 100%; height: auto; display: block; }
+    .fb-grid line { stroke: var(--rule); stroke-width: 1; }
+    .fb-grid .nut { stroke: var(--ink); stroke-width: 3; }
+    .fb-note circle { fill: var(--ink); }
+    .fb-note text { font-size: 10px; font-weight: 700; fill: var(--paper); }
+    .fb-grid text { fill: var(--muted); }
+    html.theme-dark .fb-grid text { fill: var(--ink); opacity: .85; }
+    html.theme-dark .fb-grid line { stroke: #3b3a34; }
+    html.theme-dark .fb-note text { fill: var(--paper); font-weight: 800; }
   </style>
 </head>
 
@@ -188,8 +68,7 @@
           <option value="es">ES</option>
           <option value="pt">PT</option>
         </select>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"
-          title="Toggle theme">☾</button>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
       </div>
     </div>
 
@@ -204,18 +83,15 @@
         <div class="controls" role="group" aria-label="Controls" data-i18n="chords_controls_aria" data-i18n-attr="aria-label">
           <div class="row">
             <label for="root" data-i18n="chords_control_root">Root</label>
-            <select id="root" aria-label="Root" data-i18n="chords_control_root" data-i18n-attr="aria-label"
-              data-i18n-attr-only></select>
+            <select id="root" aria-label="Root" data-i18n="chords_control_root" data-i18n-attr="aria-label" data-i18n-attr-only></select>
           </div>
           <div class="row">
             <label for="chord" data-i18n="chords_control_chord">Chord</label>
-            <select id="chord" aria-label="Chord" data-i18n="chords_control_chord" data-i18n-attr="aria-label"
-              data-i18n-attr-only></select>
+            <select id="chord" aria-label="Chord" data-i18n="chords_control_chord" data-i18n-attr="aria-label" data-i18n-attr-only></select>
           </div>
           <div class="row">
             <label for="labels" data-i18n="chords_control_labels">Labels</label>
-            <select id="labels" aria-label="Labels" data-i18n="chords_control_labels" data-i18n-attr="aria-label"
-              data-i18n-attr-only>
+            <select id="labels" aria-label="Labels" data-i18n="chords_control_labels" data-i18n-attr="aria-label" data-i18n-attr-only>
               <option value="degrees" selected data-i18n="chords_label_degrees">Degrees</option>
               <option value="notes" data-i18n="chords_label_notes">Notes</option>
               <option value="off" data-i18n="chords_label_off">Hidden</option>
@@ -260,10 +136,11 @@
 
   <script src="assets/i18n.js"></script>
   <script>
+    // Mensajes i18n — añadimos claves "chords_doc_*" para que <title> y <meta> se sincronicen
     const chordsMessages = {
       en: {
-        doc_title: "The Chords Book — playable positions (open + 0–12)",
-        doc_description: "All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings.",
+        chords_doc_title: "The Chords Book — playable positions (open + 0–12)",
+        chords_doc_description: "All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings.",
         lang_label: "Language",
         chords_back: "← Back to index",
         chords_heading: "The Chords Book",
@@ -298,8 +175,8 @@
         theme_to_dark: "Switch to dark mode"
       },
       es: {
-        doc_title: "The Chords Book — posiciones tocables (abiertas + 0–12)",
-        doc_description: "Todas las digitaciones tocables entre los trastes 0 y 12, incluyendo cuerdas al aire. Compatible con guitarras de 4 a 8 cuerdas.",
+        chords_doc_title: "The Chords Book — posiciones tocables (abiertas + 0–12)",
+        chords_doc_description: "Todas las digitaciones tocables entre los trastes 0 y 12, incluyendo cuerdas al aire. Compatible con guitarras de 4 a 8 cuerdas.",
         lang_label: "Idioma",
         chords_back: "← Volver al índice",
         chords_heading: "The Chords Book",
@@ -334,8 +211,8 @@
         theme_to_dark: "Cambiar a modo oscuro"
       },
       pt: {
-        doc_title: "The Chords Book — posições tocáveis (abertas + 0–12)",
-        doc_description: "Todos os formatos tocáveis entre os trastes 0 e 12, incluindo cordas soltas. Compatível com guitarras de 4 a 8 cordas.",
+        chords_doc_title: "The Chords Book — posições tocáveis (abertas + 0–12)",
+        chords_doc_description: "Todos os formatos tocáveis entre os trastes 0 e 12, incluindo cordas soltas. Compatível com guitarras de 4 a 8 cordas.",
         lang_label: "Idioma",
         chords_back: "← Voltar ao índice",
         chords_heading: "The Chords Book",
@@ -380,7 +257,7 @@
     }
   </script>
 
-  <!-- Theme toggle (same logic as Scales page) -->
+  <!-- Theme toggle -->
   <script>
     (function () {
       const KEY = 'theme-preference';
@@ -389,11 +266,7 @@
       const safeTr = (k, f) => (window.tr ? window.tr(k, f) : (f || k));
 
       function safeSetItem(key, value) {
-        try {
-          localStorage.setItem(key, value);
-        } catch (err) {
-          // ignore storage errors (e.g. private mode)
-        }
+        try { localStorage.setItem(key, value); } catch (err) {}
       }
 
       function setIcon(mode) {
@@ -409,11 +282,7 @@
       function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
       function getPreferred() {
         let saved;
-        try {
-          saved = localStorage.getItem(KEY);
-        } catch (err) {
-          saved = null;
-        }
+        try { saved = localStorage.getItem(KEY); } catch (err) { saved = null; }
         if (saved === 'light' || saved === 'dark') return saved;
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
@@ -426,9 +295,7 @@
           apply(current);
         });
       }
-      if (window.ReI18n) {
-        ReI18n.onChange(() => { setIcon(current); });
-      }
+      if (window.ReI18n) { ReI18n.onChange(() => { setIcon(current); }); }
       const y = document.getElementById('y');
       if (y) y.textContent = new Date().getFullYear();
     })();
@@ -466,16 +333,36 @@
         return base6;
       }
 
-      // --- State & persistence (key aligned style) ---
+      // --- State & persistence ---
       const LS_KEY = 'tcb_all_playable_v2_4to8';
       const state = { strings: 6, tuning: DEFAULT_TUNING_6.slice(), root: 'E', chordName: 'Major (maj)', labels: 'degrees' };
-      try { const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if (s && typeof s === 'object') Object.assign(state, s); } catch (e) { }
-      function save() {
-        try {
-          localStorage.setItem(LS_KEY, JSON.stringify(state));
-        } catch (err) {
-          // ignore persistence issues (e.g. private browsing)
+      try {
+        const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+        if (s && typeof s === 'object') Object.assign(state, s);
+      } catch (e) { /* ignore */ }
+
+      // --- Sanitización de estado persistido ---
+      const CHORD_KEYS = Object.keys(CHORDS);
+      if (!NOTES.includes(state.root)) state.root = 'E';
+      if (!CHORD_KEYS.includes(state.chordName)) state.chordName = 'Major (maj)';
+      if (!['degrees', 'notes', 'off'].includes(state.labels)) state.labels = 'degrees';
+      state.strings = Math.min(8, Math.max(4, state.strings | 0));
+
+      function ensureTuningLen(n) {
+        if (state.tuning.length < n) {
+          while (state.tuning.length < n) {
+            const add = (state.tuning.length === 6) ? "B" : (state.tuning.length === 7) ? "F#" : state.tuning[state.tuning.length - 1];
+            state.tuning.push(add);
+          }
+        } else if (state.tuning.length > n) {
+          state.tuning = state.tuning.slice(0, n);
         }
+      }
+      ensureTuningLen(state.strings);
+      state.tuning = state.tuning.map(n => NOTES.includes(n) ? n : 'E');
+
+      function save() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (err) {}
       }
 
       // --- DOM ---
@@ -495,17 +382,6 @@
       // --- Helpers ---
       const wrap = (n) => (n + 12) % 12;
       const idx = (n) => PC[n];
-
-      function ensureTuningLen(n) {
-        if (state.tuning.length < n) {
-          while (state.tuning.length < n) {
-            const add = (state.tuning.length === 6) ? "B" : (state.tuning.length === 7) ? "F#" : state.tuning[state.tuning.length - 1];
-            state.tuning.push(add);
-          }
-        } else if (state.tuning.length > n) {
-          state.tuning = state.tuning.slice(0, n);
-        }
-      }
 
       function fillSelect(el, arr) { el.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join(''); }
       fillSelect(rootSel, NOTES); rootSel.value = state.root;
@@ -530,14 +406,14 @@
           const lowerAria = format(t('chords_tuning_lower_aria', 'Lower string {n}'), { n: stringNum });
           const raiseAria = format(t('chords_tuning_raise_aria', 'Raise string {n}'), { n: stringNum });
           html += `<div class="string-card">
-          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">${stringLabel}</div>
-          <div class="row" style="gap:6px;">
-            <button data-act="down" data-idx="${i}" title="${lowerTitle}" aria-label="${lowerAria}">−</button>
-            <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
-            <button data-act="up" data-idx="${i}" title="${raiseTitle}" aria-label="${raiseAria}">+</button>
-            <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="${setNote}">${opts}</select>
-          </div>
-        </div>`;
+            <div style="font-size:12px;opacity:.8;margin-bottom:6px;">${stringLabel}</div>
+            <div class="row" style="gap:6px;">
+              <button data-act="down" data-idx="${i}" title="${lowerTitle}" aria-label="${lowerAria}">−</button>
+              <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
+              <button data-act="up" data-idx="${i}" title="${raiseTitle}" aria-label="${raiseAria}">+</button>
+              <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="${setNote}">${opts}</select>
+            </div>
+          </div>`;
         }
         tuningPanel.innerHTML = html;
         tuningPanel.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
@@ -551,29 +427,32 @@
       }
 
       function chordDegrees() {
-        const base = CHORDS[state.chordName].map(wrap);
-        const uniq = []; base.forEach(x => { if (!uniq.includes(x)) uniq.push(x); });
+        const def = CHORDS['Major (maj)'];
+        const arr = CHORDS[state.chordName] || def;   // Fallback seguro
+        const base = arr.map(wrap);
+        const uniq = [];
+        base.forEach(x => { if (!uniq.includes(x)) uniq.push(x); });
         return uniq;
       }
 
       // --- Playability heuristics ---
       function playable(choice) {
         const fretted = choice.filter(n => n.fret > 0);
-        if (fretted.length === 0) return false;        // avoid all-open clusters
+        if (fretted.length === 0) return false;        // evitar todo al aire
         const minF = Math.min(...choice.map(n => n.fret));
         const maxF = Math.max(...choice.map(n => n.fret));
         const span = maxF - minF;
-        if (span > 4) return false;                    // compact reach (≤4)
+        if (span > 4) return false;                    // alcance compacto (≤4)
         for (let i = 1; i < choice.length; i++) {
           const a = choice[i - 1].fret, b = choice[i].fret;
-          if (Math.abs(a - b) > 3) return false;         // adjacent finger jumps
+          if (Math.abs(a - b) > 3) return false;       // saltos entre adyacentes
         }
         return true;
       }
 
       function includesAllDegrees(choice, required) {
         const got = new Set(choice.map(c => wrap(c.rel)));
-        if (!got.has(0)) return false;               // must contain the root
+        if (!got.has(0)) return false;               // debe contener la tónica
         for (const d of required) { if (!got.has(d)) return false; }
         return true;
       }
@@ -582,7 +461,7 @@
       function generateAllVoicings() {
         const chord = chordDegrees(); const rootPc = idx(state.root);
         const required = new Set(chord);
-        const wantCount = chord.length; // 3 or 4
+        const wantCount = chord.length; // 3 o 4
         const strings = state.strings | 0;
         const results = [];
         const sizes = [3, 4];
@@ -654,7 +533,7 @@
         const startF = Math.max(0, voicing.minF);
         const w = frets * 44 + 96, h = strings * 24 + 76;
         const x0 = 70, y0 = 46, dx = 44, dy = 24;
-        
+
         const STRING_NAMES = Array.from({ length: strings }, (_, i) => {
           const name = state.tuning[i];   // 0 = 1ª cuerda (e)
           const num = i + 1;              // 1..N
@@ -715,10 +594,10 @@
           const meta2 = stringsLabel(v.s0, v.s1);
           const svg = svgCard(v, state.labels);
           return `<article class="card">
-          <div class="title">${title}</div>
-          <div class="meta"><span>${meta1}</span><span>•</span><span>${meta2}</span></div>
-          <div class="fb">${svg}</div>
-        </article>`;
+            <div class="title">${title}</div>
+            <div class="meta"><span>${meta1}</span><span>•</span><span>${meta2}</span></div>
+            <div class="fb">${svg}</div>
+          </article>`;
         }).join('');
       }
 
@@ -760,5 +639,4 @@
     })();
   </script>
 </body>
-
 </html>
