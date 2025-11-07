@@ -4,54 +4,396 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title data-i18n="chords_doc_title">The Chords Book — playable positions (open + 0–12)</title>
+  <title>The Chords Book — playable positions (open + 0–12)</title>
   <meta name="description"
-    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings."
-    data-i18n="chords_doc_description" data-i18n-attr="content" />
+    content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings." />
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
-  <link rel="stylesheet" href="assets/kindle.css">
   <style>
-    .theme-toggle { font-size: 1.15rem; }
-    .lang-select {
+    /* Base palette (light mode) aligned with Scales */
+    :root {
+      --paper: #f5f1e8;
+      /* paper bg */
+      --ink: #2f2a1e;
+      /* main text */
+      --muted: #6b6253;
+      /* secondary text */
+      --link: #2d5842;
+      /* links */
+      --link-visited: #514f7a;
+      --accent: #a08a63;
+      /* borders */
+      --rule: #d8d2c2;
+      /* inner lines */
+      --accent-soft: #999;
+      /* soft markers */
+      --maxw: 42rem;
+      /* reading width */
+      --radius: 14px;
+      --lh: 1.6;
+      --fs-base: 18px;
+    }
+
+    html.theme-dark {
+      --paper: #10110f;
+      --ink: #dbd6c9;
+      --muted: #a39c8c;
+      --link: #a9d0b8;
+      --link-visited: #c0b8e0;
+      --accent: #2a2b27;
+      --rule: #2a2b27;
+      --accent-soft: #7f7a6b;
+    }
+
+    html {
+      font-size: var(--fs-base);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: var(--lh);
+      font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* subtle paper texture */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .06;
+      background-image:
+        radial-gradient(circle at 25% 15%, #000 0.5px, transparent 0.5px),
+        radial-gradient(circle at 75% 85%, #000 0.5px, transparent 0.5px);
+      background-size: 3px 3px, 3px 3px;
+      mix-blend-mode: multiply;
+    }
+
+    main {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 7vh 1.25rem 4rem;
+    }
+
+    /* topbar + breadcrumb matches Scales */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    nav.breadcrumb {
+      font-size: .95rem;
+    }
+
+    nav.breadcrumb a {
+      color: var(--link);
+      text-decoration: none;
+      text-underline-offset: 2px;
+    }
+
+    h1 {
+      margin: .2rem 0 .3rem 0;
+      font-weight: 600;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: .95rem;
+      margin-bottom: .8rem;
+    }
+
+    .theme-toggle {
       border: 1px solid var(--accent);
-      background: var(--btn-bg);
+      background: transparent;
       color: var(--ink);
       border-radius: .45rem;
-      padding: .3rem .5rem;
-      font-size: .95rem;
-      line-height: 1;
-      font-family: inherit;
-      appearance: none;
+      padding: .35rem .55rem;
       cursor: pointer;
-      background-image: linear-gradient(transparent, transparent), linear-gradient(transparent, transparent);
+      font-size: 1.15rem;
+      line-height: 1;
     }
-    .lang-select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
-    .controls { display: grid; gap: 8px; align-items: center; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 8px; }
-    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    label { font-size: 12px; opacity: .9; }
-    select, button, input[type="number"] {
-      appearance: none; border: 1px solid var(--accent); background: transparent; color: var(--ink);
-      padding: 10px 12px; border-radius: .5rem; font-family: inherit; font-size: 14px; line-height: 1; min-width: 0; outline: none;
+
+    .theme-toggle:focus-visible {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
     }
-    select:focus-visible, button:focus-visible, input[type="number"]:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
-    .tuning { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-    .string-card { border: 1px solid var(--accent); border-radius: .6rem; padding: 8px; background: transparent; }
-    .bank { margin: 12px 0 6px; display: flex; justify-content: space-between; align-items: center; }
-    .counter { color: var(--muted); font-size: .9rem; }
-    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .card { border: 1px solid var(--accent); border-radius: .6rem; padding: .8rem .8rem .9rem; background: transparent; }
-    .title { font-weight: 700; letter-spacing: .01em; margin-bottom: .25rem; }
-    .meta { color: var(--muted); font-size: .85rem; display: flex; gap: .6rem; flex-wrap: wrap; }
-    .fb svg { max-width: 100%; height: auto; display: block; }
-    .fb-grid line { stroke: var(--rule); stroke-width: 1; }
-    .fb-grid .nut { stroke: var(--ink); stroke-width: 3; }
-    .fb-note circle { fill: var(--ink); }
-    .fb-note text { font-size: 10px; font-weight: 700; fill: var(--paper); }
-    .fb-grid text { fill: var(--muted); }
-    html.theme-dark .fb-grid text { fill: var(--ink); opacity: .85; }
-    html.theme-dark .fb-grid line { stroke: #3b3a34; }
-    html.theme-dark .fb-note text { fill: var(--paper); font-weight: 800; }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--accent);
+      margin: 1.25rem 0;
+      opacity: .5;
+    }
+
+    /* panel styling */
+    details.panel {
+      border: 1px solid var(--accent);
+      border-radius: .6rem;
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    html.theme-dark details.panel {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    details.panel>summary {
+      cursor: pointer;
+      list-style: none;
+      padding: .6rem .8rem;
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    details.panel>summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.panel .panel-body {
+      padding: .6rem .8rem .9rem;
+    }
+
+    /* show a chevron */
+    details.panel>summary::after {
+      content: "▾";
+      float: right;
+      transition: transform .2s ease;
+    }
+
+    details.panel[open]>summary::after {
+      transform: rotate(180deg);
+    }
+
+    /* compact controls (same rhythm as Scales) */
+    .controls {
+      display: grid;
+      gap: 8px;
+      align-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-bottom: 8px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    label {
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    select,
+    button,
+    input[type="number"] {
+      appearance: none;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: .5rem;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1;
+      min-width: 0;
+      outline: none;
+    }
+
+    select:focus-visible,
+    button:focus-visible,
+    input[type="number"]:focus-visible {
+      outline: 2px dashed var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* tuning cards */
+    .tuning {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .string-card {
+      border: 1px solid var(--accent);
+      border-radius: .6rem;
+      padding: 8px;
+      background: transparent;
+    }
+
+    /* bank + grid of result cards */
+    .bank {
+      margin: 12px 0 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .counter {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .card {
+      border: 1px solid var(--accent);
+      border-radius: .6rem;
+      padding: .8rem .8rem .9rem;
+      background: transparent;
+    }
+
+    .title {
+      font-weight: 700;
+      letter-spacing: .01em;
+      margin-bottom: .25rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: .85rem;
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+    }
+
+    /* mini fretboard SVG, coherent with palette */
+    .fb svg {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .fb-grid line {
+      stroke: var(--rule);
+      stroke-width: 1;
+    }
+
+    .fb-grid .nut {
+      stroke: var(--ink);
+      stroke-width: 3;
+    }
+
+    /* thicker nut at fret 1 when startF=0 */
+    .fb-note circle {
+      fill: var(--ink);
+    }
+
+    .fb-note text {
+      font-size: 10px;
+      font-weight: 700;
+      fill: var(--paper);
+    }
+
+    /* --- Dark mode contrast fixes for SVG labels --- */
+    /* 1) String names & fret numbers */
+    .fb-grid text {
+      fill: var(--muted);
+    }
+
+    html.theme-dark .fb-grid text {
+      fill: var(--ink);
+      opacity: .85;
+    }
+
+    /* 2) Fret/grid lines a bit brighter in dark */
+    html.theme-dark .fb-grid line {
+      stroke: #3b3a34;
+    }
+
+    /* 3) Ensure note labels inside dots stay readable */
+    html.theme-dark .fb-note text {
+      fill: var(--paper);
+      font-weight: 800;
+    }
+
+    /* Hover underline animation (like index/Scales) */
+    @media (prefers-reduced-motion:no-preference) {
+      a {
+        position: relative;
+        background-image: linear-gradient(currentColor, currentColor);
+        background-position: 0 100%;
+        background-repeat: no-repeat;
+        background-size: 0% 1px;
+        transition: background-size .25s ease, color .2s ease;
+      }
+
+      a:hover,
+      a:focus-visible {
+        background-size: 100% 1px;
+        outline: none;
+      }
+    }
+
+  /* Footer base */
+footer{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.25rem;
+  font-size:.9rem;
+  opacity:.9;
+  padding:1.5rem 0;
+}
+
+/* Botón Buy Me a Coffee adaptado al tema */
+footer .btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  text-decoration:none;
+  border:1px solid var(--accent);
+  border-radius:999px;
+  padding:.45rem .95rem;
+  font-size:.9rem;
+  font-weight:500;
+  transition:background-color .25s ease, color .25s ease, transform .1s ease, filter .2s ease;
+}
+
+/* Modo claro */
+html:not(.theme-dark) footer .btn{
+  background:color-mix(in oklab, var(--accent) 10%, var(--paper) 90%);
+  color:var(--ink);
+}
+html:not(.theme-dark) footer .btn:hover{
+  background:color-mix(in oklab, var(--accent) 20%, var(--paper) 80%);
+}
+
+/* Modo oscuro */
+html.theme-dark footer .btn{
+  background:color-mix(in oklab, var(--accent) 40%, var(--ink) 60%);
+  color:var(--paper);
+}
+html.theme-dark footer .btn:hover{
+  background:color-mix(in oklab, var(--accent) 55%, var(--ink) 45%);
+}
+
+/* Ícono coherente con el color del texto */
+footer .btn .btn-icon{
+  width:1.2rem;
+  height:1.2rem;
+  stroke:currentColor;
+}
+
+/* Texto complementario */
+footer .note{font-size:.85rem;color:var(--muted)}
+footer .byline{font-size:.75rem;opacity:.7}
+footer .byline em{font-style:italic;letter-spacing:.02em}
+
   </style>
 </head>
 
@@ -59,60 +401,53 @@
   <main>
     <div class="topbar">
       <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="index.html" data-i18n="chords_back">← Back to index</a>
+        <a href="index.html">← Back to index</a>
       </nav>
-      <div class="row" style="gap:6px; position:relative;">
-        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
-        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
-          <option value="en">EN</option>
-          <option value="es">ES</option>
-          <option value="pt">PT</option>
-        </select>
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
-      </div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"
+        title="Toggle theme">🌓</button>
     </div>
 
     <header>
-      <h1 data-i18n="chords_heading">The Chords Book</h1>
-      <div class="subtitle" data-i18n="chords_subtitle">Explore unusual visions of harmony — each one a doorway to creation.</div>
+      <h1>The Chords Book</h1>
+      <div class="subtitle">Explore unusual visions of harmony — each one a doorway to creation.</div>
     </header>
 
     <details class="panel" open>
-      <summary data-i18n="chords_panel_summary">Guitar setup</summary>
+      <summary>Guitar setup</summary>
       <div class="panel-body">
-        <div class="controls" role="group" aria-label="Controls" data-i18n="chords_controls_aria" data-i18n-attr="aria-label">
+        <div class="controls" role="group" aria-label="Controls">
           <div class="row">
-            <label for="root" data-i18n="chords_control_root">Root</label>
-            <select id="root" aria-label="Root" data-i18n="chords_control_root" data-i18n-attr="aria-label" data-i18n-attr-only></select>
+            <label for="root">Root</label>
+            <select id="root" aria-label="Root"></select>
           </div>
           <div class="row">
-            <label for="chord" data-i18n="chords_control_chord">Chord</label>
-            <select id="chord" aria-label="Chord" data-i18n="chords_control_chord" data-i18n-attr="aria-label" data-i18n-attr-only></select>
+            <label for="chord">Chord</label>
+            <select id="chord" aria-label="Chord"></select>
           </div>
           <div class="row">
-            <label for="labels" data-i18n="chords_control_labels">Labels</label>
-            <select id="labels" aria-label="Labels" data-i18n="chords_control_labels" data-i18n-attr="aria-label" data-i18n-attr-only>
-              <option value="degrees" selected data-i18n="chords_label_degrees">Degrees</option>
-              <option value="notes" data-i18n="chords_label_notes">Notes</option>
-              <option value="off" data-i18n="chords_label_off">Hidden</option>
+            <label for="labels">Labels</label>
+            <select id="labels" aria-label="Labels">
+              <option value="degrees" selected>Degrees</option>
+              <option value="notes">Notes</option>
+              <option value="off">Hidden</option>
             </select>
           </div>
           <div class="row">
-            <label for="stringCount" data-i18n="chords_control_strings">Strings (4–8)</label>
+            <label for="stringCount">Strings (4–8)</label>
             <input id="stringCount" type="number" min="4" max="8" value="6" style="width:86px" />
-            <button id="applyStrings" type="button" data-i18n="chords_apply">Apply</button>
+            <button id="applyStrings" type="button">Apply</button>
           </div>
         </div>
 
         <details style="margin-top:.5rem;">
-          <summary style="cursor:pointer" data-i18n="chords_tuning_summary">Tuning (optional)</summary>
-          <div id="tuningPanel" class="tuning" aria-label="Tuning editor" data-i18n="chords_tuning_aria" data-i18n-attr="aria-label"></div>
+          <summary style="cursor:pointer">Tuning (optional)</summary>
+          <div id="tuningPanel" class="tuning" aria-label="Tuning editor"></div>
         </details>
       </div>
     </details>
 
     <div class="bank">
-      <div class="counter" id="countWrap"><span id="count">0</span> <span data-i18n="chords_positions_label">playable positions</span></div>
+      <div class="counter" id="countWrap"><span id="count">0</span> playable positions</div>
       <div class="counter" id="context"></div>
     </div>
 
@@ -120,184 +455,36 @@
     <footer>
       <!-- Botón Buy Me a Coffee adaptado al tema (sin script externo) -->
       <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
-         aria-label="Support this library on Buy Me a Coffee" data-i18n="chords_footer_buyme_aria" data-i18n-attr="aria-label">
+         aria-label="Support this library on Buy Me a Coffee">
         <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
           <path d="M3 8h17"/>
           <path d="M7 4h6"/>
         </svg>
-        <span data-i18n="chords_buyme">Buy me a coffee</span>
+        <span>Buy me a coffee</span>
       </a>
-
-      <span class="note" data-i18n="chords_footer_note">Fuel the craft. Inspire the next page.</span>
+      
+      <span class="note">Fuel the craft. Inspire the next page.</span>
       <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
     </footer>
   </main>
 
-  <script src="assets/i18n.js"></script>
-  <script>
-    // Mensajes i18n — añadimos claves "chords_doc_*" para que <title> y <meta> se sincronicen
-    const chordsMessages = {
-      en: {
-        chords_doc_title: "The Chords Book — playable positions (open + 0–12)",
-        chords_doc_description: "All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings.",
-        lang_label: "Language",
-        chords_back: "← Back to index",
-        chords_heading: "The Chords Book",
-        chords_subtitle: "Explore unusual visions of harmony — each one a doorway to creation.",
-        chords_panel_summary: "Guitar setup",
-        chords_controls_aria: "Controls",
-        chords_control_root: "Root",
-        chords_control_chord: "Chord",
-        chords_control_labels: "Labels",
-        chords_label_degrees: "Degrees",
-        chords_label_notes: "Notes",
-        chords_label_off: "Hidden",
-        chords_control_strings: "Strings (4–8)",
-        chords_apply: "Apply",
-        chords_tuning_summary: "Tuning (optional)",
-        chords_tuning_aria: "Tuning editor",
-        chords_positions_label: "playable positions",
-        chords_context: "{root} {chord} — frets 0–12 ({count} playable positions)",
-        chords_meta_frets: "frets {min}–{max}",
-        chords_meta_strings: "strings {first}–{last}",
-        chords_meta_position: "position ~{pos}",
-        chords_buyme: "Buy me a coffee",
-        chords_footer_note: "Fuel the craft. Inspire the next page.",
-        chords_footer_buyme_aria: "Support this library on Buy Me a Coffee",
-        chords_tuning_string_label: "String {n}",
-        chords_tuning_lower: "Lower",
-        chords_tuning_raise: "Raise",
-        chords_tuning_set_note: "Set note for string {n}",
-        chords_tuning_lower_aria: "Lower string {n}",
-        chords_tuning_raise_aria: "Raise string {n}",
-        theme_to_light: "Switch to light mode",
-        theme_to_dark: "Switch to dark mode"
-      },
-      es: {
-        chords_doc_title: "The Chords Book — posiciones tocables (abiertas + 0–12)",
-        chords_doc_description: "Todas las digitaciones tocables entre los trastes 0 y 12, incluyendo cuerdas al aire. Compatible con guitarras de 4 a 8 cuerdas.",
-        lang_label: "Idioma",
-        chords_back: "← Volver al índice",
-        chords_heading: "The Chords Book",
-        chords_subtitle: "Explora visiones inusuales de la armonía — cada una es una puerta hacia la creación.",
-        chords_panel_summary: "Configuración de guitarra",
-        chords_controls_aria: "Controles",
-        chords_control_root: "Tónica",
-        chords_control_chord: "Acorde",
-        chords_control_labels: "Etiquetas",
-        chords_label_degrees: "Grados",
-        chords_label_notes: "Notas",
-        chords_label_off: "Ocultas",
-        chords_control_strings: "Cuerdas (4–8)",
-        chords_apply: "Aplicar",
-        chords_tuning_summary: "Afinación (opcional)",
-        chords_tuning_aria: "Editor de afinación",
-        chords_positions_label: "posiciones tocables",
-        chords_context: "{root} {chord} — trastes 0–12 ({count} posiciones tocables)",
-        chords_meta_frets: "trastes {min}–{max}",
-        chords_meta_strings: "cuerdas {first}–{last}",
-        chords_meta_position: "posición ~{pos}",
-        chords_buyme: "Invítame un café",
-        chords_footer_note: "Alimenta el oficio. Inspira la siguiente página.",
-        chords_footer_buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
-        chords_tuning_string_label: "Cuerda {n}",
-        chords_tuning_lower: "Bajar",
-        chords_tuning_raise: "Subir",
-        chords_tuning_set_note: "Define la nota de la cuerda {n}",
-        chords_tuning_lower_aria: "Bajar cuerda {n}",
-        chords_tuning_raise_aria: "Subir cuerda {n}",
-        theme_to_light: "Cambiar a modo claro",
-        theme_to_dark: "Cambiar a modo oscuro"
-      },
-      pt: {
-        chords_doc_title: "The Chords Book — posições tocáveis (abertas + 0–12)",
-        chords_doc_description: "Todos os formatos tocáveis entre os trastes 0 e 12, incluindo cordas soltas. Compatível com guitarras de 4 a 8 cordas.",
-        lang_label: "Idioma",
-        chords_back: "← Voltar ao índice",
-        chords_heading: "The Chords Book",
-        chords_subtitle: "Explore visões incomuns da harmonia — cada uma é uma porta para a criação.",
-        chords_panel_summary: "Configuração da guitarra",
-        chords_controls_aria: "Controles",
-        chords_control_root: "Tônica",
-        chords_control_chord: "Acorde",
-        chords_control_labels: "Rótulos",
-        chords_label_degrees: "Graus",
-        chords_label_notes: "Notas",
-        chords_label_off: "Ocultos",
-        chords_control_strings: "Cordas (4–8)",
-        chords_apply: "Aplicar",
-        chords_tuning_summary: "Afinação (opcional)",
-        chords_tuning_aria: "Editor de afinação",
-        chords_positions_label: "posições tocáveis",
-        chords_context: "{root} {chord} — trastes 0–12 ({count} posições tocáveis)",
-        chords_meta_frets: "trastes {min}–{max}",
-        chords_meta_strings: "cordas {first}–{last}",
-        chords_meta_position: "posição ~{pos}",
-        chords_buyme: "Pague-me um café",
-        chords_footer_note: "Alimente o ofício. Inspire a próxima página.",
-        chords_footer_buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
-        chords_tuning_string_label: "Corda {n}",
-        chords_tuning_lower: "Baixar",
-        chords_tuning_raise: "Subir",
-        chords_tuning_set_note: "Defina a nota da corda {n}",
-        chords_tuning_lower_aria: "Baixar corda {n}",
-        chords_tuning_raise_aria: "Subir corda {n}",
-        theme_to_light: "Alternar para modo claro",
-        theme_to_dark: "Alternar para modo escuro"
-      }
-    };
-
-    window.tr = (key, fallback) => (window.ReI18n ? ReI18n.t(key, fallback) : (fallback || key));
-    if (window.ReI18n) {
-      ReI18n.init({
-        messages: chordsMessages,
-        select: document.getElementById('langSelect')
-      });
-    }
-  </script>
-
-  <!-- Theme toggle -->
+  <!-- Theme toggle (same logic as Scales page) -->
   <script>
     (function () {
       const KEY = 'theme-preference';
       const root = document.documentElement;
       const btn = document.getElementById('themeToggle');
-      const safeTr = (k, f) => (window.tr ? window.tr(k, f) : (f || k));
-
-      function safeSetItem(key, value) {
-        try { localStorage.setItem(key, value); } catch (err) {}
-      }
-
-      function setIcon(mode) {
-        if (!btn) return;
-        btn.textContent = mode === 'dark' ? '☀︎' : '☾';
-        const label = mode === 'dark'
-          ? safeTr('theme_to_light', 'Switch to light mode')
-          : safeTr('theme_to_dark', 'Switch to dark mode');
-        btn.setAttribute('aria-label', label);
-        btn.setAttribute('title', label);
-      }
-
+      function setIcon(mode) { btn.textContent = '◑'; }
       function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
       function getPreferred() {
-        let saved;
-        try { saved = localStorage.getItem(KEY); } catch (err) { saved = null; }
+        const saved = localStorage.getItem(KEY);
         if (saved === 'light' || saved === 'dark') return saved;
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       let current = getPreferred();
       apply(current);
-      if (btn) {
-        btn.addEventListener('click', () => {
-          current = current === 'dark' ? 'light' : 'dark';
-          safeSetItem(KEY, current);
-          apply(current);
-        });
-      }
-      if (window.ReI18n) { ReI18n.onChange(() => { setIcon(current); }); }
-      const y = document.getElementById('y');
-      if (y) y.textContent = new Date().getFullYear();
+      btn.addEventListener('click', () => { current = current === 'dark' ? 'light' : 'dark'; localStorage.setItem(KEY, current); apply(current); });
     })();
   </script>
 
@@ -333,37 +520,11 @@
         return base6;
       }
 
-      // --- State & persistence ---
+      // --- State & persistence (key aligned style) ---
       const LS_KEY = 'tcb_all_playable_v2_4to8';
       const state = { strings: 6, tuning: DEFAULT_TUNING_6.slice(), root: 'E', chordName: 'Major (maj)', labels: 'degrees' };
-      try {
-        const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-        if (s && typeof s === 'object') Object.assign(state, s);
-      } catch (e) { /* ignore */ }
-
-      // --- Sanitización de estado persistido ---
-      const CHORD_KEYS = Object.keys(CHORDS);
-      if (!NOTES.includes(state.root)) state.root = 'E';
-      if (!CHORD_KEYS.includes(state.chordName)) state.chordName = 'Major (maj)';
-      if (!['degrees', 'notes', 'off'].includes(state.labels)) state.labels = 'degrees';
-      state.strings = Math.min(8, Math.max(4, state.strings | 0));
-
-      function ensureTuningLen(n) {
-        if (state.tuning.length < n) {
-          while (state.tuning.length < n) {
-            const add = (state.tuning.length === 6) ? "B" : (state.tuning.length === 7) ? "F#" : state.tuning[state.tuning.length - 1];
-            state.tuning.push(add);
-          }
-        } else if (state.tuning.length > n) {
-          state.tuning = state.tuning.slice(0, n);
-        }
-      }
-      ensureTuningLen(state.strings);
-      state.tuning = state.tuning.map(n => NOTES.includes(n) ? n : 'E');
-
-      function save() {
-        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (err) {}
-      }
+      try { const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if (s && typeof s === 'object') Object.assign(state, s); } catch (e) { }
+      function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
       // --- DOM ---
       const cardsEl = document.getElementById('cards');
@@ -376,12 +537,20 @@
       const stringCountInput = document.getElementById('stringCount');
       const applyBtn = document.getElementById('applyStrings');
 
-      const t = (key, fallback) => (window.tr ? window.tr(key, fallback) : (fallback || key));
-      const format = (template, values = {}) => String(template || '').replace(/\{(\w+)\}/g, (_, k) => (values[k] != null ? values[k] : ''));
-
       // --- Helpers ---
       const wrap = (n) => (n + 12) % 12;
       const idx = (n) => PC[n];
+
+      function ensureTuningLen(n) {
+        if (state.tuning.length < n) {
+          while (state.tuning.length < n) {
+            const add = (state.tuning.length === 6) ? "B" : (state.tuning.length === 7) ? "F#" : state.tuning[state.tuning.length - 1];
+            state.tuning.push(add);
+          }
+        } else if (state.tuning.length > n) {
+          state.tuning = state.tuning.slice(0, n);
+        }
+      }
 
       function fillSelect(el, arr) { el.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join(''); }
       fillSelect(rootSel, NOTES); rootSel.value = state.root;
@@ -398,22 +567,15 @@
         for (let i = 0; i < state.tuning.length; i++) {
           const note = state.tuning[i];
           const opts = NOTES.map(n => `<option value="${n}" ${n === note ? 'selected' : ''}>${n}</option>`).join('');
-          const stringNum = i + 1;
-          const stringLabel = format(t('chords_tuning_string_label', 'String {n}'), { n: stringNum });
-          const lowerTitle = t('chords_tuning_lower', 'Lower');
-          const raiseTitle = t('chords_tuning_raise', 'Raise');
-          const setNote = format(t('chords_tuning_set_note', 'Set note for string {n}'), { n: stringNum });
-          const lowerAria = format(t('chords_tuning_lower_aria', 'Lower string {n}'), { n: stringNum });
-          const raiseAria = format(t('chords_tuning_raise_aria', 'Raise string {n}'), { n: stringNum });
           html += `<div class="string-card">
-            <div style="font-size:12px;opacity:.8;margin-bottom:6px;">${stringLabel}</div>
-            <div class="row" style="gap:6px;">
-              <button data-act="down" data-idx="${i}" title="${lowerTitle}" aria-label="${lowerAria}">−</button>
-              <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
-              <button data-act="up" data-idx="${i}" title="${raiseTitle}" aria-label="${raiseAria}">+</button>
-              <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="${setNote}">${opts}</select>
-            </div>
-          </div>`;
+          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">String ${i + 1}</div>
+          <div class="row" style="gap:6px;">
+            <button data-act="down" data-idx="${i}" title="Lower" aria-label="Lower string ${i + 1}">−</button>
+            <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
+            <button data-act="up" data-idx="${i}" title="Raise" aria-label="Raise string ${i + 1}">+</button>
+            <select data-act="set" data-idx="${i}" style="flex:1;min-width:0;" aria-label="Set note for string ${i + 1}">${opts}</select>
+          </div>
+        </div>`;
         }
         tuningPanel.innerHTML = html;
         tuningPanel.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
@@ -427,32 +589,29 @@
       }
 
       function chordDegrees() {
-        const def = CHORDS['Major (maj)'];
-        const arr = CHORDS[state.chordName] || def;   // Fallback seguro
-        const base = arr.map(wrap);
-        const uniq = [];
-        base.forEach(x => { if (!uniq.includes(x)) uniq.push(x); });
+        const base = CHORDS[state.chordName].map(wrap);
+        const uniq = []; base.forEach(x => { if (!uniq.includes(x)) uniq.push(x); });
         return uniq;
       }
 
       // --- Playability heuristics ---
       function playable(choice) {
         const fretted = choice.filter(n => n.fret > 0);
-        if (fretted.length === 0) return false;        // evitar todo al aire
+        if (fretted.length === 0) return false;        // avoid all-open clusters
         const minF = Math.min(...choice.map(n => n.fret));
         const maxF = Math.max(...choice.map(n => n.fret));
         const span = maxF - minF;
-        if (span > 4) return false;                    // alcance compacto (≤4)
+        if (span > 4) return false;                    // compact reach (≤4)
         for (let i = 1; i < choice.length; i++) {
           const a = choice[i - 1].fret, b = choice[i].fret;
-          if (Math.abs(a - b) > 3) return false;       // saltos entre adyacentes
+          if (Math.abs(a - b) > 3) return false;         // adjacent finger jumps
         }
         return true;
       }
 
       function includesAllDegrees(choice, required) {
         const got = new Set(choice.map(c => wrap(c.rel)));
-        if (!got.has(0)) return false;               // debe contener la tónica
+        if (!got.has(0)) return false;               // must contain the root
         for (const d of required) { if (!got.has(d)) return false; }
         return true;
       }
@@ -461,7 +620,7 @@
       function generateAllVoicings() {
         const chord = chordDegrees(); const rootPc = idx(state.root);
         const required = new Set(chord);
-        const wantCount = chord.length; // 3 o 4
+        const wantCount = chord.length; // 3 or 4
         const strings = state.strings | 0;
         const results = [];
         const sizes = [3, 4];
@@ -517,13 +676,15 @@
         return dedup;
       }
 
-      function stringsLabel(s0, s1) {
-        return format(t('chords_meta_strings', 'strings {first}–{last}'), { first: s0 + 1, last: s1 + 1 });
+      // English labels
+      function stringsLabel(s0, s1, total) {
+        const hi = total - s1; // e.g., 6–4, etc.
+        const lo = total - s0;
+        return `strings ${lo}–${hi}`;
       }
-
       function posLabel(median) {
         const near = Math.max(0, Math.min(12, Math.round(median)));
-        return format(t('chords_meta_position', 'position ~{pos}'), { pos: near });
+        return `position ~${near}`;
       }
 
       // SVG card (nut rendered at fret 1 when startF=0, coherent with Scales)
@@ -535,8 +696,9 @@
         const x0 = 70, y0 = 46, dx = 44, dy = 24;
 
         const STRING_NAMES = Array.from({ length: strings }, (_, i) => {
-          const name = state.tuning[i];   // 0 = 1ª cuerda (e)
-          const num = i + 1;              // 1..N
+          const idxStr = strings - 1 - i;
+          const name = state.tuning[idxStr];
+          const num = strings - i;
           return `${num}(${name})`;
         });
 
@@ -566,7 +728,7 @@
         // notes
         g.push(`<g class="fb-note">`);
         voicing.notes.forEach(n => {
-          const visualRow = n.s;  // 0 = fila superior
+          const visualRow = (strings - 1) - n.s;
           const cx = x0 + (n.f - startF + 0.5) * dx;
           const cy = y0 + visualRow * dy;
           const label = (labelsMode === 'off') ? '' :
@@ -582,22 +744,18 @@
       function renderCards(list) {
         countEl.textContent = list.length;
         const root = state.root; const chordN = state.chordName;
-        ctxEl.textContent = format(t('chords_context', '{root} {chord} — frets 0–12 ({count} playable positions)'), {
-          root,
-          chord: chordN,
-          count: list.length
-        });
+        ctxEl.textContent = `${root} ${chordN} — frets 0–12 (${list.length} playable positions)`;
 
         cardsEl.innerHTML = list.map(v => {
           const title = `${posLabel(v.median)}`;
-          const meta1 = format(t('chords_meta_frets', 'frets {min}–{max}'), { min: v.minF, max: v.maxF });
-          const meta2 = stringsLabel(v.s0, v.s1);
+          const meta1 = `frets ${v.minF}–${v.maxF}`;
+          const meta2 = stringsLabel(v.s0, v.s1, state.strings);
           const svg = svgCard(v, state.labels);
           return `<article class="card">
-            <div class="title">${title}</div>
-            <div class="meta"><span>${meta1}</span><span>•</span><span>${meta2}</span></div>
-            <div class="fb">${svg}</div>
-          </article>`;
+          <div class="title">${title}</div>
+          <div class="meta"><span>${meta1}</span><span>•</span><span>${meta2}</span></div>
+          <div class="fb">${svg}</div>
+        </article>`;
         }).join('');
       }
 
@@ -629,14 +787,8 @@
         renderTuningEditor();
         computeAndRender();
       })();
-
-      if (window.ReI18n) {
-        ReI18n.onChange(() => {
-          renderTuningEditor();
-          rerender();
-        });
-      }
     })();
   </script>
 </body>
+
 </html>
