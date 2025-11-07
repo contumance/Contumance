@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="chords_doc_title">The Chords Book — playable positions (open + 0–12)</title>
+  <meta name="description"
+        content="All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings."
+        data-i18n="chords_doc_description" data-i18n-attr="content" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+  <link rel="stylesheet" href="assets/kindle.css">
+  <style>
+    .theme-toggle { font-size: 1.15rem; }
+    .lang-select {
+      border: 1px solid var(--accent);
+      background: var(--btn-bg);
+      color: var(--ink);
+      border-radius: .45rem;
+      padding: .3rem .5rem;
+      font-size: .95rem;
+      line-height: 1;
+      font-family: inherit;
+      appearance: none;
+      cursor: pointer;
+      background-image: linear-gradient(transparent, transparent), linear-gradient(transparent, transparent);
+    }
+    .lang-select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    .controls { display: grid; gap: 8px; align-items: center; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 8px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    label { font-size: 12px; opacity: .9; }
+    select, button, input[type="number"] {
+      appearance: none;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: .5rem;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1;
+      min-width: 0;
+      outline: none;
+    }
+    select:focus-visible, button:focus-visible, input[type="number"]:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    .tuning { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .string-card { border: 1px solid var(--accent); border-radius: .6rem; padding: 8px; background: transparent; }
+    .bank { margin: 12px 0 6px; display: flex; justify-content: space-between; align-items: center; }
+    .counter { color: var(--muted); font-size: .9rem; }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .card { border: 1px solid var(--accent); border-radius: .6rem; padding: .8rem .8rem .9rem; background: transparent; }
+    .title { font-weight: 700; letter-spacing: .01em; margin-bottom: .25rem; }
+    .meta { color: var(--muted); font-size: .85rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+    .fb svg { max-width: 100%; height: auto; display: block; }
+    .fb-grid line { stroke: var(--rule); stroke-width: 1; }
+    .fb-grid .nut { stroke: var(--ink); stroke-width: 3; }
+    .fb-note circle { fill: var(--ink); }
+    .fb-note text { font-size: 10px; font-weight: 700; fill: var(--paper); }
+    .fb-grid text { fill: var(--muted); }
+    html.theme-dark .fb-grid text { fill: var(--ink); opacity: .85; }
+    html.theme-dark .fb-grid line { stroke: #3b3a34; }
+    html.theme-dark .fb-note text { fill: var(--paper); font-weight: 800; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html" data-i18n="chords_back">← Back to index</a>
+      </nav>
+      <div class="row" style="gap:6px; position:relative;">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="pt">PT</option>
+        </select>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+      </div>
+    </div>
+
+    <header>
+      <h1 data-i18n="chords_heading">The Chords Book</h1>
+      <div class="subtitle" data-i18n="chords_subtitle">Explore unusual visions of harmony — each one a doorway to creation.</div>
+    </header>
+
+    <details class="panel" open>
+      <summary data-i18n="chords_panel_summary">Guitar setup</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Controls" data-i18n="chords_controls_aria" data-i18n-attr="aria-label">
+          <div class="row">
+            <label for="root" data-i18n="chords_control_root">Root</label>
+            <select id="root" aria-label="Root" data-i18n="chords_control_root" data-i18n-attr="aria-label" data-i18n-attr-only></select>
+          </div>
+          <div class="row">
+            <label for="chord" data-i18n="chords_control_chord">Chord</label>
+            <select id="chord" aria-label="Chord" data-i18n="chords_control_chord" data-i18n-attr="aria-label" data-i18n-attr-only></select>
+          </div>
+          <div class="row">
+            <label for="labels" data-i18n="chords_control_labels">Labels</label>
+            <select id="labels" aria-label="Labels" data-i18n="chords_control_labels" data-i18n-attr="aria-label" data-i18n-attr-only>
+              <option value="degrees" selected data-i18n="chords_label_degrees">Degrees</option>
+              <option value="notes" data-i18n="chords_label_notes">Notes</option>
+              <option value="off" data-i18n="chords_label_off">Hidden</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="stringCount" data-i18n="chords_control_strings">Strings (4–8)</label>
+            <input id="stringCount" type="number" min="4" max="8" value="6" style="width:86px" />
+            <button id="applyStrings" type="button" data-i18n="chords_apply">Apply</button>
+          </div>
+        </div>
+
+        <details style="margin-top:.5rem;">
+          <summary style="cursor:pointer" data-i18n="chords_tuning_summary">Tuning (optional)</summary>
+          <div id="tuningPanel" class="tuning" aria-label="Tuning editor" data-i18n="chords_tuning_aria" data-i18n-attr="aria-label"></div>
+        </details>
+      </div>
+    </details>
+
+    <div class="bank">
+      <div class="counter" id="countWrap"><span id="count">0</span> <span data-i18n="chords_positions_label">playable positions</span></div>
+      <div class="counter" id="context"></div>
+    </div>
+
+    <section id="cards" class="grid" aria-live="polite"></section>
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer"
+         aria-label="Support this library on Buy Me a Coffee" data-i18n="chords_footer_buyme_aria" data-i18n-attr="aria-label">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/>
+          <path d="M7 4h6"/>
+        </svg>
+        <span data-i18n="chords_buyme">Buy me a coffee</span>
+      </a>
+
+      <span class="note" data-i18n="chords_footer_note">Fuel the craft. Inspire the next page.</span>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    (function bootstrapI18n() {
+      const chordsMessages = {
+        en: {
+          chords_doc_title: "The Chords Book — playable positions (open + 0–12)",
+          chords_doc_description: "All playable chord shapes within frets 0–12, including open strings. Supports 4–8 strings.",
+          lang_label: "Language",
+          chords_back: "← Back to index",
+          chords_heading: "The Chords Book",
+          chords_subtitle: "Explore unusual visions of harmony — each one a doorway to creation.",
+          chords_panel_summary: "Guitar setup",
+          chords_controls_aria: "Controls",
+          chords_control_root: "Root",
+          chords_control_chord: "Chord",
+          chords_control_labels: "Labels",
+          chords_label_degrees: "Degrees",
+          chords_label_notes: "Notes",
+          chords_label_off: "Hidden",
+          chords_control_strings: "Strings (4–8)",
+          chords_apply: "Apply",
+          chords_tuning_summary: "Tuning (optional)",
+          chords_tuning_aria: "Tuning editor",
+          chords_positions_label: "playable positions",
+          chords_context: "{root} {chord} — frets 0–12 ({count} playable positions)",
+          chords_meta_frets: "frets {min}–{max}",
+          chords_meta_strings: "strings {first}–{last}",
+          chords_meta_position: "position ~{pos}",
+          chords_buyme: "Buy me a coffee",
+          chords_footer_note: "Fuel the craft. Inspire the next page.",
+          chords_footer_buyme_aria: "Support this library on Buy Me a Coffee",
+          chords_tuning_string_label: "String {n}",
+          chords_tuning_lower: "Lower",
+          chords_tuning_raise: "Raise",
+          chords_tuning_set_note: "Set note for string {n}",
+          chords_tuning_lower_aria: "Lower string {n}",
+          chords_tuning_raise_aria: "Raise string {n}",
+          theme_to_light: "Switch to light mode",
+          theme_to_dark: "Switch to dark mode"
+        },
+        es: {
+          chords_doc_title: "The Chords Book — posiciones tocables (abiertas + 0–12)",
+          chords_doc_description: "Todas las digitaciones tocables entre los trastes 0 y 12, incluyendo cuerdas al aire. Compatible con guitarras de 4 a 8 cuerdas.",
+          lang_label: "Idioma",
+          chords_back: "← Volver al índice",
+          chords_heading: "The Chords Book",
+          chords_subtitle: "Explora visiones inusuales de la armonía — cada una es una puerta hacia la creación.",
+          chords_panel_summary: "Configuración de guitarra",
+          chords_controls_aria: "Controles",
+          chords_control_root: "Tónica",
+          chords_control_chord: "Acorde",
+          chords_control_labels: "Etiquetas",
+          chords_label_degrees: "Grados",
+          chords_label_notes: "Notas",
+          chords_label_off: "Ocultas",
+          chords_control_strings: "Cuerdas (4–8)",
+          chords_apply: "Aplicar",
+          chords_tuning_summary: "Afinación (opcional)",
+          chords_tuning_aria: "Editor de afinación",
+          chords_positions_label: "posiciones tocables",
+          chords_context: "{root} {chord} — trastes 0–12 ({count} posiciones tocables)",
+          chords_meta_frets: "trastes {min}–{max}",
+          chords_meta_strings: "cuerdas {first}–{last}",
+          chords_meta_position: "posición ~{pos}",
+          chords_buyme: "Invítame un café",
+          chords_footer_note: "Alimenta el oficio. Inspira la siguiente página.",
+          chords_footer_buyme_aria: "Apoya esta biblioteca en Buy Me a Coffee",
+          chords_tuning_string_label: "Cuerda {n}",
+          chords_tuning_lower: "Bajar",
+          chords_tuning_raise: "Subir",
+          chords_tuning_set_note: "Define la nota de la cuerda {n}",
+          chords_tuning_lower_aria: "Bajar cuerda {n}",
+          chords_tuning_raise_aria: "Subir cuerda {n}",
+          theme_to_light: "Cambiar a modo claro",
+          theme_to_dark: "Cambiar a modo oscuro"
+        },
+        pt: {
+          chords_doc_title: "The Chords Book — posições tocáveis (abertas + 0–12)",
+          chords_doc_description: "Todos os formatos tocáveis entre os trastes 0 e 12, incluindo cordas soltas. Compatível com guitarras de 4 a 8 cordas.",
+          lang_label: "Idioma",
+          chords_back: "← Voltar ao índice",
+          chords_heading: "The Chords Book",
+          chords_subtitle: "Explore visões incomuns da harmonia — cada uma é uma porta para a criação.",
+          chords_panel_summary: "Configuração da guitarra",
+          chords_controls_aria: "Controles",
+          chords_control_root: "Tônica",
+          chords_control_chord: "Acorde",
+          chords_control_labels: "Rótulos",
+          chords_label_degrees: "Graus",
+          chords_label_notes: "Notas",
+          chords_label_off: "Ocultos",
+          chords_control_strings: "Cordas (4–8)",
+          chords_apply: "Aplicar",
+          chords_tuning_summary: "Afinação (opcional)",
+          chords_tuning_aria: "Editor de afinação",
+          chords_positions_label: "posições tocáveis",
+          chords_context: "{root} {chord} — trastes 0–12 ({count} posições tocáveis)",
+          chords_meta_frets: "trastes {min}–{max}",
+          chords_meta_strings: "cordas {first}–{last}",
+          chords_meta_position: "posição ~{pos}",
+          chords_buyme: "Pague-me um café",
+          chords_footer_note: "Alimente o ofício. Inspire a próxima página.",
+          chords_footer_buyme_aria: "Apoie esta biblioteca no Buy Me a Coffee",
+          chords_tuning_string_label: "Corda {n}",
+          chords_tuning_lower: "Baixar",
+          chords_tuning_raise: "Subir",
+          chords_tuning_set_note: "Defina a nota da corda {n}",
+          chords_tuning_lower_aria: "Baixar corda {n}",
+          chords_tuning_raise_aria: "Subir corda {n}",
+          theme_to_light: "Alternar para modo claro",
+          theme_to_dark: "Alternar para modo escuro"
+        }
+      };
+
+      window.tr = (key, fallback) => (window.ReI18n ? ReI18n.t(key, fallback) : (fallback || key));
+      if (window.ReI18n) {
+        ReI18n.init({
+          messages: chordsMessages,
+          select: document.getElementById('langSelect')
+        });
+      }
+    })();
+  </script>
+
+  <script>
+    (function themeController() {
+      const STORAGE_KEY = 'theme-preference';
+      const root = document.documentElement;
+      const button = document.getElementById('themeToggle');
+      const translate = (key, fallback) => (window.tr ? window.tr(key, fallback) : (fallback || key));
+
+      const getStored = () => {
+        try { return localStorage.getItem(STORAGE_KEY); } catch (err) { return null; }
+      };
+
+      const persist = (value) => {
+        try { localStorage.setItem(STORAGE_KEY, value); } catch (err) { /* ignore */ }
+      };
+
+      const prefersDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const normalize = (value) => (value === 'dark' || value === 'light') ? value : null;
+
+      const setAppearance = (mode) => {
+        root.classList.toggle('theme-dark', mode === 'dark');
+        const label = mode === 'dark' ? translate('theme_to_light', 'Switch to light mode') : translate('theme_to_dark', 'Switch to dark mode');
+        if (button) {
+          button.textContent = mode === 'dark' ? '☀︎' : '☾';
+          button.setAttribute('aria-label', label);
+          button.setAttribute('title', label);
+        }
+      };
+
+      let current = normalize(getStored()) || (prefersDark() ? 'dark' : 'light');
+      setAppearance(current);
+
+      if (button) {
+        button.addEventListener('click', () => {
+          current = current === 'dark' ? 'light' : 'dark';
+          persist(current);
+          setAppearance(current);
+        });
+      }
+
+      if (window.ReI18n) {
+        ReI18n.onChange(() => setAppearance(current));
+      }
+
+      const yearSlot = document.getElementById('y');
+      if (yearSlot) {
+        yearSlot.textContent = new Date().getFullYear();
+      }
+    })();
+  </script>
+
+  <script>
+    (function chordsBookApp() {
+      const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const CHORD_LIBRARY = {
+        'Major (maj)': [0, 4, 7],
+        'Minor (min)': [0, 3, 7],
+        'Dominant 7 (7)': [0, 4, 7, 10],
+        'Major 7 (maj7)': [0, 4, 7, 11],
+        'Minor 7 (m7)': [0, 3, 7, 10],
+        'Diminished (dim)': [0, 3, 6],
+        'Diminished 7 (dim7)': [0, 3, 6, 9],
+        'Half-dim (m7b5)': [0, 3, 6, 10],
+        'Augmented (+)': [0, 4, 8],
+        'Sus2': [0, 2, 7],
+        'Sus4': [0, 5, 7]
+      };
+      const DEGREE_LABELS = { 0: 'R', 1: '♭2', 2: '2', 3: '♭3', 4: '3', 5: '4', 6: '♭5', 7: '5', 8: '♯5', 9: '6', 10: '♭7', 11: '7' };
+      const STORAGE_KEY = 'tcb_all_playable_v2_4to8';
+      const FRETS_LIMIT = 12;
+
+      const DEFAULT_TUNING = ['E', 'B', 'G', 'D', 'A', 'E'];
+      const EXTENDED_TUNINGS = {
+        7: ['E', 'B', 'G', 'D', 'A', 'E', 'B'],
+        8: ['E', 'B', 'G', 'D', 'A', 'E', 'B', 'F#']
+      };
+
+      const UI = {
+        root: document.getElementById('root'),
+        chord: document.getElementById('chord'),
+        labels: document.getElementById('labels'),
+        stringCount: document.getElementById('stringCount'),
+        applyStrings: document.getElementById('applyStrings'),
+        tuningPanel: document.getElementById('tuningPanel'),
+        cards: document.getElementById('cards'),
+        count: document.getElementById('count'),
+        context: document.getElementById('context')
+      };
+
+      const pitchClass = Object.fromEntries(NOTES.map((note, index) => [note, index]));
+      const wrap = (value) => (value % 12 + 12) % 12;
+      const translate = (key, fallback) => (window.tr ? window.tr(key, fallback) : (fallback || key));
+      const format = (input, values = {}) => String(input || '').replace(/\{(\w+)\}/g, (_, key) => (values[key] ?? ''));
+
+      const coerceTuning = (strings) => {
+        if (strings <= 6) return DEFAULT_TUNING.slice(0, strings);
+        return (EXTENDED_TUNINGS[strings] || EXTENDED_TUNINGS[8]).slice(0, strings);
+      };
+
+      const state = {
+        strings: 6,
+        tuning: DEFAULT_TUNING.slice(),
+        root: 'E',
+        chordName: 'Major (maj)',
+        labels: 'degrees'
+      };
+
+      const restoreState = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+          if (!saved || typeof saved !== 'object') return;
+          if (typeof saved.strings === 'number') state.strings = Math.min(8, Math.max(4, saved.strings));
+          if (Array.isArray(saved.tuning)) state.tuning = saved.tuning.filter(n => NOTES.includes(n));
+          if (NOTES.includes(saved.root)) state.root = saved.root;
+          if (saved.chordName && CHORD_LIBRARY[saved.chordName]) state.chordName = saved.chordName;
+          if (['degrees', 'notes', 'off'].includes(saved.labels)) state.labels = saved.labels;
+        } catch (err) {
+          /* ignore */
+        }
+      };
+
+      const normaliseTuning = () => {
+        const requiredLength = state.strings;
+        const next = coerceTuning(requiredLength);
+        if (!state.tuning || state.tuning.length !== requiredLength) {
+          state.tuning = next.slice();
+          return;
+        }
+        state.tuning = state.tuning.map((note, idx) => NOTES.includes(note) ? note : next[idx]);
+      };
+
+      const persistState = () => {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (err) { /* ignore */ }
+      };
+
+      const populateSelect = (el, options) => {
+        el.innerHTML = options.map(value => `<option value="${value}">${value}</option>`).join('');
+      };
+
+      const buildTuningRow = (note, index) => {
+        const noteOptions = NOTES.map(n => `<option value="${n}" ${n === note ? 'selected' : ''}>${n}</option>`).join('');
+        const stringNumber = index + 1;
+        const stringLabel = format(translate('chords_tuning_string_label', 'String {n}'), { n: stringNumber });
+        const lowerLabel = translate('chords_tuning_lower', 'Lower');
+        const raiseLabel = translate('chords_tuning_raise', 'Raise');
+        const lowerAria = format(translate('chords_tuning_lower_aria', 'Lower string {n}'), { n: stringNumber });
+        const raiseAria = format(translate('chords_tuning_raise_aria', 'Raise string {n}'), { n: stringNumber });
+        const selectAria = format(translate('chords_tuning_set_note', 'Set note for string {n}'), { n: stringNumber });
+
+        return `<div class="string-card">
+          <div style="font-size:12px;opacity:.8;margin-bottom:6px;">${stringLabel}</div>
+          <div class="row" style="gap:6px;">
+            <button type="button" data-action="down" data-index="${index}" title="${lowerLabel}" aria-label="${lowerAria}">−</button>
+            <div class="open-note" style="min-width:40px;text-align:center">${note}</div>
+            <button type="button" data-action="up" data-index="${index}" title="${raiseLabel}" aria-label="${raiseAria}">+</button>
+            <select data-action="select" data-index="${index}" style="flex:1;min-width:0;" aria-label="${selectAria}">${noteOptions}</select>
+          </div>
+        </div>`;
+      };
+
+      const renderTuningEditor = () => {
+        normaliseTuning();
+        UI.tuningPanel.innerHTML = state.tuning.map(buildTuningRow).join('');
+        UI.tuningPanel.querySelectorAll('button').forEach(button => {
+          button.addEventListener('click', () => {
+            const idx = Number(button.dataset.index);
+            const direction = button.dataset.action === 'up' ? 1 : -1;
+            const current = pitchClass[state.tuning[idx]] ?? 0;
+            const updated = NOTES[wrap(current + direction)];
+            state.tuning[idx] = updated;
+            persistState();
+            renderTuningEditor();
+            scheduleRender();
+          });
+        });
+        UI.tuningPanel.querySelectorAll('select').forEach(select => {
+          select.addEventListener('change', () => {
+            const idx = Number(select.dataset.index);
+            state.tuning[idx] = select.value;
+            persistState();
+            scheduleRender();
+          });
+        });
+      };
+
+      const degreesForChord = () => {
+        const raw = CHORD_LIBRARY[state.chordName] || CHORD_LIBRARY['Major (maj)'];
+        const unique = [];
+        raw.forEach(value => { const wrapped = wrap(value); if (!unique.includes(wrapped)) unique.push(wrapped); });
+        return unique;
+      };
+
+      const ensurePlayable = (notes) => {
+        const fretted = notes.filter(n => n.fret > 0);
+        if (!fretted.length) return false;
+        const frets = notes.map(n => n.fret);
+        const min = Math.min(...frets);
+        const max = Math.max(...frets);
+        if (max - min > 4) return false;
+        for (let i = 1; i < notes.length; i++) {
+          if (Math.abs(notes[i].fret - notes[i - 1].fret) > 3) return false;
+        }
+        return true;
+      };
+
+      const coversChord = (notes, required) => {
+        const collected = new Set(notes.map(n => wrap(n.relative)));
+        if (!collected.has(0)) return false;
+        return required.every(degree => collected.has(degree));
+      };
+
+      const generateVoicings = () => {
+        const requiredDegrees = degreesForChord();
+        const rootIndex = pitchClass[state.root];
+        const stringTotal = state.strings;
+        const playableVoicings = [];
+        const sizes = [3, 4];
+
+        const findNoteOnString = (stringIndex, startFret, endFret, wantedDegrees) => {
+          const openPitch = pitchClass[state.tuning[stringIndex]];
+          for (let fret = startFret; fret <= endFret; fret++) {
+            const pitch = wrap(openPitch + fret);
+            const relative = wrap(pitch - rootIndex);
+            if (wantedDegrees.includes(relative)) {
+              return { string: stringIndex, fret, pitch, relative };
+            }
+          }
+          return null;
+        };
+
+        sizes.forEach(size => {
+          for (let startString = 0; startString <= stringTotal - size; startString++) {
+            const endString = startString + size - 1;
+            for (let baseFret = 0; baseFret <= FRETS_LIMIT; baseFret++) {
+              const selection = [];
+              let valid = true;
+
+              for (let s = startString; s <= endString; s++) {
+                const note = findNoteOnString(s, baseFret, Math.min(FRETS_LIMIT, baseFret + 4), requiredDegrees);
+                if (!note) { valid = false; break; }
+                selection.push(note);
+              }
+
+              if (!valid) continue;
+              if (!coversChord(selection, requiredDegrees)) continue;
+              const uniqueDegrees = new Set(selection.map(n => wrap(n.relative)));
+              if (uniqueDegrees.size < Math.min(requiredDegrees.length, size)) continue;
+              if (!ensurePlayable(selection)) continue;
+
+              const frets = selection.map(n => n.fret);
+              const minFret = Math.min(...frets);
+              const maxFret = Math.max(...frets);
+              const median = (minFret + maxFret) / 2;
+
+              playableVoicings.push({
+                startString,
+                endString,
+                minFret,
+                maxFret,
+                span: maxFret - minFret,
+                median,
+                notes: selection
+              });
+            }
+          }
+        });
+
+        playableVoicings.sort((a, b) => (a.span === b.span ? a.minFret - b.minFret : a.span - b.span));
+        const deduped = [];
+        const signatures = new Set();
+        playableVoicings.forEach(voicing => {
+          const signature = `${voicing.startString}-${voicing.endString}-${Math.round(voicing.median)}-${voicing.span}`;
+          if (!signatures.has(signature)) {
+            signatures.add(signature);
+            deduped.push(voicing);
+          }
+        });
+        return deduped;
+      };
+
+      const stringsLabel = (start, end) => format(translate('chords_meta_strings', 'strings {first}–{last}'), { first: start + 1, last: end + 1 });
+      const positionLabel = (median) => format(translate('chords_meta_position', 'position ~{pos}'), { pos: Math.max(0, Math.min(12, Math.round(median))) });
+      const fretsLabel = (min, max) => format(translate('chords_meta_frets', 'frets {min}–{max}'), { min, max });
+
+      const renderDiagram = (voicing) => {
+        const strings = state.strings;
+        const span = Math.max(3, voicing.maxFret - voicing.minFret + 1);
+        const startFret = Math.max(0, voicing.minFret);
+        const width = span * 44 + 96;
+        const height = strings * 24 + 76;
+        const originX = 70;
+        const originY = 46;
+        const fretWidth = 44;
+        const stringGap = 24;
+
+        const stringLabels = state.tuning.map((note, idx) => `${idx + 1}(${note})`);
+        const svg = [];
+        svg.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">`);
+        svg.push('<g class="fb-grid">');
+        for (let string = 0; string < strings; string++) {
+          const y = originY + string * stringGap;
+          svg.push(`<line x1="${originX}" y1="${y}" x2="${originX + span * fretWidth}" y2="${y}" />`);
+          svg.push(`<text x="${originX - 15}" y="${y + 4}" font-size="10" text-anchor="end">${stringLabels[string]}</text>`);
+        }
+        for (let fret = 0; fret <= span; fret++) {
+          const x = originX + fret * fretWidth;
+          const nut = startFret === 0 && fret === 1 ? 'nut' : '';
+          svg.push(`<line x1="${x}" y1="${originY - stringGap / 2}" x2="${x}" y2="${originY + (strings - 1) * stringGap + stringGap / 2}" class="${nut}" />`);
+        }
+        for (let offset = 0; offset < span; offset++) {
+          const x = originX + (offset + 0.5) * fretWidth;
+          const label = startFret + offset;
+          svg.push(`<text x="${x}" y="${originY - stringGap / 1.3}" font-size="10" text-anchor="middle">${label}</text>`);
+        }
+        svg.push('</g>');
+        svg.push('<g class="fb-note">');
+        voicing.notes.forEach(note => {
+          const cx = originX + (note.fret - startFret + 0.5) * fretWidth;
+          const cy = originY + note.string * stringGap;
+          const label = state.labels === 'off' ? '' : (state.labels === 'notes' ? NOTES[note.pitch] : (DEGREE_LABELS[note.relative] || '•'));
+          svg.push(`<circle cx="${cx}" cy="${cy}" r="10.5" />`);
+          if (label) {
+            svg.push(`<text x="${cx}" y="${cy + 3}" text-anchor="middle">${label}</text>`);
+          }
+        });
+        svg.push('</g>');
+        svg.push('</svg>');
+        return svg.join('');
+      };
+
+      const renderCards = (voicings) => {
+        UI.count.textContent = voicings.length;
+        UI.context.textContent = format(translate('chords_context', '{root} {chord} — frets 0–12 ({count} playable positions)'), {
+          root: state.root,
+          chord: state.chordName,
+          count: voicings.length
+        });
+        UI.cards.innerHTML = voicings.map(voicing => `
+          <article class="card">
+            <div class="title">${positionLabel(voicing.median)}</div>
+            <div class="meta"><span>${fretsLabel(voicing.minFret, voicing.maxFret)}</span><span>•</span><span>${stringsLabel(voicing.startString, voicing.endString)}</span></div>
+            <div class="fb">${renderDiagram(voicing)}</div>
+          </article>
+        `).join('');
+      };
+
+      let pending = null;
+      const scheduleRender = () => {
+        if (pending) cancelAnimationFrame(pending);
+        pending = requestAnimationFrame(() => {
+          persistState();
+          renderCards(generateVoicings());
+        });
+      };
+
+      const attachEvents = () => {
+        UI.root.addEventListener('change', () => { state.root = UI.root.value; scheduleRender(); });
+        UI.chord.addEventListener('change', () => { state.chordName = UI.chord.value; scheduleRender(); });
+        UI.labels.addEventListener('change', () => { state.labels = UI.labels.value; scheduleRender(); });
+        UI.applyStrings.addEventListener('click', () => {
+          const requested = Math.max(4, Math.min(8, parseInt(UI.stringCount.value || state.strings, 10)));
+          if (requested === state.strings) return;
+          state.strings = requested;
+          state.tuning = coerceTuning(requested);
+          persistState();
+          UI.stringCount.value = requested;
+          renderTuningEditor();
+          scheduleRender();
+        });
+      };
+
+      const initialise = () => {
+        restoreState();
+        normaliseTuning();
+        populateSelect(UI.root, NOTES);
+        populateSelect(UI.chord, Object.keys(CHORD_LIBRARY));
+        UI.root.value = state.root;
+        UI.chord.value = state.chordName;
+        UI.labels.value = state.labels;
+        UI.stringCount.value = state.strings;
+        attachEvents();
+        renderTuningEditor();
+        scheduleRender();
+      };
+
+      initialise();
+
+      if (window.ReI18n) {
+        ReI18n.onChange(() => {
+          renderTuningEditor();
+          scheduleRender();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
