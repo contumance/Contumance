@@ -477,6 +477,7 @@ body.home footer {
   align-items: center;
   padding: .85rem 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .item:focus-visible {
