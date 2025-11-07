@@ -388,6 +388,14 @@
       const btn = document.getElementById('themeToggle');
       const safeTr = (k, f) => (window.tr ? window.tr(k, f) : (f || k));
 
+      function safeSetItem(key, value) {
+        try {
+          localStorage.setItem(key, value);
+        } catch (err) {
+          // ignore storage errors (e.g. private mode)
+        }
+      }
+
       function setIcon(mode) {
         if (!btn) return;
         btn.textContent = mode === 'dark' ? '☀︎' : '☾';
@@ -400,7 +408,12 @@
 
       function apply(mode) { root.classList.toggle('theme-dark', mode === 'dark'); setIcon(mode); }
       function getPreferred() {
-        const saved = localStorage.getItem(KEY);
+        let saved;
+        try {
+          saved = localStorage.getItem(KEY);
+        } catch (err) {
+          saved = null;
+        }
         if (saved === 'light' || saved === 'dark') return saved;
         return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
@@ -409,7 +422,7 @@
       if (btn) {
         btn.addEventListener('click', () => {
           current = current === 'dark' ? 'light' : 'dark';
-          localStorage.setItem(KEY, current);
+          safeSetItem(KEY, current);
           apply(current);
         });
       }
@@ -457,7 +470,13 @@
       const LS_KEY = 'tcb_all_playable_v2_4to8';
       const state = { strings: 6, tuning: DEFAULT_TUNING_6.slice(), root: 'E', chordName: 'Major (maj)', labels: 'degrees' };
       try { const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if (s && typeof s === 'object') Object.assign(state, s); } catch (e) { }
-      function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+      function save() {
+        try {
+          localStorage.setItem(LS_KEY, JSON.stringify(state));
+        } catch (err) {
+          // ignore persistence issues (e.g. private browsing)
+        }
+      }
 
       // --- DOM ---
       const cardsEl = document.getElementById('cards');
