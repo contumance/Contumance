@@ -7,56 +7,6 @@
   <meta name="description" content="Re:sonance — An experimental library of sound, color, and quiet motion. Paths of vibration that awaken new forms of listening." data-i18n-attr="content" data-i18n="doc_description" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>☰</text></svg>">
   <link rel="stylesheet" href="assets/kindle.css">
-  <style>
-    main{padding:9vh 1.25rem 4rem}
-
-    header.header{display:flex; align-items:flex-start; justify-content:space-between; gap:1rem}
-    header h1{font-weight:600; margin:0 0 .25rem 0; font-size:clamp(1.8rem,4vw,2.4rem); letter-spacing:.2px}
-    header p.desc{margin:0 0 2rem 0; color:var(--muted); font-style:italic}
-
-    .controls{display:flex; gap:.5rem; align-items:center}
-
-    section.intro{margin:1.5rem 0 2.5rem 0}
-    section.intro p{margin:0; font-size:1.05rem; line-height:1.65}
-
-    .lang-select{
-      border:1px solid var(--accent); background:var(--btn-bg); color:var(--ink);
-      border-radius:.45rem; padding:.3rem .5rem; font-size:.95rem; line-height:1;
-      font-family:inherit;
-      appearance:none; cursor:pointer;
-      background-image: linear-gradient(transparent,transparent), linear-gradient(transparent,transparent);
-    }
-    .lang-select:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
-
-    nav h2{
-      font-size:1rem; font-weight:600; text-transform:uppercase; color:var(--muted);
-      margin:0 0 .5rem 0; letter-spacing:.08em
-    }
-    ul.index{list-style:none; padding:0; margin:0}
-    ul.index li{padding:0}
-    ul.index li+li{border-top:1px dotted var(--accent)}
-
-    .item{
-      display:grid;
-      grid-template-columns: 1.6rem 1fr;
-      grid-template-areas:
-        "icon title"
-        "icon meta";
-      column-gap:.75rem; row-gap:.2rem; align-items:center;
-      padding:.85rem 0; width:100%;
-    }
-    .item:focus-visible{outline:2px dashed var(--accent); outline-offset:2px}
-    .item:hover .title,.item:focus-visible .title{text-decoration:underline}
-
-    .icon{grid-area:icon; width:1.15rem; height:1.15rem; margin:0; color:currentColor; opacity:.9}
-    .title{grid-area:title; line-height:1.25}
-    .meta{grid-area:meta; color:var(--muted); font-size:.95rem; margin-top:.1rem}
-
-    @media (prefers-reduced-motion:no-preference){
-      ul.index li{transition:transform .12s ease}
-      ul.index li:hover{transform:translateX(2px)}
-    }
-  </style>
 </head>
 <body>
   <main>
@@ -65,8 +15,8 @@
         <h1>Re:sonance</h1>
         <p class="desc" data-i18n="tagline">A quiet selection for curious hands.</p>
       </div>
-      <div class="controls">
-        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+      <div class="header-controls">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label">Language</label>
         <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
           <option value="en">EN</option>
           <option value="es">ES</option>
@@ -83,7 +33,7 @@
     </section>
 
     <nav aria-label="Library">
-      <h2 data-i18n="collection">Collection</h2>
+      <h2 class="section-title" data-i18n="collection">Collection</h2>
       <ul class="index">
 
         <!-- SCALES -->

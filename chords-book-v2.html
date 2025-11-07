@@ -10,21 +10,6 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
   <link rel="stylesheet" href="assets/kindle.css">
   <style>
-    .theme-toggle { font-size: 1.15rem; }
-    .lang-select {
-      border: 1px solid var(--accent);
-      background: var(--btn-bg);
-      color: var(--ink);
-      border-radius: .45rem;
-      padding: .3rem .5rem;
-      font-size: .95rem;
-      line-height: 1;
-      font-family: inherit;
-      appearance: none;
-      cursor: pointer;
-      background-image: linear-gradient(transparent, transparent), linear-gradient(transparent, transparent);
-    }
-    .lang-select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 2px; }
     .controls { display: grid; gap: 8px; align-items: center; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 8px; }
     .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     label { font-size: 12px; opacity: .9; }
@@ -48,8 +33,8 @@
     .counter { color: var(--muted); font-size: .9rem; }
     .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
     .card { border: 1px solid var(--accent); border-radius: .6rem; padding: .8rem .8rem .9rem; background: transparent; }
-    .title { font-weight: 700; letter-spacing: .01em; margin-bottom: .25rem; }
-    .meta { color: var(--muted); font-size: .85rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+    .card .title { font-weight: 700; letter-spacing: .01em; margin-bottom: .25rem; }
+    .card .meta { color: var(--muted); font-size: .85rem; display: flex; gap: .6rem; flex-wrap: wrap; }
     .fb svg { max-width: 100%; height: auto; display: block; }
     .fb-grid line { stroke: var(--rule); stroke-width: 1; }
     .fb-grid .nut { stroke: var(--ink); stroke-width: 3; }
@@ -68,7 +53,7 @@
         <a href="index.html" data-i18n="chords_back">← Back to index</a>
       </nav>
       <div class="row" style="gap:6px; position:relative;">
-        <label class="visually-hidden" for="langSelect" data-i18n="lang_label" style="position:absolute;left:-9999px;">Language</label>
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label">Language</label>
         <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
           <option value="en">EN</option>
           <option value="es">ES</option>
