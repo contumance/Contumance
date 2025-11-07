@@ -1,0 +1,383 @@
+{
+  "library": {
+    "name": "Modern Djent Riff Library",
+    "version": "1.0.0",
+    "created": "2024-05-30",
+    "sample_rate_hz": 48000,
+    "bit_depth": 24,
+    "swing": false,
+    "description": "Colección de riffs de guitarra inspirados en el metal moderno djent y metal alternativo. Cada entrada contiene toda la información necesaria para recrear la interpretación de guitarra rítmica principal."
+  },
+  "riffs": [
+    {
+      "id": "obsidian_polymeter",
+      "title": "Obsidian Polymeter",
+      "influences": ["Meshuggah", "Monuments"],
+      "feel": "Groove mecánico con acentos polimétricos 23:16 sobre pulso de negra",
+      "tempo": {
+        "bpm": 122,
+        "time_signature": "4/4",
+        "grid_resolution": 16,
+        "polyrhythm_overlay": {
+          "ratio": "23:16",
+          "accent_cycle_steps": 23,
+          "starts_on_step": 0
+        }
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 8 cuerdas",
+        "scale_length_inches": 27.0,
+        "strings_low_to_high": ["F#1", "B1", "E2", "A2", "D3", "G3", "B3", "E4"],
+        "tuning_reference_hz": 440
+      },
+      "key_center": {
+        "tonic": "F#",
+        "mode": "Frigio dominante",
+        "register_focus": "grave"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 16,
+          "notes": [
+            {"step": 0, "duration_steps": 1, "string": 8, "fret": 0, "pitch": "F#1", "velocity": 120, "techniques": ["palm_mute", "downstroke"]},
+            {"step": 1, "duration_steps": 1, "string": 8, "fret": 2, "pitch": "G#1", "velocity": 117, "techniques": ["palm_mute"]},
+            {"step": 2, "duration_steps": 1, "string": 8, "fret": 3, "pitch": "A1", "velocity": 122, "techniques": ["palm_mute", "accent"]},
+            {"step": 4, "duration_steps": 1, "string": 8, "fret": 5, "pitch": "B1", "velocity": 116, "techniques": ["palm_mute"]},
+            {"step": 5, "duration_steps": 2, "string": 7, "fret": 1, "pitch": "C2", "velocity": 118, "techniques": ["palm_mute", "slide_up"]},
+            {"step": 8, "duration_steps": 2, "string": 8, "fret": 0, "pitch": "F#1", "velocity": 120, "techniques": ["palm_mute", "staccato"]},
+            {"step": 10, "duration_steps": 1, "string": 6, "fret": 0, "pitch": "E2", "velocity": 112, "techniques": ["palm_mute"]},
+            {"step": 11, "duration_steps": 1, "string": 6, "fret": 2, "pitch": "F#2", "velocity": 118, "techniques": ["accent"]},
+            {"step": 12, "duration_steps": 3, "string": 8, "fret": 3, "pitch": "A1", "velocity": 123, "techniques": ["palm_mute", "slide_down"]}
+          ],
+          "accents": [0, 2, 5, 8, 11, 14]
+        },
+        {
+          "index": 2,
+          "length_steps": 16,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 8, "fret": 1, "pitch": "G1", "velocity": 119, "techniques": ["palm_mute", "accent"]},
+            {"step": 2, "duration_steps": 1, "string": 8, "fret": 3, "pitch": "A1", "velocity": 121, "techniques": ["palm_mute"]},
+            {"step": 3, "duration_steps": 1, "string": 7, "fret": 4, "pitch": "D#2", "velocity": 116, "techniques": ["slide_up", "palm_mute"]},
+            {"step": 4, "duration_steps": 1, "string": 7, "fret": 5, "pitch": "E2", "velocity": 117, "techniques": ["palm_mute"]},
+            {"step": 6, "duration_steps": 1, "string": 8, "fret": 0, "pitch": "F#1", "velocity": 125, "techniques": ["palm_mute", "accent"]},
+            {"step": 7, "duration_steps": 1, "string": 8, "fret": 2, "pitch": "G#1", "velocity": 118, "techniques": ["palm_mute"]},
+            {"step": 8, "duration_steps": 2, "string": 6, "fret": 0, "pitch": "E2", "velocity": 112, "techniques": ["let_ring"]},
+            {"step": 10, "duration_steps": 2, "string": 5, "fret": 2, "pitch": "E3", "velocity": 110, "techniques": ["let_ring"]},
+            {"step": 12, "duration_steps": 4, "string": 8, "fret": 3, "pitch": "A1", "velocity": 123, "techniques": ["accent", "slide_down"]}
+          ],
+          "accents": [0, 3, 6, 8, 12]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "Neural DSP Archetype: Gojira - Rhythm",
+        "cabinet": "Mesa 4x12 V30 IR",
+        "overdrive": {"type": "Precision Drive", "drive": 0.2, "level": 0.8, "attack": 0.6},
+        "gate": {"threshold_db": -50, "release_ms": 60},
+        "multiband_compression": {"low_band_ratio": 4.0, "mid_band_ratio": 2.5, "hi_band_ratio": 2.0},
+        "post_eq": {"80hz": 3.5, "400hz": -2.0, "1200hz": 1.5, "6500hz": 2.0}
+      },
+      "performance_notes": "Downpicking firme en las cuerdas graves. Mantén la acentuación desplazada cada 23 semicorcheas para lograr la sensación polimétrica. Usa palm mute cercano al puente y deja que los últimos acentos respiren con menos muteo."
+    },
+    {
+      "id": "fractal_cascade",
+      "title": "Fractal Cascade",
+      "influences": ["Periphery", "Tesseract"],
+      "feel": "Riff sincopado con patrón de corchea con puntillo y apoyatura melódica en cuerdas agudas",
+      "tempo": {
+        "bpm": 150,
+        "time_signature": "4/4",
+        "grid_resolution": 24,
+        "swing": false
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 7 cuerdas",
+        "scale_length_inches": 26.5,
+        "strings_low_to_high": ["Ab1", "Eb2", "Ab2", "Db3", "Gb3", "Bb3", "Eb4"],
+        "tuning_reference_hz": 440
+      },
+      "key_center": {
+        "tonic": "Db",
+        "mode": "Lidio dominante",
+        "register_focus": "grave-medio"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 24,
+          "notes": [
+            {"step": 0, "duration_steps": 3, "string": 7, "fret": 0, "pitch": "Ab1", "velocity": 118, "techniques": ["palm_mute", "accent"]},
+            {"step": 3, "duration_steps": 3, "string": 7, "fret": 5, "pitch": "Db2", "velocity": 114, "techniques": ["palm_mute"]},
+            {"step": 6, "duration_steps": 3, "string": 7, "fret": 7, "pitch": "Eb2", "velocity": 112, "techniques": ["palm_mute"]},
+            {"step": 9, "duration_steps": 3, "string": 7, "fret": 10, "pitch": "Gb2", "velocity": 116, "techniques": ["palm_mute", "accent"]},
+            {"step": 12, "duration_steps": 2, "string": 4, "fret": 11, "pitch": "Gb4", "velocity": 105, "techniques": ["let_ring", "slide_up"]},
+            {"step": 14, "duration_steps": 2, "string": 4, "fret": 9, "pitch": "E4", "velocity": 100, "techniques": ["let_ring"]},
+            {"step": 16, "duration_steps": 3, "string": 6, "fret": 0, "pitch": "Eb2", "velocity": 115, "techniques": ["palm_mute", "accent"]},
+            {"step": 19, "duration_steps": 3, "string": 7, "fret": 3, "pitch": "B1", "velocity": 117, "techniques": ["palm_mute"]},
+            {"step": 22, "duration_steps": 2, "string": 3, "fret": 8, "pitch": "C5", "velocity": 104, "techniques": ["vibrato", "let_ring"]}
+          ],
+          "accents": [0, 9, 16, 22]
+        },
+        {
+          "index": 2,
+          "length_steps": 24,
+          "notes": [
+            {"step": 0, "duration_steps": 3, "string": 7, "fret": 0, "pitch": "Ab1", "velocity": 118, "techniques": ["palm_mute"]},
+            {"step": 3, "duration_steps": 3, "string": 7, "fret": 7, "pitch": "Eb2", "velocity": 115, "techniques": ["palm_mute"]},
+            {"step": 6, "duration_steps": 3, "string": 7, "fret": 8, "pitch": "E2", "velocity": 112, "techniques": ["palm_mute", "accent"]},
+            {"step": 9, "duration_steps": 2, "string": 4, "fret": 11, "pitch": "Gb4", "velocity": 102, "techniques": ["let_ring", "slide_down"]},
+            {"step": 11, "duration_steps": 1, "string": 4, "fret": 9, "pitch": "E4", "velocity": 100, "techniques": ["let_ring"]},
+            {"step": 12, "duration_steps": 3, "string": 7, "fret": 5, "pitch": "Db2", "velocity": 114, "techniques": ["palm_mute"]},
+            {"step": 15, "duration_steps": 3, "string": 7, "fret": 0, "pitch": "Ab1", "velocity": 118, "techniques": ["palm_mute", "accent"]},
+            {"step": 18, "duration_steps": 3, "string": 6, "fret": 5, "pitch": "A2", "velocity": 111, "techniques": ["palm_mute"]},
+            {"step": 21, "duration_steps": 3, "string": 3, "fret": 6, "pitch": "Bb4", "velocity": 106, "techniques": ["let_ring", "slide_up"]}
+          ],
+          "accents": [0, 6, 15, 21]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "Peavey 5150 Block Letter",
+        "cabinet": "Zilla 2x12 V30 + SM57",
+        "overdrive": {"type": "Horizon Devices Precision", "drive": 0.15, "level": 0.85, "attack": 0.5},
+        "gate": {"threshold_db": -45, "hold_ms": 5, "release_ms": 80},
+        "delay": {"time_sync": "1/8D", "mix": 0.08, "feedback": 0.18},
+        "reverb": {"type": "Plate", "mix": 0.05, "decay_s": 1.2}
+      },
+      "performance_notes": "Mantén el patrón de semicorchea con puntillo en la mano derecha. Usa alternate picking estricto y acentúa el inicio de cada figura de 3 corcheas. Las notas altas deben tocarse con menos muteo para resaltar la melodía."
+    },
+    {
+      "id": "voidwalker_syncopation",
+      "title": "Voidwalker Syncopation",
+      "influences": ["Northlane", "Erra"],
+      "feel": "Groove a semicorcheas con desplazamientos de tresillos y acordes abiertos",
+      "tempo": {
+        "bpm": 128,
+        "time_signature": "4/4",
+        "grid_resolution": 12,
+        "triplet_feel": true
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 7 cuerdas",
+        "scale_length_inches": 27.0,
+        "strings_low_to_high": ["E1", "B1", "E2", "A2", "D3", "Gb3", "B3"],
+        "tuning_reference_hz": 440
+      },
+      "key_center": {
+        "tonic": "E",
+        "mode": "Dórico",
+        "register_focus": "grave"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 12,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 7, "fret": 0, "pitch": "E1", "velocity": 120, "techniques": ["palm_mute", "accent"]},
+            {"step": 2, "duration_steps": 2, "string": 7, "fret": 3, "pitch": "G1", "velocity": 116, "techniques": ["palm_mute"]},
+            {"step": 4, "duration_steps": 1, "string": 7, "fret": 5, "pitch": "A1", "velocity": 118, "techniques": ["palm_mute"]},
+            {"step": 5, "duration_steps": 1, "string": 6, "fret": 0, "pitch": "B1", "velocity": 110, "techniques": ["let_ring"]},
+            {"step": 6, "duration_steps": 3, "string": 3, "fret": 7, "pitch": "D4", "velocity": 108, "techniques": ["let_ring", "chorus"]},
+            {"step": 9, "duration_steps": 3, "string": 4, "fret": 5, "pitch": "G3", "velocity": 105, "techniques": ["let_ring", "harmonic"]}
+          ],
+          "accents": [0, 4, 6, 9]
+        },
+        {
+          "index": 2,
+          "length_steps": 12,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 7, "fret": 0, "pitch": "E1", "velocity": 118, "techniques": ["palm_mute"]},
+            {"step": 2, "duration_steps": 2, "string": 7, "fret": 6, "pitch": "Bb1", "velocity": 117, "techniques": ["palm_mute", "accent"]},
+            {"step": 4, "duration_steps": 2, "string": 7, "fret": 7, "pitch": "B1", "velocity": 115, "techniques": ["palm_mute"]},
+            {"step": 6, "duration_steps": 2, "string": 6, "fret": 2, "pitch": "C#2", "velocity": 110, "techniques": ["slide_up"]},
+            {"step": 8, "duration_steps": 2, "string": 3, "fret": 6, "pitch": "C#4", "velocity": 104, "techniques": ["let_ring", "vibrato"]},
+            {"step": 10, "duration_steps": 2, "string": 4, "fret": 4, "pitch": "F#3", "velocity": 103, "techniques": ["let_ring"]}
+          ],
+          "accents": [0, 2, 4, 8]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "Fortin Nameless Suite - Rhythm",
+        "cabinet": "OwnHammer 412 Recto",
+        "overdrive": {"type": "808", "drive": 0.1, "tone": 0.6, "level": 0.9},
+        "gate": {"threshold_db": -55, "release_ms": 90},
+        "delay": {"time_sync": "1/4T", "mix": 0.07, "feedback": 0.22},
+        "modulation": {"type": "Dimension Chorus", "mix": 0.12, "rate_hz": 0.6}
+      },
+      "performance_notes": "El patrón combina semicorcheas y tresillos: mantén un movimiento constante de la púa con subdivisión en tresillos. Los acordes superiores requieren barridos suaves con mínima presión para dejar sonar las cuerdas."
+    },
+    {
+      "id": "spectral_bloom",
+      "title": "Spectral Bloom",
+      "influences": ["Loathe", "Deftones"],
+      "feel": "Textura etérea en compás 6/8 con acordes abiertos y deslizamientos",
+      "tempo": {
+        "bpm": 74,
+        "time_signature": "6/8",
+        "grid_resolution": 12
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 6 cuerdas",
+        "scale_length_inches": 25.5,
+        "strings_low_to_high": ["G1", "D2", "G2", "C3", "F3", "A3"],
+        "tuning_reference_hz": 432
+      },
+      "key_center": {
+        "tonic": "C",
+        "mode": "Eolio",
+        "register_focus": "grave-medio"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 12,
+          "notes": [
+            {"step": 0, "duration_steps": 6, "string": 6, "fret": 0, "pitch": "G1", "velocity": 108, "techniques": ["let_ring", "swells"]},
+            {"step": 0, "duration_steps": 6, "string": 4, "fret": 2, "pitch": "D3", "velocity": 92, "techniques": ["let_ring"]},
+            {"step": 6, "duration_steps": 6, "string": 5, "fret": 0, "pitch": "D2", "velocity": 106, "techniques": ["let_ring", "accent"]},
+            {"step": 6, "duration_steps": 6, "string": 3, "fret": 5, "pitch": "G3", "velocity": 95, "techniques": ["let_ring", "slide_up"]}
+          ],
+          "accents": [0, 6]
+        },
+        {
+          "index": 2,
+          "length_steps": 12,
+          "notes": [
+            {"step": 0, "duration_steps": 6, "string": 6, "fret": 2, "pitch": "A1", "velocity": 109, "techniques": ["let_ring"]},
+            {"step": 0, "duration_steps": 6, "string": 4, "fret": 5, "pitch": "F3", "velocity": 94, "techniques": ["let_ring", "tremolo_arm"]},
+            {"step": 6, "duration_steps": 6, "string": 5, "fret": 3, "pitch": "F2", "velocity": 108, "techniques": ["let_ring", "accent"]},
+            {"step": 6, "duration_steps": 6, "string": 3, "fret": 7, "pitch": "A3", "velocity": 95, "techniques": ["let_ring", "vibrato"]}
+          ],
+          "accents": [0, 6]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "Fender Twin emulado con pedal fuzz ligero",
+        "cabinet": "2x12 Celestion Alnico",
+        "fuzz": {"type": "Big Muff", "sustain": 0.25, "tone": 0.45, "level": 0.55},
+        "delay": {"time_sync": "1/8", "mix": 0.22, "feedback": 0.35},
+        "reverb": {"type": "Shimmer", "mix": 0.38, "decay_s": 12.0},
+        "post_eq": {"120hz": -1.5, "400hz": -3.0, "1khz": 1.0, "6khz": 2.5}
+      },
+      "performance_notes": "Usa volumen de la guitarra para swells en la entrada de cada compás. El tempo base debe sentirse en las corcheas. Mantén ligera presión en el vibrato para conservar la afinación en la afinación rebajada a 432 Hz."
+    },
+    {
+      "id": "tectonic_pulse",
+      "title": "Tectonic Pulse",
+      "influences": ["Gojira"],
+      "feel": "Compás compuesto 12/8 con acentos de pick-scrape y ligados",
+      "tempo": {
+        "bpm": 88,
+        "time_signature": "12/8",
+        "grid_resolution": 24
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 6 cuerdas",
+        "scale_length_inches": 25.5,
+        "strings_low_to_high": ["C1", "G1", "C2", "F2", "A#2", "D3"],
+        "tuning_reference_hz": 440
+      },
+      "key_center": {
+        "tonic": "C",
+        "mode": "Frigio",
+        "register_focus": "grave"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 24,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 6, "fret": 0, "pitch": "C1", "velocity": 124, "techniques": ["palm_mute", "pick_scrape"]},
+            {"step": 2, "duration_steps": 2, "string": 6, "fret": 3, "pitch": "D#1", "velocity": 120, "techniques": ["palm_mute"]},
+            {"step": 4, "duration_steps": 4, "string": 6, "fret": 5, "pitch": "F1", "velocity": 122, "techniques": ["palm_mute", "accent"]},
+            {"step": 8, "duration_steps": 4, "string": 4, "fret": 3, "pitch": "G2", "velocity": 108, "techniques": ["let_ring"]},
+            {"step": 12, "duration_steps": 4, "string": 5, "fret": 5, "pitch": "D2", "velocity": 112, "techniques": ["palm_mute"]},
+            {"step": 16, "duration_steps": 4, "string": 6, "fret": 7, "pitch": "G1", "velocity": 118, "techniques": ["hammer_on", "pull_off"]},
+            {"step": 20, "duration_steps": 4, "string": 6, "fret": 0, "pitch": "C1", "velocity": 126, "techniques": ["palm_mute", "accent"]}
+          ],
+          "accents": [0, 4, 12, 20]
+        },
+        {
+          "index": 2,
+          "length_steps": 24,
+          "notes": [
+            {"step": 0, "duration_steps": 4, "string": 6, "fret": 5, "pitch": "F1", "velocity": 123, "techniques": ["palm_mute", "accent"]},
+            {"step": 4, "duration_steps": 4, "string": 6, "fret": 8, "pitch": "G#1", "velocity": 120, "techniques": ["palm_mute"]},
+            {"step": 8, "duration_steps": 4, "string": 5, "fret": 3, "pitch": "C2", "velocity": 114, "techniques": ["palm_mute"]},
+            {"step": 12, "duration_steps": 4, "string": 4, "fret": 5, "pitch": "A#2", "velocity": 110, "techniques": ["let_ring", "accent"]},
+            {"step": 16, "duration_steps": 4, "string": 6, "fret": 7, "pitch": "G1", "velocity": 118, "techniques": ["palm_mute"]},
+            {"step": 20, "duration_steps": 4, "string": 6, "fret": 0, "pitch": "C1", "velocity": 126, "techniques": ["palm_mute", "pick_scrape"]}
+          ],
+          "accents": [0, 8, 12, 20]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "EVH 5153 50W",
+        "cabinet": "Bogner 4x12 V30",
+        "overdrive": {"type": "Maxon OD808", "drive": 0.18, "tone": 0.55, "level": 0.82},
+        "gate": {"threshold_db": -48, "release_ms": 70},
+        "reverb": {"type": "Room", "mix": 0.04, "decay_s": 0.8},
+        "post_eq": {"90hz": 2.5, "350hz": -2.5, "2khz": 2.2, "8khz": 1.8}
+      },
+      "performance_notes": "Aplicar pick scrape ligero en el primer golpe de cada compás. Usar downpicking consistente y ligados fuertes en las posiciones 16 y 17 para enfatizar el motivo final."
+    },
+    {
+      "id": "ethereal_threshold",
+      "title": "Ethereal Threshold",
+      "influences": ["Spiritbox", "Jinjer"],
+      "feel": "Groove medio con acordes disonantes y saltos de octava",
+      "tempo": {
+        "bpm": 110,
+        "time_signature": "4/4",
+        "grid_resolution": 16,
+        "swing": false
+      },
+      "tuning": {
+        "instrument": "Guitarra eléctrica de 6 cuerdas",
+        "scale_length_inches": 26.5,
+        "strings_low_to_high": ["C#1", "G#1", "C#2", "F#2", "A#2", "D#3"],
+        "tuning_reference_hz": 440
+      },
+      "key_center": {
+        "tonic": "C#",
+        "mode": "Eólico con ♭5 cromática",
+        "register_focus": "grave-medio"
+      },
+      "bars": [
+        {
+          "index": 1,
+          "length_steps": 16,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 6, "fret": 0, "pitch": "C#1", "velocity": 121, "techniques": ["palm_mute", "accent"]},
+            {"step": 2, "duration_steps": 2, "string": 5, "fret": 1, "pitch": "D2", "velocity": 115, "techniques": ["palm_mute"]},
+            {"step": 4, "duration_steps": 4, "string": 4, "fret": 6, "pitch": "C#3", "velocity": 109, "techniques": ["let_ring", "harmonic"]},
+            {"step": 8, "duration_steps": 4, "string": 6, "fret": 0, "pitch": "C#1", "velocity": 120, "techniques": ["palm_mute"]},
+            {"step": 12, "duration_steps": 4, "string": 3, "fret": 8, "pitch": "G#3", "velocity": 107, "techniques": ["let_ring", "slide_up"]}
+          ],
+          "accents": [0, 8, 12]
+        },
+        {
+          "index": 2,
+          "length_steps": 16,
+          "notes": [
+            {"step": 0, "duration_steps": 2, "string": 6, "fret": 0, "pitch": "C#1", "velocity": 119, "techniques": ["palm_mute"]},
+            {"step": 2, "duration_steps": 2, "string": 6, "fret": 3, "pitch": "E1", "velocity": 118, "techniques": ["palm_mute", "accent"]},
+            {"step": 4, "duration_steps": 2, "string": 6, "fret": 5, "pitch": "F#1", "velocity": 116, "techniques": ["palm_mute"]},
+            {"step": 6, "duration_steps": 2, "string": 5, "fret": 3, "pitch": "F2", "velocity": 112, "techniques": ["palm_mute"]},
+            {"step": 8, "duration_steps": 4, "string": 4, "fret": 4, "pitch": "B2", "velocity": 108, "techniques": ["let_ring"]},
+            {"step": 12, "duration_steps": 4, "string": 3, "fret": 9, "pitch": "A3", "velocity": 106, "techniques": ["let_ring", "vibrato"]}
+          ],
+          "accents": [0, 2, 8, 12]
+        }
+      ],
+      "mix_chain": {
+        "amp_model": "Line 6 Archetype Plini - Rhythm",
+        "cabinet": "ML Sound Lab Misha Mix",
+        "overdrive": {"type": "OD808", "drive": 0.12, "tone": 0.58, "level": 0.88},
+        "gate": {"threshold_db": -52, "release_ms": 75},
+        "delay": {"time_sync": "1/8", "mix": 0.12, "feedback": 0.28},
+        "reverb": {"type": "Hall", "mix": 0.18, "decay_s": 3.5}
+      },
+      "performance_notes": "El groove requiere palm mute profundo pero uniforme. Usa híbrido con dedos para disparar las notas altas y permite que las disonancias respiren. Ajusta el gate para evitar cortes bruscos en los acordes largos."
+    }
+  ]
+}
