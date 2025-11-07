@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Riff Forge — Re:sonance</title>
+  <meta name="description" content="Generate djent-inspired guitar riffs. Choose tunings, scales, BPM, meters, accents, and download the MIDI." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.8em' font-size='84'>⚙</text></svg>">
+  <link rel="stylesheet" href="assets/kindle.css">
+  <style>
+    :root{ color-scheme: light dark; }
+    .controls{ display:grid; gap:.75rem; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
+    .controls .group{ border:1px solid var(--accent); border-radius:.6rem; padding:.7rem .85rem .85rem; background:transparent; display:flex; flex-direction:column; gap:.45rem; }
+    .controls label{ font-size:.74rem; letter-spacing:.03em; text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between; align-items:center; gap:.35rem; }
+    .controls .value{ font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; font-size:.82rem; color:var(--ink); }
+    input[type="number"], select, button, input[type="range"]{
+      appearance:none; border:1px solid var(--accent); background:transparent; color:var(--ink);
+      padding:.55rem .65rem; border-radius:.55rem; font-family:inherit; font-size:.92rem; line-height:1; min-width:0;
+    }
+    input[type="range"]{ width:100%; padding:0; }
+    button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+    button{ cursor:pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible{ outline:2px dashed var(--accent); outline-offset:2px; }
+
+    .actions{ display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.9rem; }
+    .tagline{ font-size:.92rem; color:var(--muted); margin-top:.45rem; }
+
+    .riff-summary{ margin-top:1.4rem; border:1px solid var(--accent); border-radius:.65rem; padding:.85rem; display:flex; flex-wrap:wrap; gap:.9rem; }
+    .summary-block{ min-width:180px; }
+    .summary-block h3{ margin:0 0 .35rem; font-size:.92rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+    .summary-block .body{ font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; line-height:1.5; font-size:.95rem; }
+
+    .riff-visual{ margin-top:1.1rem; border:1px solid var(--accent); border-radius:.75rem; padding:.9rem; display:flex; flex-direction:column; gap:.75rem; }
+    .timeline{ display:grid; gap:.4rem; }
+    .bar{ border:1px solid var(--accent-soft); border-radius:.6rem; padding:.65rem; background:transparent; }
+    .bar-title{ font-size:.8rem; font-weight:600; color:var(--muted); margin-bottom:.45rem; display:flex; justify-content:space-between; align-items:center; }
+    .events{ display:grid; gap:.4rem; }
+    .event{ border:1px solid var(--accent); border-radius:.55rem; padding:.45rem .6rem; display:grid; gap:.25rem; background:rgba(0,0,0,0.02); }
+    html.theme-dark .event{ background:rgba(255,255,255,0.04); }
+    .event.playing{ border-color:var(--ink); background:var(--ink); color:var(--paper); }
+    .event-line{ display:flex; justify-content:space-between; font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; font-size:.88rem; }
+    .event-line .label{ color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-right:.4rem; }
+    .empty{ color:var(--muted); font-style:italic; font-size:.9rem; }
+
+    .tuning-display{ display:flex; gap:.35rem; flex-wrap:wrap; font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; }
+    .tuning-chip{ border:1px solid var(--accent); border-radius:999px; padding:.15rem .6rem; font-size:.85rem; }
+
+    /* --- DAW view --- */
+    .loopview{ border:1px solid var(--accent); border-radius:.75rem; padding:.75rem; display:flex; flex-direction:column; gap:.5rem; }
+    .loopview h2{ margin:0; font-size:1rem; }
+    .loopview canvas{ width:100%; height:auto; display:block; aspect-ratio:5/1; border:1px solid var(--accent-soft); border-radius:.5rem; }
+
+    @media (max-width:720px){
+      .controls{ grid-template-columns:1fr; }
+      .summary-block{ min-width:140px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">← Back to index</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">🌓</button>
+    </div>
+
+    <header>
+      <h1>The Riff Forge</h1>
+      <p class="tagline">Djent-flavored riffs. Dial tunings, scales, meter, and velocity accents—then forge MIDI-ready chugs.</p>
+    </header>
+
+    <section class="controls" role="group" aria-label="Riff generation controls">
+      <div class="group">
+        <label for="tuning">Tuning <span class="value" id="tuningLabel"></span></label>
+        <select id="tuning" aria-label="Choose a guitar tuning"></select>
+        <div class="tuning-display" id="tuningDisplay"></div>
+      </div>
+
+      <div class="group">
+        <label for="root">Root <span class="value" id="rootLabel"></span></label>
+        <select id="root" aria-label="Choose riff root"></select>
+        <label for="scale">Scale <span class="value" id="scaleLabel"></span></label>
+        <select id="scale" aria-label="Choose riff scale"></select>
+        <label for="register">Register focus</label>
+        <input id="register" type="range" min="0" max="100" value="25">
+        <div class="hint" style="font-size:.8rem; color:var(--muted);">0 = chugs on the lowest strings, 100 = leads on the highest strings.</div>
+      </div>
+
+      <div class="group">
+        <label for="bpm">Tempo (BPM) <span class="value" id="bpmLabel"></span></label>
+        <input id="bpm" type="number" min="40" max="260" value="140">
+        <label for="timeSig">Compás</label>
+        <select id="timeSig" aria-label="Choose a time signature">
+          <option value="4/4">4/4</option>
+          <option value="5/4">5/4</option>
+          <option value="7/4">7/4</option>
+          <option value="7/8">7/8</option>
+          <option value="9/8">9/8</option>
+        </select>
+        <label for="division">Subdivision base</label>
+        <select id="division" aria-label="Choose subdivision density">
+          <option value="4">16th grid</option>
+          <option value="6" selected>16th triplets</option>
+          <option value="8">32nd grid</option>
+        </select>
+        <label for="bars">Bars</label>
+        <input id="bars" type="number" min="1" max="8" value="4">
+      </div>
+
+      <div class="group">
+        <label for="density">Note density <span class="value" id="densityLabel"></span></label>
+        <input id="density" type="range" min="10" max="95" value="55">
+        <label for="syncopation">Syncopation <span class="value" id="syncLabel"></span></label>
+        <input id="syncopation" type="range" min="0" max="100" value="45">
+        <label for="pulse">Accent weight <span class="value" id="accentLabel"></span></label>
+        <input id="pulse" type="range" min="0" max="100" value="65">
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="generate" class="primary" type="button">Generate riff</button>
+      <button id="play" type="button">Play</button>
+      <button id="stop" type="button">Stop</button>
+      <button id="download" type="button">Download MIDI</button>
+    </div>
+
+    <section class="riff-summary" id="riffSummary" aria-live="polite">
+      <div class="summary-block">
+        <h3>Structure</h3>
+        <div class="body" id="structureSummary">—</div>
+      </div>
+      <div class="summary-block">
+        <h3>Palette</h3>
+        <div class="body" id="paletteSummary">—</div>
+      </div>
+      <div class="summary-block">
+        <h3>Dynamics</h3>
+        <div class="body" id="dynamicSummary">—</div>
+      </div>
+    </section>
+
+    <!-- NUEVA VISTA DAW -->
+    <section class="loopview" aria-label="Loop View">
+      <h2>Loop View</h2>
+      <canvas id="dawCanvas" width="1400" height="280" aria-hidden="true"></canvas>
+      <div class="hint" style="font-size:.8rem; color:var(--muted);">Visual grid shows bars, beats and note blocks. Playhead is synced to audio.</div>
+    </section>
+
+    <section class="riff-visual" aria-label="Generated riff grid">
+      <h2 style="margin:0; font-size:1rem;">Timeline (cards)</h2>
+      <div id="timeline" class="timeline"><p class="empty">Press “Generate riff” to forge a pattern.</p></div>
+    </section>
+
+    <footer>
+      <a class="btn" href="https://buymeacoffee.com/Contumance" target="_blank" rel="noopener noreferrer" aria-label="Support this library on Buy Me a Coffee">
+        <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8h14.5a2 2 0 0 1 0 4H18l-1 5a4 4 0 0 1-3.95 3.3H8.95A4 4 0 0 1 5 17l-1-9z"/>
+          <path d="M3 8h17"/><path d="M7 4h6"/>
+        </svg>
+        <span>Buy me a coffee</span>
+      </a>
+      <span>© <span id="y"></span> Re:sonance <small class="byline">by <em>Contumance</em></small></span>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
+      function icon(mode){ return mode==='dark' ? '☀' : '🌙'; }
+      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); btn.textContent=icon(mode); }
+      function preferred(){ const saved=localStorage.getItem(KEY); if(saved==='light'||saved==='dark') return saved; return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+      let current=preferred();
+      apply(current);
+      btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+      document.getElementById('y').textContent=new Date().getFullYear();
+    })();
+  </script>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const NOTE_PC = {"C":0,"C#":1,"Db":1,"D":2,"D#":3,"Eb":3,"E":4,"F":5,"F#":6,"Gb":6,"G":7,"G#":8,"Ab":8,"A":9,"A#":10,"Bb":10,"B":11};
+    const NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
+    function midiFromInput(txt){
+      if(!txt) return 40;
+      txt=String(txt).trim();
+      if(/^\d+$/.test(txt)) return clamp(parseInt(txt,10),0,127);
+      const m=txt.match(/^([A-Ga-g])([#b]?)(-?\d)$/);
+      if(!m) return 40;
+      const name=m[1].toUpperCase()+(m[2]||'');
+      const oct=parseInt(m[3],10);
+      const pc=NOTE_PC[name];
+      if(pc==null) return 40;
+      return (oct+1)*12 + pc;
+    }
+    function midiToName(midi){ const pc=((midi%12)+12)%12; const oct=Math.floor(midi/12)-1; return NOTE_NAMES[pc]+oct; }
+    function midiToFreq(midi){ return 440*Math.pow(2,(midi-69)/12); }
+
+    const TUNINGS = [
+      { id:'stdE', name:'Standard 6 — E A D G B E', strings:['E2','A2','D3','G3','B3','E4'] },
+      { id:'dropD', name:'Drop D — D A D G B E', strings:['D2','A2','D3','G3','B3','E4'] },
+      { id:'dropC', name:'Drop C — C G C F A D', strings:['C2','G2','C3','F3','A3','D4'] },
+      { id:'dropB', name:'Drop B — B F# B E G# C#', strings:['B1','F#2','B2','E3','G#3','C#4'] },
+      { id:'dropA', name:'Drop A — A E A D F# B', strings:['A1','E2','A2','D3','F#3','B3'] },
+      { id:'sevenB', name:'7-string Standard — B E A D G B E', strings:['B1','E2','A2','D3','G3','B3','E4'] },
+      { id:'sevenDropA', name:'7-string Drop A — A E A D G B E', strings:['A1','E2','A2','D3','G3','B3','E4'] },
+      { id:'sevenDropG', name:'7-string Drop G — G1 D2 G2 C3 F3 A3 D4', strings:['G1','D2','G2','C3','F3','A3','D4'] },
+      { id:'eightF', name:'8-string Standard — F#1 B1 E2 A2 D3 G3 B3 E4', strings:['F#1','B1','E2','A2','D3','G3','B3','E4'] },
+      { id:'eightE', name:'8-string Drop E — E1 B1 E2 A2 D3 G3 B3 E4', strings:['E1','B1','E2','A2','D3','G3','B3','E4'] },
+      { id:'eightD', name:'8-string Drop D — D1 A1 D2 G2 C3 F3 A3 D4', strings:['D1','A1','D2','G2','C3','F3','A3','D4'] }
+    ];
+
+    const DEFAULT_SCALES = [
+      { id:'phrygianDom', name:'Phrygian Dominant', intervals:[0,1,4,5,7,8,10] },
+      { id:'aeolian', name:'Aeolian', intervals:[0,2,3,5,7,8,10] },
+      { id:'dorian', name:'Dorian ♭2', intervals:[0,1,3,5,7,9,10] },
+      { id:'wholeHalf', name:'Whole-Half Diminished', intervals:[0,2,3,5,6,8,9,11] },
+      { id:'harmMinor', name:'Harmonic Minor', intervals:[0,2,3,5,7,8,11] },
+      { id:'messCombo', name:'Mess Combo (1♭2 3 4 5 ♭6 ♭7)', intervals:[0,1,4,5,7,8,10] }
+    ];
+
+    let SCALES = DEFAULT_SCALES.slice();
+
+    const ROOTS = (()=>{
+      const list=[];
+      for(let oct=0; oct<=4; oct++){
+        for(const name of NOTE_NAMES){
+          const midi=(oct+1)*12 + NOTE_PC[name];
+          if(midi<24 || midi>76) continue;
+          list.push({label:`${name}${oct}`, value:`${name}${oct}`});
+        }
+      }
+      return list;
+    })();
+
+    async function loadScales(){
+      try{
+        const resp = await fetch('scales.json');
+        if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const parsed = Object.entries(data).map(([name, intervals], idx) => ({
+          id:`json-${idx}`,
+          name,
+          intervals: Array.isArray(intervals) ? intervals : []
+        })).filter(s => s.intervals.length);
+        if(!parsed.length) throw new Error('No valid scales parsed');
+        parsed.sort((a,b)=>a.name.localeCompare(b.name, 'en', {sensitivity:'base'}));
+        SCALES = parsed;
+      }catch(err){
+        console.error('Failed to load scales.json, using fallback list.', err);
+        SCALES = DEFAULT_SCALES.slice();
+      }
+      if(SCALES.length){ state.meta.scale = SCALES[0]; }
+    }
+
+    const state = {
+      riff: [],
+      meta: {
+        bpm: 140,
+        timeSig: [4,4],
+        subdiv: 6,
+        bars: 4,
+        tuning: TUNINGS[0],
+        root: midiFromInput('E2'),
+        scale: DEFAULT_SCALES[0]
+      },
+      timers: [],
+      playingNodes: new Set(),
+      ac: null, master: null,
+      // DAW animation
+      isPlaying: false,
+      playStartAC: 0,
+      rafId: null
+    };
+
+    function populateSelect(select, options){
+      if(!options.length){
+        select.innerHTML = '<option value="">—</option>'; select.disabled = true; return;
+      }
+      select.disabled = false;
+      select.innerHTML = options.map(opt => `<option value="${opt.value || opt.id}">${opt.label || opt.name}</option>`).join('');
+    }
+
+    function updateLabels(){
+      $('#tuningLabel').textContent = state.meta.tuning.name;
+      $('#rootLabel').textContent = midiToName(state.meta.root);
+      $('#scaleLabel').textContent = state.meta.scale ? state.meta.scale.name : '—';
+      $('#bpmLabel').textContent = `${state.meta.bpm} bpm`;
+      $('#densityLabel').textContent = `${$('#density').value}%`;
+      $('#syncLabel').textContent = `${$('#syncopation').value}%`;
+      $('#accentLabel').textContent = `${$('#pulse').value}%`;
+      const display = $('#tuningDisplay');
+      display.innerHTML = '';
+      state.meta.tuning.strings.slice().reverse().forEach(str => {
+        const chip=document.createElement('span');
+        chip.className='tuning-chip';
+        chip.textContent=str;
+        display.appendChild(chip);
+      });
+      drawDAW(); // refrescar por si cambió compás/bpm/etc.
+    }
+
+    function readMeta(){
+      const tuning = TUNINGS[$('#tuning').selectedIndex] || TUNINGS[0];
+      const scaleIdx = $('#scale').selectedIndex;
+      const scale = (scaleIdx>=0 && SCALES[scaleIdx]) || SCALES[0] || state.meta.scale || DEFAULT_SCALES[0];
+      const rootMidi = midiFromInput($('#root').value) || midiFromInput('E2');
+      const bpm = clamp(parseInt($('#bpm').value,10)||140, 40, 260);
+      const bars = clamp(parseInt($('#bars').value,10)||4, 1, 8);
+      const [num, denom] = ($('#timeSig').value||'4/4').split('/').map(n=>parseInt(n,10)||4);
+      const subdiv = parseInt($('#division').value,10)||6;
+      state.meta = { tuning, scale, root:rootMidi, bpm, bars, timeSig:[num,denom], subdiv };
+      updateLabels();
+    }
+
+    function buildPalette(rootMidi, scale){
+      const reference = (scale && Array.isArray(scale.intervals) && scale.intervals.length) ? scale : DEFAULT_SCALES[0];
+      const pool = new Set();
+      for(let oct=-1; oct<=6; oct++){
+        reference.intervals.forEach(intv => {
+          const midi = rootMidi + intv + 12*oct;
+          if(midi>=24 && midi<=96) pool.add(midi);
+        });
+      }
+      return Array.from(pool).sort((a,b)=>a-b);
+    }
+
+    function chooseStringIdx(tuning, register){
+      const strings = tuning.strings.length;
+      const weights = [];
+      for(let i=0;i<strings;i++){
+        const rel = i/(strings-1 || 1);
+        const bias = register/100;
+        const dist = Math.abs(rel - bias);
+        weights.push(1 / Math.pow(1 + dist*3.2, 1.5));
+      }
+      const total = weights.reduce((a,b)=>a+b,0);
+      let r=Math.random()*total;
+      for(let i=0;i<strings;i++){ r-=weights[i]; if(r<=0) return i; }
+      return strings-1;
+    }
+
+    function formatStep(step, meta){
+      const stepsPerQuarter = meta.subdiv;
+      const stepsPerBeat = stepsPerQuarter * (4/meta.timeSig[1]);
+      const measureSteps = Math.round(stepsPerQuarter * meta.timeSig[0] * (4/meta.timeSig[1]));
+      const bar = Math.floor(step / measureSteps) + 1;
+      const beatInBar = Math.floor((step % measureSteps) / stepsPerBeat) + 1;
+      const withinBeat = (step % measureSteps) % stepsPerBeat;
+      let syllable = '•';
+      if(withinBeat===0) syllable='1';
+      else if(withinBeat*2===stepsPerBeat) syllable='e';
+      else if(withinBeat*4===stepsPerBeat) syllable='&';
+      else if(withinBeat*4===stepsPerBeat*3) syllable='a';
+      else syllable=`${withinBeat+1}`;
+      return `Bar ${bar} · Beat ${beatInBar} ${syllable}`;
+    }
+
+    function forgeRiff(){
+      stopPlayback();
+      readMeta();
+      const meta = state.meta;
+      const stepsPerQuarter = meta.subdiv;
+      const measureQuarters = meta.timeSig[0] * (4/meta.timeSig[1]);
+      const stepsPerMeasure = Math.round(stepsPerQuarter * measureQuarters);
+      const totalSteps = stepsPerMeasure * meta.bars;
+      const density = parseInt($('#density').value,10)/100;
+      const sync = parseInt($('#syncopation').value,10)/100;
+      const accentWeight = parseInt($('#pulse').value,10)/100;
+      const register = parseInt($('#register').value,10);
+
+      const palette = buildPalette(meta.root, meta.scale);
+      const stringsMidi = meta.tuning.strings.map(midiFromInput);
+      const events = [];
+      let skip = 0;
+      for(let step=0; step<totalSteps; step++){
+        if(skip>0){ skip--; continue; }
+        const stepsPerBeat = stepsPerQuarter * (4/meta.timeSig[1]);
+        const measureIndex = step % stepsPerMeasure;
+        const beatPos = measureIndex % stepsPerBeat;
+        const isDownbeat = beatPos === 0;
+        const isSyncSpot = beatPos === Math.round(stepsPerBeat*0.5);
+        let chance = density;
+        if(isDownbeat) chance += accentWeight*0.2;
+        else if(isSyncSpot) chance += sync*0.25;
+        else chance += sync*0.1;
+        chance = clamp(chance, 0.05, 0.98);
+        if(Math.random()>chance) continue;
+
+        const stringIdx = chooseStringIdx(meta.tuning, register);
+        const stringMidi = stringsMidi[stringIdx];
+        const avail = palette.filter(m => m>=stringMidi && m<=stringMidi+24);
+        if(!avail.length) continue;
+        const noteMidi = avail[Math.floor(Math.random()*avail.length)];
+        const lenSteps = clamp(Math.round((Math.random()<0.3?1:(Math.random()<0.5?2:3))),1,Math.min(8,totalSteps-step));
+        skip = lenSteps-1;
+        const accent = isDownbeat || Math.random()<accentWeight;
+        const velocity = accent ? 0.9 + Math.random()*0.1 : 0.55 + Math.random()*0.3;
+        events.push({
+          start: step,
+          length: lenSteps,
+          midi: noteMidi,
+          velocity: clamp(Math.round(velocity*127),1,127),
+          stringIndex: stringIdx,
+          stringName: meta.tuning.strings[stringIdx],
+          fret: noteMidi - stringMidi,
+          accent,
+          label: formatStep(step, meta)
+        });
+      }
+      state.riff = events;
+      summarize();
+      renderTimeline();
+      drawDAW();
+    }
+
+    function summarize(){
+      const meta = state.meta;
+      const struct = `${meta.bars} bar${meta.bars>1?'s':''} · ${meta.timeSig[0]}/${meta.timeSig[1]} · ${meta.subdiv} steps/quarter`;
+      $('#structureSummary').textContent = `${struct}\n${state.riff.length} notes forged`;
+      const scaleName = meta.scale ? meta.scale.name : '—';
+      const rootName = midiToName(meta.root);
+      $('#paletteSummary').textContent = `${rootName} ${scaleName}\n${meta.tuning.name}`;
+      if(state.riff.length){
+        const accents = state.riff.filter(ev=>ev.accent).length;
+        const avgVel = Math.round(state.riff.reduce((a,b)=>a+b.velocity,0)/state.riff.length);
+        $('#dynamicSummary').textContent = `Accents: ${accents}\nVelocity avg ≈ ${avgVel}`;
+      }else{
+        $('#dynamicSummary').textContent = '—';
+      }
+    }
+
+    function renderTimeline(){
+      const container = $('#timeline');
+      container.innerHTML = '';
+      const meta = state.meta;
+      if(!state.riff.length){
+        const p=document.createElement('p');
+        p.className='empty';
+        p.textContent='No notes yet. Adjust the controls and forge again.';
+        container.appendChild(p);
+        return;
+      }
+      const measureQuarters = meta.timeSig[0] * (4/meta.timeSig[1]);
+      const stepsPerMeasure = Math.round(meta.subdiv * measureQuarters);
+      for(let bar=0; bar<meta.bars; bar++){
+        const barDiv=document.createElement('div');
+        barDiv.className='bar';
+        const title=document.createElement('div');
+        title.className='bar-title';
+        title.textContent=`Bar ${bar+1}`;
+        const barEvents=document.createElement('div');
+        barEvents.className='events';
+        const startStep = bar*stepsPerMeasure;
+        const endStep = startStep + stepsPerMeasure;
+        const events = state.riff.filter(ev => ev.start>=startStep && ev.start<endStep);
+        if(!events.length){
+          const empty=document.createElement('div');
+          empty.className='empty';
+          empty.textContent='(rests)';
+          barEvents.appendChild(empty);
+        }else{
+          events.forEach(ev => {
+            const card=document.createElement('div');
+            card.className='event';
+            card.dataset.start=ev.start;
+            card.innerHTML = `
+              <div class="event-line"><span class="label">when</span><span>${ev.label}</span></div>
+              <div class="event-line"><span class="label">note</span><span>${midiToName(ev.midi)} · ${ev.stringName} +${ev.fret}</span></div>
+              <div class="event-line"><span class="label">len</span><span>${ev.length} step${ev.length>1?'s':''}</span></div>
+              <div class="event-line"><span class="label">vel</span><span>${ev.velocity}${ev.accent?' (accent)':''}</span></div>`;
+            barEvents.appendChild(card);
+          });
+        }
+        barDiv.appendChild(title);
+        barDiv.appendChild(barEvents);
+        container.appendChild(barDiv);
+      }
+    }
+
+    /* ==== Audio ==== */
+    function getAC(){
+      if(!state.ac){
+        const AC = new (window.AudioContext || window.webkitAudioContext)();
+        const master = AC.createGain();
+        master.gain.value = 0.7;
+        master.connect(AC.destination);
+        state.ac = AC;
+        state.master = master;
+      }
+      if(state.ac.state === 'suspended') state.ac.resume();
+      return state.ac;
+    }
+
+    function createDistortionCurve(amount=30){
+      const n_samples = 1024;
+      const curve = new Float32Array(n_samples);
+      const deg = Math.PI/180;
+      for(let i=0;i<n_samples;i++){
+        const x = i*2/n_samples - 1;
+        curve[i] = (3+amount)*x*20*deg / (Math.PI + amount*Math.abs(x));
+      }
+      return curve;
+    }
+
+    function triggerNote(ev, when){
+      const ac = getAC();
+      const freq = midiToFreq(ev.midi);
+      const osc1 = ac.createOscillator();
+      const osc2 = ac.createOscillator();
+      const noiseBuf = ac.createBuffer(1, ac.sampleRate*0.1, ac.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for(let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1)*0.4; }
+      const noise = ac.createBufferSource();
+      noise.buffer=noiseBuf; noise.loop=false;
+      const filter = ac.createBiquadFilter(); filter.type='lowpass'; filter.frequency.setValueAtTime(freq*2.5, when); filter.Q.value=0.7;
+      const shaper = ac.createWaveShaper(); shaper.curve = createDistortionCurve(40);
+      const gain = getAC().createGain();
+      const vel = ev.velocity/127;
+      gain.gain.setValueAtTime(0.0001, when);
+      gain.gain.linearRampToValueAtTime(vel*0.9, when+0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.08, ev.length*(60/state.meta.bpm)/state.meta.subdiv*1.6));
+      osc1.type='sawtooth'; osc2.type='square';
+      osc1.frequency.setValueAtTime(freq*0.5, when);
+      osc2.frequency.setValueAtTime(freq, when);
+      const chug = getAC().createGain();
+      chug.gain.setValueAtTime(0.0001, when);
+      chug.gain.linearRampToValueAtTime(vel*0.75, when+0.005);
+      chug.gain.exponentialRampToValueAtTime(0.0001, when+0.12);
+      noise.connect(chug); chug.connect(filter);
+      osc1.connect(filter); osc2.connect(filter);
+      filter.connect(shaper); shaper.connect(gain); gain.connect(state.master);
+      osc1.start(when); osc2.start(when); noise.start(when);
+      const stopTime = when + Math.max(0.1, ev.length*(60/state.meta.bpm)/state.meta.subdiv*2.2);
+      osc1.stop(stopTime); osc2.stop(stopTime); noise.stop(when+0.12);
+      const nodeRef = {osc1, osc2, noise, gain};
+      state.playingNodes.add(nodeRef);
+      const cleanup=()=>{ try{ gain.disconnect(); }catch(err){} state.playingNodes.delete(nodeRef); };
+      osc2.onended = cleanup;
+    }
+
+    function highlight(start){
+      $$('.event').forEach(el => {
+        el.classList.toggle('playing', parseInt(el.dataset.start,10)===start);
+      });
+    }
+
+    /* ==== DAW drawing ==== */
+    const dawCanvas = document.getElementById('dawCanvas');
+    const dawCtx = dawCanvas.getContext('2d');
+
+    function dawMetrics(){
+      const m = state.meta;
+      const stepsPerMeasure = Math.round(m.subdiv * (m.timeSig[0] * (4/m.timeSig[1])));
+      const totalSteps = stepsPerMeasure * m.bars;
+      return { stepsPerMeasure, totalSteps };
+    }
+
+    function drawDAW(playheadStep = null){
+      const ctx = dawCtx, c = dawCanvas;
+      const W = c.width, H = c.height;
+      ctx.clearRect(0,0,W,H);
+
+      const styles = getComputedStyle(document.documentElement);
+      const ink = styles.getPropertyValue('--ink').trim() || '#222';
+      const rule = styles.getPropertyValue('--rule').trim() || '#ccc';
+      const muted = styles.getPropertyValue('--muted').trim() || '#777';
+
+      const { stepsPerMeasure, totalSteps } = dawMetrics();
+      const padding = { l:16, r:16, t:18, b:16 };
+      const innerW = W - padding.l - padding.r;
+      const innerH = H - padding.t - padding.b;
+
+      // Fondo y borde
+      ctx.save();
+      ctx.strokeStyle = rule; ctx.strokeRect(padding.l, padding.t, innerW, innerH);
+      ctx.restore();
+
+      // Grid de compases y beats
+      const beatsPerBar = state.meta.timeSig[0];
+      const stepsPerBeat = Math.round(stepsPerMeasure / beatsPerBar);
+      for(let bar=0; bar<=state.meta.bars; bar++){
+        const x = padding.l + (bar/ state.meta.bars) * innerW;
+        ctx.strokeStyle = rule;
+        ctx.beginPath(); ctx.moveTo(x, padding.t); ctx.lineTo(x, padding.t+innerH); ctx.stroke();
+        if(bar < state.meta.bars){
+          ctx.fillStyle = muted; ctx.font='12px ui-serif, Georgia, serif';
+          ctx.fillText(`Bar ${bar+1}`, x+6, padding.t - 4);
+        }
+      }
+      // líneas de beat dentro de cada bar
+      for(let bar=0; bar<state.meta.bars; bar++){
+        for(let b=1; b<beatsPerBar; b++){
+          const stepX = (bar*stepsPerMeasure + b*stepsPerBeat) / (totalSteps);
+          const x = padding.l + stepX * innerW;
+          ctx.strokeStyle = rule; ctx.globalAlpha = 0.5;
+          ctx.beginPath(); ctx.moveTo(x, padding.t); ctx.lineTo(x, padding.t+innerH); ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // Notas como bloques
+      const blockH = Math.max(14, innerH * 0.55); // carril único centrado
+      const blockY = padding.t + (innerH - blockH)/2;
+      state.riff.forEach(ev => {
+        const x0 = padding.l + (ev.start / totalSteps) * innerW;
+        const x1 = padding.l + ((ev.start + ev.length) / totalSteps) * innerW;
+        const w = Math.max(2, x1 - x0);
+        ctx.fillStyle = ink;
+        ctx.globalAlpha = ev.accent ? 0.95 : 0.55;
+        ctx.fillRect(x0+1, blockY+1, w-2, blockH-2);
+      });
+
+      // Playhead
+      if(playheadStep!=null){
+        const x = padding.l + (clamp(playheadStep, 0, totalSteps) / totalSteps) * innerW;
+        ctx.strokeStyle = ink; ctx.globalAlpha = 0.35; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x, padding.t); ctx.lineTo(x, padding.t+innerH); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.lineWidth = 1;
+      }
+    }
+
+    function scheduleDAWAnimation(){
+      cancelDAWAnimation();
+      const ac = getAC();
+      const stepDur = (60/state.meta.bpm)/state.meta.subdiv;
+      const { totalSteps } = dawMetrics();
+      const start = state.playStartAC;
+      const loopDur = stepDur * totalSteps;
+
+      const tick = ()=>{
+        if(!state.isPlaying) return;
+        const now = ac.currentTime;
+        let elapsed = now - start;
+        if(elapsed < 0) elapsed = 0;
+        const playheadStep = (elapsed % loopDur) / stepDur;
+        drawDAW(playheadStep);
+
+        // Highlight tarjetas sincronizadas (opcional, mantiene lo que tenías)
+        const stepInt = Math.round(playheadStep);
+        highlight(stepInt);
+
+        state.rafId = requestAnimationFrame(tick);
+      };
+      state.rafId = requestAnimationFrame(tick);
+    }
+    function cancelDAWAnimation(){ if(state.rafId){ cancelAnimationFrame(state.rafId); state.rafId = null; } }
+
+    /* ==== Playback wiring ==== */
+    function playRiff(){
+      if(!state.riff.length) return;
+      stopPlayback(false);
+      const ac = getAC();
+      const meta = state.meta;
+      const stepDur = (60/meta.bpm)/meta.subdiv;
+      const startTime = ac.currentTime + 0.12;
+
+      state.isPlaying = true;
+      state.playStartAC = startTime;
+
+      state.riff.forEach(ev => {
+        const when = startTime + ev.start*stepDur;
+        triggerNote(ev, when);
+        const timer = setTimeout(()=>highlight(ev.start), (when - ac.currentTime)*1000);
+        state.timers.push(timer);
+      });
+
+      // Iniciar animación DAW sincronizada
+      scheduleDAWAnimation();
+
+      // Parada automática tras el loop (una vuelta)
+      const totalDur = stepDur * (state.meta.bars * state.meta.subdiv * state.meta.timeSig[0] * (4/state.meta.timeSig[1]) + 2);
+      const endTimer = setTimeout(()=>stopPlayback(), totalDur*1000);
+      state.timers.push(endTimer);
+    }
+
+    function stopPlayback(resetHighlight=true){
+      state.isPlaying = false;
+      cancelDAWAnimation();
+      if(state.timers){ state.timers.forEach(t=>clearTimeout(t)); state.timers=[]; }
+      const ac = state.ac;
+      state.playingNodes.forEach(node => {
+        try{
+          node.gain.gain.cancelScheduledValues(0);
+          const now = ac ? ac.currentTime : 0;
+          node.gain.gain.setTargetAtTime(0.0001, now, 0.02);
+        }catch(err){}
+      });
+      state.playingNodes.clear();
+      if(resetHighlight){ $$('.event').forEach(el => el.classList.remove('playing')); }
+      drawDAW(); // limpia playhead
+    }
+
+    /* ==== MIDI export ==== */
+    function vlq(n){ const bytes=[]; let buffer=n & 0x7F; while((n >>= 7)){ buffer <<= 8; buffer |= ((n & 0x7F) | 0x80); } while(true){ bytes.push(buffer & 0xFF); if(buffer & 0x80) buffer >>= 8; else break; } return bytes; }
+    function pushBytes(arr,...vals){ vals.forEach(v=>arr.push(v & 0xFF)); }
+
+    function exportMIDI(){
+      if(!state.riff.length){ alert('Generate a riff first.'); return; }
+      const meta = state.meta;
+      const tpq = 480;
+      const tempoBPM = meta.bpm;
+      const mpq = Math.round(60000000/tempoBPM);
+      const events = [];
+      events.push({ t:0, data:[0xFF,0x51,0x03,(mpq>>16)&0xFF,(mpq>>8)&0xFF,mpq&0xFF] });
+      const denomPow = Math.max(0, Math.round(Math.log2(meta.timeSig[1] || 4)));
+      events.push({ t:0, data:[0xFF,0x58,0x04, meta.timeSig[0] & 0xFF, denomPow & 0xFF, 24, 8] });
+      const ticksPerStep = tpq / meta.subdiv;
+      state.riff.forEach(ev => {
+        const t = Math.round(ev.start * ticksPerStep);
+        const dur = Math.max(30, Math.round(ev.length * ticksPerStep));
+        const note = clamp(ev.midi,0,127);
+        const vel = clamp(ev.velocity,1,127);
+        events.push({ t, data:[0x90, note, vel] });
+        events.push({ t: t+dur, data:[0x80, note, 0x40] });
+      });
+      events.sort((a,b)=> a.t!==b.t ? a.t-b.t : (a.data[0]-b.data[0]));
+      let track=[]; let last=0;
+      events.forEach(ev => { const dt = ev.t - last; last = ev.t; track.push(...vlq(dt), ...ev.data); });
+      track.push(...vlq(0), 0xFF, 0x2F, 0x00);
+      const header=[];
+      pushBytes(header,0x4D,0x54,0x68,0x64, 0x00,0x00,0x00,0x06, 0x00,0x00, 0x00,0x01, (tpq>>8)&0xFF, tpq&0xFF);
+      const trkLen=track.length;
+      const trkHeader=[0x4D,0x54,0x72,0x6B,(trkLen>>>24)&0xFF,(trkLen>>>16)&0xFF,(trkLen>>>8)&0xFF,trkLen&0xFF];
+      const bytes=new Uint8Array([...header, ...trkHeader, ...track]);
+      const blob=new Blob([bytes],{type:'audio/midi'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      const rootName=midiToName(meta.root).replace(/\//g,'');
+      a.download=`DjentRiff_${rootName}_${tempoBPM}bpm_${meta.timeSig[0]}-${meta.timeSig[1]}.mid`;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    /* ==== UI wiring ==== */
+    function attach(){
+      populateSelect($('#tuning'), TUNINGS.map(t=>({value:t.id,label:t.name})));
+      populateSelect($('#scale'), SCALES.map(s=>({value:s.id,label:s.name})));
+      if(SCALES.length){ $('#scale').selectedIndex = 0; state.meta.scale = SCALES[0]; }
+      populateSelect($('#root'), ROOTS);
+      $('#root').value='E2';
+      updateLabels();
+      $('#tuning').addEventListener('change',()=>{ readMeta(); });
+      $('#scale').addEventListener('change',()=>{ readMeta(); });
+      $('#root').addEventListener('change',()=>{ readMeta(); });
+      $('#bpm').addEventListener('input',()=>{ readMeta(); });
+      $('#bars').addEventListener('input',()=>{ readMeta(); });
+      $('#timeSig').addEventListener('change',()=>{ readMeta(); });
+      $('#division').addEventListener('change',()=>{ readMeta(); });
+      ['density','syncopation','pulse','register'].forEach(id=>{
+        document.getElementById(id).addEventListener('input', updateLabels);
+      });
+      $('#generate').addEventListener('click', forgeRiff);
+      $('#play').addEventListener('click', playRiff);
+      $('#stop').addEventListener('click', ()=>stopPlayback());
+      $('#download').addEventListener('click', exportMIDI);
+      // primera pintura de la DAW
+      drawDAW();
+    }
+
+    document.addEventListener('DOMContentLoaded',async ()=>{
+      await loadScales();
+      attach();
+      readMeta();
+      updateLabels();
+    });
+  </script>
+</body>
+</html>
