@@ -40,7 +40,7 @@
     canvas{ width:100%; height:auto; display:block; aspect-ratio:5/2; border:1px solid var(--accent-soft); border-radius:.6rem; background:transparent; }
     .lane-legend{ position:absolute; left:.4rem; top:.4rem; bottom:.4rem; display:flex; flex-direction:column; justify-content:space-between; pointer-events:none; }
     .lane-legend .lab{ font-size:.7rem; color:var(--muted); border:1px solid var(--accent-soft); border-radius:.4rem; padding:.1rem .35rem; backdrop-filter:blur(3px); background:color-mix(in srgb, var(--paper) 85%, transparent); }
-    .timeline{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; display:flex; flex-direction:column; gap:.75rem; }
+    .tab-card,.timeline{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; display:flex; flex-direction:column; gap:.75rem; }
     .bar{ border:1px solid var(--accent-soft); border-radius:.7rem; padding:.75rem; }
     .bar-header{ display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--muted); margin-bottom:.45rem; }
     .events{ display:grid; gap:.5rem; }
@@ -51,6 +51,7 @@
     .event-line .label{ color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-size:.68rem; }
     .empty{ color:var(--muted); font-style:italic; font-size:.88rem; }
     .notes{ border:1px solid var(--accent); border-radius:.85rem; padding:1rem; font-size:.95rem; line-height:1.6; background:transparent; }
+    .ascii-tab{ font-family:"Iosevka","JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; font-size:.88rem; line-height:1.4; white-space:pre; margin:0; overflow:auto; }
     .library-empty{ font-style:italic; color:var(--muted); }
     @media (max-width:980px){ .layout{ grid-template-columns:1fr; } }
     @media (max-width:640px){
@@ -98,6 +99,10 @@
             <h3>Mix Chain</h3>
             <div class="body" id="mixInfo">—</div>
           </article>
+          <article class="meta-card">
+            <h3>Fuente</h3>
+            <div class="body" id="sourceInfo">—</div>
+          </article>
         </div>
 
         <div class="actions" aria-label="Playback controls">
@@ -112,6 +117,11 @@
             <div id="laneLegend" class="lane-legend" aria-hidden="true"></div>
           </div>
           <p style="font-size:.82rem; color:var(--muted); margin:0;">Lineas horizontales = cuerdas (arriba = 1ª). Rectángulos muestran notas; el playhead sigue el audio.</p>
+        </section>
+
+        <section class="tab-card" aria-label="ASCII tablature">
+          <h2 style="margin:0; font-size:1rem;">Tablatura ASCII</h2>
+          <pre id="tabDisplay" class="ascii-tab">Selecciona un riff para ver la tablatura.</pre>
         </section>
 
         <section class="timeline" aria-label="Timeline">
@@ -151,6 +161,8 @@
     const dawCanvas = document.getElementById('dawCanvas');
     const dawCtx = dawCanvas.getContext('2d');
     const laneLegend = document.getElementById('laneLegend');
+    const sourceInfo = document.getElementById('sourceInfo');
+    const tabDisplay = document.getElementById('tabDisplay');
 
     fetch('modern_djent_riff_library.json')
       .then(res => res.json())
@@ -199,9 +211,16 @@
     }
 
     function renderInfo(riff, prepared){
+      const song = riff.song_info || {};
+      const songTitle = song.title || riff.title;
+      const songLine = song.artist ? `${song.artist} — <strong>${songTitle}</strong>` : `<strong>${songTitle}</strong>`;
+      const albumLine = song.album ? `${song.album} (${song.year || '—'})` : '';
+      const writers = Array.isArray(song.songwriter) ? song.songwriter.join(', ') : song.songwriter || '';
       identityInfo.innerHTML = `
-        <div><strong>${riff.title}</strong></div>
-        <div>${riff.feel}</div>
+        <div>${songLine}</div>
+        ${albumLine ? `<div>${albumLine}</div>` : ''}
+        ${writers ? `<div style="font-size:.78rem; color:var(--muted);">${writers}</div>` : ''}
+        <div style="margin-top:.3rem;">${riff.feel}</div>
         <div class="tagchips">${riff.influences.map(inf => `<span class="chip">${inf}</span>`).join('')}</div>
       `;
       const polyr = riff.tempo.polyrhythm_overlay ? `${riff.tempo.polyrhythm_overlay.ratio} overlay` : '—';
@@ -213,7 +232,17 @@
         <div class="tagchips">${riff.tuning.strings_low_to_high.map(s => `<span class="chip">${s}</span>`).join('')}</div>
       `;
       mixInfo.textContent = describeMix(riff.mix_chain);
+      if(riff.source && riff.source.url){
+        sourceInfo.innerHTML = `<a href="${riff.source.url}" target="_blank" rel="noopener">${riff.source.name || riff.source.url}</a>`;
+      } else {
+        sourceInfo.textContent = riff.source && riff.source.name ? riff.source.name : '—';
+      }
       notesEl.textContent = riff.performance_notes || '—';
+      if(Array.isArray(riff.ascii_tab) && riff.ascii_tab.length){
+        tabDisplay.textContent = riff.ascii_tab.join('\n');
+      } else {
+        tabDisplay.textContent = 'No ASCII tab available for this riff.';
+      }
       laneLegend.innerHTML = '';
       const strings = riff.tuning.strings_low_to_high;
       for(let i=strings.length-1;i>=0;i--){
