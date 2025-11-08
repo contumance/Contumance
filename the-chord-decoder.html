@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="decoder_doc_title">The Chord Decoder — Identify chords from custom fretboard shapes</title>
+  <meta name="description" content="Interactive guitar fretboard where you can mark notes and instantly discover the chords they create." data-i18n="decoder_doc_description" data-i18n-attr="content" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>♪</text></svg>">
+  <link rel="stylesheet" href="assets/kindle.css">
+  <style>
+    .controls{display:grid;gap:8px;align-items:center;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:12px;}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    label{font-size:12px;opacity:.9;}
+    select,button,input[type="number"]{appearance:none;border:1px solid var(--accent);background:transparent;color:var(--ink);padding:10px 12px;border-radius:.5rem;font-family:inherit;font-size:14px;line-height:1;min-width:0;}
+    button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+    select:focus-visible,button:focus-visible,input[type="number"]:focus-visible{outline:2px dashed var(--accent);outline-offset:2px;}
+    .tuning{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+    .string-card{border:1px solid var(--accent);border-radius:.6rem;padding:8px;background:transparent;}
+    .fretboard{width:100%;border:1px solid var(--accent);border-radius:.6rem;background:transparent;}
+    .board{display:grid;grid-auto-rows:minmax(36px,5.5vh);grid-template-columns:56px repeat(24,minmax(28px,1fr));position:relative;}
+    .cell{position:relative;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--rule);}
+    .cell.nut{background:rgba(0,0,0,.04);}
+    html.theme-dark .cell.nut{background:rgba(255,255,255,.06);}
+    .cell+.cell{border-top:1px solid var(--rule);}/* ensure horizontal lines */
+    .note-btn{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:transparent;border:none;color:var(--ink);font-family:inherit;font-size:13px;cursor:pointer;transition:transform .08s ease, background-color .12s ease, color .12s ease;}
+    .note-btn:hover,.note-btn:focus-visible{background:rgba(0,0,0,.06);} 
+    html.theme-dark .note-btn{color:var(--paper);} 
+    html.theme-dark .note-btn:hover,html.theme-dark .note-btn:focus-visible{background:rgba(255,255,255,.1);} 
+    .note-btn.selected{background:var(--ink);color:var(--paper);} 
+    .note-btn.root{font-weight:600;} 
+    .note-btn.selected.root{box-shadow:inset 0 0 0 2px var(--paper);} 
+    .fret-number{position:absolute;bottom:4px;right:6px;font-size:10px;opacity:.35;pointer-events:none;} 
+    .pos-marker{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:999px;background:#b1aba0;opacity:.45;pointer-events:none;} 
+    .pos-marker.double{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:auto;height:auto;background:transparent;} 
+    .pos-marker.double i{width:6px;height:6px;background:#b1aba0;opacity:.45;border-radius:999px;display:block;} 
+    .results{margin-top:22px;display:grid;gap:18px;} 
+    .result-section{border:1px solid var(--accent);border-radius:.6rem;padding:1rem;background:transparent;} 
+    .result-section h2{margin-top:0;font-size:1.05rem;} 
+    .result-list{display:grid;gap:12px;margin:0;padding:0;list-style:none;} 
+    .result-card{border:1px solid var(--accent);border-radius:.55rem;padding:.75rem;background:transparent;} 
+    .result-card strong{font-size:1.05rem;} 
+    .result-meta{color:var(--muted);font-size:.85rem;margin-top:.35rem;display:flex;flex-wrap:wrap;gap:.6rem;} 
+    .result-extra{margin-top:.5rem;font-size:.85rem;} 
+    .result-extra span{font-weight:600;} 
+    .summary{margin:18px 0 0;font-size:.95rem;} 
+    .summary strong{font-weight:600;} 
+    .empty{color:var(--muted);font-size:.95rem;margin:0;} 
+    @media (max-width:640px){ 
+      .board{grid-auto-rows:minmax(38px,56px);} 
+      .note-btn{font-size:12px;} 
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html" data-i18n="decoder_back">← Back to index</a>
+      </nav>
+      <div class="row" style="gap:6px;">
+        <label class="visually-hidden" for="langSelect" data-i18n="lang_label">Language</label>
+        <select id="langSelect" class="lang-select" aria-label="Language" title="Language">
+          <option value="en">EN</option>
+          <option value="es">ES</option>
+          <option value="pt">PT</option>
+        </select>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">☾</button>
+      </div>
+    </div>
+
+    <header>
+      <h1 data-i18n="decoder_heading">The Chord Decoder</h1>
+      <div class="subtitle" data-i18n="decoder_subtitle">Mark any shape on the fretboard — discover every chord it implies.</div>
+    </header>
+
+    <details class="panel" open>
+      <summary data-i18n="decoder_panel_title">Guitar setup</summary>
+      <div class="panel-body">
+        <div class="controls" role="group" aria-label="Controls" data-i18n="decoder_controls_aria" data-i18n-attr="aria-label">
+          <div class="row">
+            <label for="stringCount" data-i18n="decoder_strings_label">Strings</label>
+            <input id="stringCount" type="number" min="3" max="8" value="6" style="width:86px;" />
+            <button id="applyStrings" data-i18n="decoder_apply">Apply</button>
+          </div>
+          <div class="row">
+            <label for="labels" data-i18n="decoder_labels_label">Labels</label>
+            <select id="labels">
+              <option value="notes" data-i18n="decoder_labels_notes">Notes</option>
+              <option value="off" data-i18n="decoder_labels_off">Hidden</option>
+            </select>
+          </div>
+          <div class="row">
+            <button id="clearSelection" type="button" class="primary" data-i18n="decoder_clear">Clear selection</button>
+          </div>
+        </div>
+        <div id="tuningPanel" class="tuning" aria-label="Tuning editor" data-i18n="decoder_tuning_aria" data-i18n-attr="aria-label"></div>
+      </div>
+    </details>
+
+    <section class="fretboard-wrap" aria-label="Interactive fretboard" data-i18n="decoder_fretboard_aria" data-i18n-attr="aria-label">
+      <div class="fretboard">
+        <div id="board" class="board" role="grid" aria-label="Interactive fretboard" data-i18n="decoder_fretboard_aria" data-i18n-attr="aria-label"></div>
+      </div>
+    </section>
+
+    <p id="selectionSummary" class="summary"></p>
+
+    <section class="results">
+      <article id="exactSection" class="result-section" hidden>
+        <h2 data-i18n="decoder_exact_title">Detected chords</h2>
+        <ul id="exactList" class="result-list"></ul>
+      </article>
+      <article id="potentialSection" class="result-section" hidden>
+        <h2 data-i18n="decoder_potential_title">Possible chords (add notes)</h2>
+        <ul id="potentialList" class="result-list"></ul>
+      </article>
+      <p id="status" class="empty" data-i18n="decoder_empty">Mark notes on the fretboard to see matching chords.</p>
+    </section>
+  </main>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    (function(){
+      const messages = {
+        en: {
+          decoder_doc_title: "The Chord Decoder — Identify chords from custom fretboard shapes",
+          decoder_doc_description: "Interactive guitar fretboard where you can mark notes and instantly discover the chords they create.",
+          decoder_back: "← Back to index",
+          decoder_heading: "The Chord Decoder",
+          decoder_subtitle: "Mark any shape on the fretboard — discover every chord it implies.",
+          decoder_panel_title: "Guitar setup",
+          decoder_controls_aria: "Chord decoder controls",
+          decoder_strings_label: "Strings",
+          decoder_apply: "Apply",
+          decoder_labels_label: "Labels",
+          decoder_labels_notes: "Notes",
+          decoder_labels_off: "Hidden",
+          decoder_clear: "Clear selection",
+          decoder_note_aria: "String {string}, fret {fret}: {note}",
+          decoder_open: "open",
+          decoder_fret_label: "fret {n}",
+          decoder_summary_item: "String {string}: {note} ({position})",
+          decoder_tuning_aria: "Tuning editor",
+          decoder_fretboard_aria: "Interactive fretboard",
+          decoder_exact_title: "Detected chords",
+          decoder_potential_title: "Possible chords (add notes)",
+          decoder_empty: "Mark notes on the fretboard to see matching chords.",
+          decoder_nomatch: "No direct matches yet — try adding or adjusting notes.",
+          decoder_summary_none: "No notes selected yet.",
+          decoder_summary: "Selected notes: {notes}",
+          decoder_summary_unique: "Unique pitch classes: {pcs}",
+          decoder_missing: "Add {missing} ({notes})",
+          decoder_extras: "Contains extra tones: {tones}",
+          decoder_stringset: "String {n}",
+          decoder_lower: "Lower string {n}",
+          decoder_raise: "Raise string {n}",
+          decoder_set_note: "Set note for string {n}",
+          decoder_theme_light: "Switch to light mode",
+          decoder_theme_dark: "Switch to dark mode"
+        },
+        es: {
+          decoder_doc_title: "The Chord Decoder — Identifica acordes desde cualquier forma",
+          decoder_doc_description: "Mástil interactivo donde marcas notas y descubres al instante los acordes que forman.",
+          decoder_back: "← Volver al índice",
+          decoder_heading: "The Chord Decoder",
+          decoder_subtitle: "Marca cualquier forma en el diapasón y descubre los acordes que insinúa.",
+          decoder_panel_title: "Configuración de la guitarra",
+          decoder_controls_aria: "Controles del decodificador de acordes",
+          decoder_strings_label: "Cuerdas",
+          decoder_apply: "Aplicar",
+          decoder_labels_label: "Etiquetas",
+          decoder_labels_notes: "Notas",
+          decoder_labels_off: "Ocultas",
+          decoder_clear: "Limpiar selección",
+          decoder_note_aria: "Cuerda {string}, traste {fret}: {note}",
+          decoder_open: "al aire",
+          decoder_fret_label: "traste {n}",
+          decoder_summary_item: "Cuerda {string}: {note} ({position})",
+          decoder_tuning_aria: "Editor de afinación",
+          decoder_fretboard_aria: "Mástil interactivo",
+          decoder_exact_title: "Acordes detectados",
+          decoder_potential_title: "Acordes posibles (añade notas)",
+          decoder_empty: "Marca notas en el mástil para ver los acordes coincidentes.",
+          decoder_nomatch: "Aún no hay coincidencias directas — prueba con más notas o ajusta la forma.",
+          decoder_summary_none: "Aún no hay notas seleccionadas.",
+          decoder_summary: "Notas seleccionadas: {notes}",
+          decoder_summary_unique: "Clases de altura únicas: {pcs}",
+          decoder_missing: "Añade {missing} ({notes})",
+          decoder_extras: "Incluye tensiones extra: {tones}",
+          decoder_stringset: "Cuerda {n}",
+          decoder_lower: "Bajar cuerda {n}",
+          decoder_raise: "Subir cuerda {n}",
+          decoder_set_note: "Asignar nota a la cuerda {n}",
+          decoder_theme_light: "Cambiar a modo claro",
+          decoder_theme_dark: "Cambiar a modo oscuro"
+        },
+        pt: {
+          decoder_doc_title: "The Chord Decoder — Identifique acordes a partir de qualquer forma",
+          decoder_doc_description: "Braço interativo: marque notas e descubra instantaneamente os acordes que elas formam.",
+          decoder_back: "← Voltar ao índice",
+          decoder_heading: "The Chord Decoder",
+          decoder_subtitle: "Marque qualquer forma no braço e descubra os acordes que ela sugere.",
+          decoder_panel_title: "Configuração da guitarra",
+          decoder_controls_aria: "Controles do decodificador de acordes",
+          decoder_strings_label: "Cordas",
+          decoder_apply: "Aplicar",
+          decoder_labels_label: "Rótulos",
+          decoder_labels_notes: "Notas",
+          decoder_labels_off: "Ocultos",
+          decoder_clear: "Limpar seleção",
+          decoder_note_aria: "Corda {string}, traste {fret}: {note}",
+          decoder_open: "solta",
+          decoder_fret_label: "traste {n}",
+          decoder_summary_item: "Corda {string}: {note} ({position})",
+          decoder_tuning_aria: "Editor de afinação",
+          decoder_fretboard_aria: "Braço interativo",
+          decoder_exact_title: "Acordes detectados",
+          decoder_potential_title: "Acordes possíveis (adicione notas)",
+          decoder_empty: "Marque notas no braço para ver os acordes correspondentes.",
+          decoder_nomatch: "Ainda não há correspondências diretas — experimente adicionar ou ajustar notas.",
+          decoder_summary_none: "Nenhuma nota selecionada ainda.",
+          decoder_summary: "Notas selecionadas: {notes}",
+          decoder_summary_unique: "Classes de altura únicas: {pcs}",
+          decoder_missing: "Adicione {missing} ({notes})",
+          decoder_extras: "Contém tensões extras: {tones}",
+          decoder_stringset: "Corda {n}",
+          decoder_lower: "Baixar corda {n}",
+          decoder_raise: "Subir corda {n}",
+          decoder_set_note: "Definir nota para a corda {n}",
+          decoder_theme_light: "Alternar para modo claro",
+          decoder_theme_dark: "Alternar para modo escuro"
+        }
+      };
+      if(window.ReI18n){
+        ReI18n.registerMessages(messages);
+        ReI18n.init({ select: document.getElementById('langSelect') });
+      }
+    })();
+  </script>
+  <script>
+    (function(){
+      const KEY='theme-preference';
+      const root=document.documentElement;
+      const btn=document.getElementById('themeToggle');
+      const t=(k,f)=> (window.ReI18n ? ReI18n.t(k,f) : (f||k));
+      function setIcon(mode){
+        if(!btn) return;
+        btn.textContent = mode==='dark' ? '☀︎' : '☾';
+        const label = mode==='dark' ? t('decoder_theme_light','Switch to light mode') : t('decoder_theme_dark','Switch to dark mode');
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      }
+      function apply(mode){ root.classList.toggle('theme-dark', mode==='dark'); setIcon(mode); }
+      function getPreferred(){
+        const saved=localStorage.getItem(KEY);
+        if(saved==='light' || saved==='dark') return saved;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      let current=getPreferred();
+      apply(current);
+      btn.addEventListener('click',()=>{ current=current==='dark'?'light':'dark'; localStorage.setItem(KEY,current); apply(current); });
+    })();
+  </script>
+  <script>
+    (function(){
+      const NOTES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+      const NOTE_TO_PC={}; NOTES.forEach((n,i)=>{ NOTE_TO_PC[n]=i; });
+      const DEFAULT_TUNING=['E','B','G','D','A','E'];
+      const MAX_FRETS=24;
+      const STORAGE_KEY='decoder_state_v1';
+
+      const DEGREE_LABEL={0:'R',1:'♭2',2:'2/9',3:'♭3',4:'3',5:'4/11',6:'♭5',7:'5',8:'♯5/♭13',9:'6/13',10:'♭7',11:'7'};
+
+      const LIBRARY=[
+        {id:'power',name:'Power chord',symbol:'5',intervals:[0,7]},
+        {id:'major',name:'Major',symbol:'',intervals:[0,4,7]},
+        {id:'minor',name:'Minor',symbol:'m',intervals:[0,3,7]},
+        {id:'sus2',name:'Sus2',symbol:'sus2',intervals:[0,2,7]},
+        {id:'sus4',name:'Sus4',symbol:'sus4',intervals:[0,5,7]},
+        {id:'aug',name:'Augmented',symbol:'aug',intervals:[0,4,8]},
+        {id:'dim',name:'Diminished',symbol:'dim',intervals:[0,3,6]},
+        {id:'major7',name:'Major 7',symbol:'maj7',intervals:[0,4,7,11]},
+        {id:'dom7',name:'Dominant 7',symbol:'7',intervals:[0,4,7,10]},
+        {id:'minor7',name:'Minor 7',symbol:'m7',intervals:[0,3,7,10]},
+        {id:'minorMaj7',name:'Minor (maj7)',symbol:'m(maj7)',intervals:[0,3,7,11]},
+        {id:'halfDim',name:'Half-diminished',symbol:'m7♭5',intervals:[0,3,6,10]},
+        {id:'dim7',name:'Diminished 7',symbol:'dim7',intervals:[0,3,6,9]},
+        {id:'six',name:'Sixth',symbol:'6',intervals:[0,4,7,9]},
+        {id:'minor6',name:'Minor 6',symbol:'m6',intervals:[0,3,7,9]},
+        {id:'add9',name:'Add9',symbol:'add9',intervals:[0,4,7,2]},
+        {id:'madd9',name:'Minor add9',symbol:'m(add9)',intervals:[0,3,7,2]},
+        {id:'six9',name:'Six-nine',symbol:'6/9',intervals:[0,4,7,9,2]},
+        {id:'minor69',name:'Minor six-nine',symbol:'m6/9',intervals:[0,3,7,9,2]},
+        {id:'sevenSus4',name:'7sus4',symbol:'7sus4',intervals:[0,5,7,10]},
+        {id:'nine',name:'Nine',symbol:'9',intervals:[0,4,7,10,2]},
+        {id:'minor9',name:'Minor 9',symbol:'m9',intervals:[0,3,7,10,2]},
+        {id:'maj9',name:'Major 9',symbol:'maj9',intervals:[0,4,7,11,2]},
+        {id:'aug7',name:'Augmented 7',symbol:'+7',intervals:[0,4,8,10]}
+      ];
+
+      // Clean intervals and add helpers
+      LIBRARY.forEach(chord=>{
+        chord.normalized=Array.from(new Set(chord.intervals.map(n=>((n%12)+12)%12))).sort((a,b)=>a-b);
+        chord.size=chord.normalized.length;
+      });
+
+      const board=document.getElementById('board');
+      const tuningPanel=document.getElementById('tuningPanel');
+      const stringCountInput=document.getElementById('stringCount');
+      const applyBtn=document.getElementById('applyStrings');
+      const labelsSel=document.getElementById('labels');
+      const clearBtn=document.getElementById('clearSelection');
+      const summaryEl=document.getElementById('selectionSummary');
+      const exactSection=document.getElementById('exactSection');
+      const potentialSection=document.getElementById('potentialSection');
+      const exactList=document.getElementById('exactList');
+      const potentialList=document.getElementById('potentialList');
+      const statusEl=document.getElementById('status');
+
+      const t=(key,fallback)=> (window.ReI18n ? ReI18n.t(key,fallback) : (fallback||key));
+      const format=(template, values)=> template.replace(/\{(\w+)\}/g, (_,k)=> (values && values[k]!=null) ? values[k] : '');
+
+      function loadState(){
+        try{
+          const raw=localStorage.getItem(STORAGE_KEY);
+          if(!raw) return null;
+          const data=JSON.parse(raw);
+          if(!data || typeof data!=='object') return null;
+          return data;
+        }catch(err){ return null; }
+      }
+
+      function saveState(){
+        const plain=Object.assign({}, state, { selections: serializeSelections() });
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(plain)); }
+        catch(err){ /* ignore */ }
+      }
+
+      function defaultState(){
+        return { strings:6, tuning:DEFAULT_TUNING.slice(), labels:'notes', selections:{} };
+      }
+
+      const stored=loadState();
+      const state=Object.assign(defaultState(), stored || {});
+
+      function serializeSelections(){
+        const obj={};
+        for(let i=0;i<state.strings;i++){
+          const set=state.selections && state.selections[i];
+          if(set && set.size){ obj[i]=Array.from(set); }
+        }
+        return obj;
+      }
+
+      function ensureSelectionSets(){
+        if(!state.selections || typeof state.selections!=='object') state.selections={};
+        for(let i=0;i<state.strings;i++){
+          const current=state.selections[i];
+          if(current instanceof Set) continue;
+          state.selections[i]=new Set(Array.isArray(current)?current:[]);
+        }
+        const keys=Object.keys(state.selections);
+        keys.forEach(k=>{ const idx=parseInt(k,10); if(idx>=state.strings){ delete state.selections[k]; }});
+      }
+
+      function ensureTuningLen(n){
+        const defaults=['E','B','G','D','A','E','B','F#','C#','G#'];
+        if(!Array.isArray(state.tuning)) state.tuning=DEFAULT_TUNING.slice();
+        while(state.tuning.length<n){
+          const next=defaults[state.tuning.length] || state.tuning[state.tuning.length-1] || 'E';
+          state.tuning.push(next);
+        }
+        if(state.tuning.length>n) state.tuning=state.tuning.slice(0,n);
+      }
+
+      ensureTuningLen(state.strings);
+      ensureSelectionSets();
+
+      stringCountInput.value=state.strings;
+      labelsSel.value=state.labels || 'notes';
+
+      function cycle(note, step){
+        const idx=NOTE_TO_PC[note];
+        const next=((idx||0)+step+12)%12;
+        return NOTES[next];
+      }
+
+      function renderTuningEditor(){
+        ensureTuningLen(state.strings);
+        ensureSelectionSets();
+        let html='';
+        for(let i=0;i<state.strings;i++){
+          const note=state.tuning[i] || 'E';
+          const opts=NOTES.map(n=>`<option value="${n}" ${n===note?'selected':''}>${n}</option>`).join('');
+          const nLabel=format(t('decoder_stringset','String {n}'),{n:i+1});
+          const lowerLabel=format(t('decoder_lower','Lower string {n}'),{n:i+1});
+          const raiseLabel=format(t('decoder_raise','Raise string {n}'),{n:i+1});
+          const setLabel=format(t('decoder_set_note','Set note for string {n}'),{n:i+1});
+          html+=`<div class="string-card">`+
+            `<div style="font-size:12px;opacity:.8;margin-bottom:6px;">${nLabel}</div>`+
+            `<div class="row" style="gap:6px;">`+
+              `<button data-idx="${i}" data-act="down" title="${lowerLabel}" aria-label="${lowerLabel}">−</button>`+
+              `<div class="open-note" style="min-width:44px;text-align:center;">${note}</div>`+
+              `<button data-idx="${i}" data-act="up" title="${raiseLabel}" aria-label="${raiseLabel}">+</button>`+
+              `<select data-idx="${i}" data-act="set" style="flex:1;min-width:0;" aria-label="${setLabel}">${opts}</select>`+
+            `</div>`+
+          `</div>`;
+        }
+        tuningPanel.innerHTML=html;
+        tuningPanel.querySelectorAll('button').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            const idx=parseInt(btn.dataset.idx,10);
+            if(Number.isNaN(idx)) return;
+            const up=btn.dataset.act==='up';
+            state.tuning[idx]=cycle(state.tuning[idx]||'E', up?+1:-1);
+            saveState();
+            renderTuningEditor();
+            renderBoard();
+            analyze();
+          });
+        });
+        tuningPanel.querySelectorAll('select').forEach(sel=>{
+          sel.addEventListener('change',()=>{
+            const idx=parseInt(sel.dataset.idx,10);
+            if(Number.isNaN(idx)) return;
+            state.tuning[idx]=sel.value;
+            saveState();
+            renderBoard();
+            analyze();
+          });
+        });
+      }
+
+      function isSelected(stringIdx, fret){
+        const set=state.selections[stringIdx];
+        return set && set.has(fret);
+      }
+
+      function toggleSelection(stringIdx, fret){
+        ensureSelectionSets();
+        const set=state.selections[stringIdx];
+        if(set.has(fret)) set.delete(fret); else set.add(fret);
+        saveState();
+        renderBoard();
+        analyze();
+      }
+
+      const markers=new Set([3,5,7,9,12,15,17,19,21,24]);
+
+      function renderBoard(){
+        ensureTuningLen(state.strings);
+        ensureSelectionSets();
+        board.innerHTML='';
+        const openWord=t('decoder_open','open');
+        for(let s=0;s<state.strings;s++){
+          const open=state.tuning[s] || 'E';
+          const basePc=NOTE_TO_PC[open] ?? 0;
+          const stringNumber=s+1;
+
+          // Nut / open string
+          const nutCell=document.createElement('div');
+          nutCell.className='cell nut';
+          const nutBtn=document.createElement('button');
+          nutBtn.type='button';
+          nutBtn.className='note-btn';
+          nutBtn.dataset.string=String(s);
+          nutBtn.dataset.fret='0';
+          nutBtn.dataset.pc=String(basePc);
+          nutBtn.textContent=state.labels==='off' ? '' : open;
+          nutBtn.setAttribute('aria-label', format(t('decoder_note_aria','String {string}, fret {fret}: {note}'), { string: stringNumber, fret: openWord, note: open }));
+          if(isSelected(s,0)) nutBtn.classList.add('selected');
+          nutCell.appendChild(nutBtn);
+          board.appendChild(nutCell);
+
+          for(let f=1;f<=MAX_FRETS;f++){
+            const cell=document.createElement('div');
+            cell.className='cell fret';
+            const pc=(basePc+f)%12;
+            const btn=document.createElement('button');
+            btn.type='button';
+            btn.className='note-btn';
+            btn.dataset.string=String(s);
+            btn.dataset.fret=String(f);
+            btn.dataset.pc=String(pc);
+            const note=NOTES[pc];
+            if(state.labels==='notes') btn.textContent=note;
+            const ariaLabel=format(t('decoder_note_aria','String {string}, fret {fret}: {note}'), { string: stringNumber, fret: f, note });
+            btn.setAttribute('aria-label', ariaLabel);
+            if(isSelected(s,f)) btn.classList.add('selected');
+            cell.appendChild(btn);
+            if(s===state.strings-1){
+              const num=document.createElement('div');
+              num.className='fret-number';
+              num.textContent=String(f);
+              cell.appendChild(num);
+              if(markers.has(f)){
+                if(f===12 || f===24){
+                  const marker=document.createElement('div');
+                  marker.className='pos-marker double';
+                  marker.innerHTML='<i></i><i></i>';
+                  cell.appendChild(marker);
+                }else{
+                  const marker=document.createElement('div');
+                  marker.className='pos-marker';
+                  cell.appendChild(marker);
+                }
+              }
+            }
+            board.appendChild(cell);
+          }
+        }
+      }
+
+      board.addEventListener('click', ev=>{
+        const btn=ev.target.closest('.note-btn');
+        if(!btn) return;
+        const stringIdx=parseInt(btn.dataset.string,10);
+        const fret=parseInt(btn.dataset.fret,10);
+        if(Number.isNaN(stringIdx) || Number.isNaN(fret)) return;
+        toggleSelection(stringIdx, fret);
+      });
+
+      applyBtn.addEventListener('click',()=>{
+        let n=parseInt(stringCountInput.value,10);
+        if(Number.isNaN(n)) n=6;
+        n=Math.max(3, Math.min(8, n));
+        state.strings=n;
+        ensureTuningLen(n);
+        ensureSelectionSets();
+        stringCountInput.value=String(n);
+        saveState();
+        renderTuningEditor();
+        renderBoard();
+        analyze();
+      });
+
+      labelsSel.addEventListener('change',()=>{
+        state.labels=labelsSel.value;
+        saveState();
+        renderBoard();
+      });
+
+      clearBtn.addEventListener('click',()=>{
+        ensureSelectionSets();
+        for(let i=0;i<state.strings;i++){ state.selections[i].clear(); }
+        saveState();
+        renderBoard();
+        analyze();
+      });
+
+      if(window.ReI18n){
+        ReI18n.onChange(()=>{
+          renderTuningEditor();
+          renderBoard();
+          analyze();
+        });
+      }
+
+      function gatherSelection(){
+        ensureSelectionSets();
+        const notes=[];
+        for(let s=0;s<state.strings;s++){
+          const set=state.selections[s];
+          if(!set || !set.size) continue;
+          const open=state.tuning[s] || 'E';
+          const basePc=NOTE_TO_PC[open] ?? 0;
+          Array.from(set).sort((a,b)=>a-b).forEach(f=>{
+            const pc=(basePc+f)%12;
+            notes.push({string:s,fret:f,pc,note:NOTES[pc]});
+          });
+        }
+        return notes;
+      }
+
+      function uniqueSortedPcs(notes){
+        const set=new Set(notes.map(n=>n.pc));
+        return Array.from(set).sort((a,b)=>a-b);
+      }
+
+      function formatNoteList(list){
+        return list.join(', ');
+      }
+
+      function analyze(){
+        const selection=gatherSelection();
+        const uniquePcs=uniqueSortedPcs(selection);
+        if(!selection.length){
+          summaryEl.textContent=t('decoder_summary_none','No notes selected yet.');
+          exactSection.hidden=true;
+          potentialSection.hidden=true;
+          statusEl.hidden=false;
+          statusEl.textContent=t('decoder_empty','Mark notes on the fretboard to see matching chords.');
+          return;
+        }
+
+        const openWord=t('decoder_open','open');
+        const orderedByPitch=selection.map(n=>{
+          const note=NOTES[n.pc];
+          const position = n.fret === 0 ? openWord : format(t('decoder_fret_label','fret {n}'), { n: n.fret });
+          return format(t('decoder_summary_item','String {string}: {note} ({position})'), {
+            string: n.string + 1,
+            note,
+            position
+          });
+        });
+        const summaryText=format(t('decoder_summary','Selected notes: {notes}'), { notes: formatNoteList(orderedByPitch) });
+        const summaryUnique=format(t('decoder_summary_unique','Unique pitch classes: {pcs}'), { pcs: formatNoteList(uniquePcs.map(pc=>NOTES[pc])) });
+        summaryEl.innerHTML=`<strong>${summaryText}</strong><br>${summaryUnique}`;
+
+        const exact=[];
+        const partial=[];
+
+        uniquePcs.forEach(rootPc=>{
+          const relativeSet=new Set(uniquePcs.map(pc=>((pc-rootPc+12)%12)));
+          LIBRARY.forEach(chord=>{
+            const missing=chord.normalized.filter(intv=>!relativeSet.has(intv));
+            const extras=Array.from(relativeSet).filter(intv=>!chord.normalized.includes(intv));
+            const entry={ root: rootPc, chord, missing, extras };
+            if(missing.length===0){ exact.push(entry); }
+            else if(relativeSet.size>=2 && missing.length<chord.normalized.length && missing.length<=2){ partial.push(entry); }
+          });
+        });
+
+        const dedupe=(list)=>{
+          const seen=new Set();
+          return list.filter(item=>{
+            const key=`${item.root}-${item.chord.id}`;
+            if(seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        };
+
+        const sortResults=(list)=>{
+          return list.sort((a,b)=>{
+            const missA=a.missing.length, missB=b.missing.length;
+            if(missA!==missB) return missA-missB;
+            const extraA=a.extras.length, extraB=b.extras.length;
+            if(extraA!==extraB) return extraA-extraB;
+            if(b.chord.size!==a.chord.size) return b.chord.size-a.chord.size;
+            if(a.root!==b.root) return a.root-b.root;
+            return a.chord.name.localeCompare(b.chord.name);
+          });
+        };
+
+        const exactResults=sortResults(dedupe(exact));
+        const partialResults=sortResults(dedupe(partial));
+
+        function describeIntervals(rootPc, intervals){
+          return intervals.map(intv=>{
+            const label=DEGREE_LABEL[intv] || (`+${intv}`);
+            const note=NOTES[(rootPc+intv)%12];
+            return `${label} (${note})`;
+          });
+        }
+
+        function describeChord(rootPc, chord){
+          const symbol=chord.symbol;
+          const rootName=NOTES[rootPc];
+          return rootName + symbol;
+        }
+
+        function renderList(list, container, showMissing){
+          container.innerHTML='';
+          list.forEach(item=>{
+            const li=document.createElement('li');
+            li.className='result-card';
+            const title=document.createElement('strong');
+            title.textContent=describeChord(item.root, item.chord);
+            li.appendChild(title);
+
+            const noteOrder=uniquePcs
+              .slice()
+              .sort((a,b)=>((a-item.root+12)%12)-((b-item.root+12)%12))
+              .map(pc=>NOTES[pc]);
+
+            const meta=document.createElement('div');
+            meta.className='result-meta';
+            meta.innerHTML=`<span>${item.chord.name}</span><span>•</span><span>${noteOrder.join(', ')}</span>`;
+            li.appendChild(meta);
+
+            if(item.extras.length){
+              const extras=document.createElement('div');
+              extras.className='result-extra';
+              const tones=describeIntervals(item.root, item.extras).join(', ');
+              extras.textContent=format(t('decoder_extras','Contains extra tones: {tones}'), { tones });
+              li.appendChild(extras);
+            }
+            if(showMissing && item.missing.length){
+              const miss=document.createElement('div');
+              miss.className='result-extra';
+              const missingDegrees=item.missing.map(intv=>DEGREE_LABEL[intv] || (`+${intv}`)).join(', ');
+              const missingNotes=item.missing.map(intv=>NOTES[(item.root+intv)%12]).join(', ');
+              miss.textContent=format(t('decoder_missing','Add {missing} ({notes})'), { missing: missingDegrees, notes: missingNotes });
+              li.appendChild(miss);
+            }
+
+            container.appendChild(li);
+          });
+        }
+
+        if(exactResults.length){
+          exactSection.hidden=false;
+          renderList(exactResults, exactList, false);
+        }else{
+          exactSection.hidden=true;
+          exactList.innerHTML='';
+        }
+
+        if(partialResults.length){
+          potentialSection.hidden=false;
+          renderList(partialResults, potentialList, true);
+        }else{
+          potentialSection.hidden=true;
+          potentialList.innerHTML='';
+        }
+
+        if(exactResults.length || partialResults.length){
+          statusEl.hidden=true;
+        }else{
+          statusEl.hidden=false;
+          statusEl.textContent=t('decoder_nomatch','No direct matches yet — try adding or adjusting notes.');
+        }
+      }
+
+      renderTuningEditor();
+      renderBoard();
+      analyze();
+    })();
+  </script>
+</body>
+</html>
