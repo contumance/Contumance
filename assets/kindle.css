@@ -390,9 +390,27 @@ body.home .item .meta {
 }
 
 body.home footer {
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   margin-top: clamp(3rem, 8vh, 4.5rem);
+  padding: clamp(1.6rem, 5vw, 2.4rem);
+  background: color-mix(in oklab, var(--paper) 90%, var(--accent) 10%);
+  border-radius: calc(var(--radius) * 0.9);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .12);
+}
+
+html.theme-dark body.home footer {
+  background: color-mix(in oklab, var(--accent) 60%, var(--paper) 40%);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, .55);
+  border: 1px solid color-mix(in oklab, var(--accent) 65%, transparent 35%);
+}
+
+html.theme-dark body.home footer .note {
+  color: color-mix(in oklab, var(--ink) 78%, var(--muted) 22%);
+}
+
+html.theme-dark body.home footer .byline {
+  color: color-mix(in oklab, var(--ink) 70%, var(--muted) 30%);
 }
 
 @media (max-width: 900px) {
