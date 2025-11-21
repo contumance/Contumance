@@ -3,135 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mapa de Notas – Rango de Instrumentos</title>
+  <title>Mapa de Notas – HEXES</title>
   <style>
     body {
-      background: #0b0b0b;
-      color: #e0e0e0;
-      font-family: Arial, sans-serif;
       margin: 0;
+      background: #0b0b0b;
+      color: #e6e6e6;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    header, footer {
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+    }
+
+    footer {
+      border-top: 1px solid #222;
+      border-bottom: none;
+      margin-top: 40px;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin: 30px 0;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
       padding: 20px;
     }
-    h1 {
-      text-align: center;
-    }
-    .chart {
-      display: grid;
-      grid-template-columns: 100px repeat(37, 1fr);
-      gap: 2px;
-      margin-top: 40px;
-      font-size: 12px;
-    }
-    .note-label {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      text-align: center;
-      font-size: 10px;
-      color: #777;
-    }
-    .instrument-row {
-      display: contents;
-    }
-    .instrument-name {
+
+    canvas {
+      width: 100%;
+      max-width: 900px;
+      height: 480px;
       background: #111;
-      padding: 6px;
-      border-right: 1px solid #333;
-      font-weight: bold;
-    }
-    .cell {
-      height: 22px;
-      background: #1a1a1a;
-    }
-    .active {
-      background: #6a1b9a;
-    }
-    .reference {
-      background: #283593;
+      border: 1px solid #333;
+      display: block;
+      margin: auto;
     }
   </style>
 </head>
 <body>
-  <h1>Mapa de Notas – Rango y Afinaciones de Guitarra y Bajo</h1>
-  <p>Visualización simple del rango de notas para guitarras y bajos en afinación estándar, drop y afinaciones icónicas.</p>
 
-  <div id="chart" class="chart"></div>
+<header>
+  <img src="logo_hexes.png" alt="HEXES Logo" height="60" />
+</header>
 
-  <script>
-    // Construcción de las notas desde E0 hasta G5
-    const notes = [
-      "E0","F0","F#0","G0","G#0","A0","A#0","B0",
-      "C1","C#1","D1","D#1","E1","F1","F#1","G1","G#1","A1","A#1","B1",
-      "C2","C#2","D2","D#2","E2","F2","F#2","G2","G#2","A2","A#2","B2",
-      "C3","C#3","D3","D#3","E3","F3","F#3","G3","G#3","A3","A#3","B3",
-      "C4","C#4","D4","D#4","E4","F4","F#4","G4","G#4","A4","A#4","B4",
-      "C5","C#5","D5","D#5","E5","F5","F#5","G5"
-    ];
+<h1>MAPA DE NOTAS – RANGOS DE INSTRUMENTOS</h1>
 
-    // Rango de cada instrumento / banda (simplificado)
-    const instruments = [
-      {
-        name: "Guitarra Estándar (EADGBE)",
-        range: ["E2", "E5"],
-      },
-      {
-        name: "Guitarra Drop D (DADGBE)",
-        range: ["D2", "E5"],
-      },
-      {
-        name: "Guitarra 7 cuerdas Estándar (B1–E5)",
-        range: ["B1", "E5"],
-      },
-      {
-        name: "Guitarra 8 cuerdas Meshuggah (F#1–E5)",
-        range: ["F#1", "E5"],
-        ref: true,
-      },
-      {
-        name: "Guitarra 8 cuerdas Animals as Leaders (E1–E5)",
-        range: ["E1", "E5"],
-        ref: true,
-      },
-      {
-        name: "Bajo 4 cuerdas Estándar (E1–G3)",
-        range: ["E1", "G3"],
-      },
-      {
-        name: "Bajo 5 cuerdas (B0–G3)",
-        range: ["B0", "G3"],
-      }
-    ];
+<div class="container">
+  <p>Visualización de rangos típicos de guitarra eléctrica y bajo eléctrico en afinaciones estándar, drop y afinaciones usadas por bandas como Meshuggah y Animals as Leaders.</p>
 
-    const chart = document.getElementById("chart");
+  <canvas id="mapaNotas"></canvas>
+</div>
 
-    // Crear encabezado de notas
-    chart.appendChild(document.createElement("div")); // Celda vacía para columna de nombres
-    notes.forEach(n => {
-      const d = document.createElement("div");
-      d.className = "note-label";
-      d.textContent = n;
-      chart.appendChild(d);
+<footer>
+  HEXES • Santuario del Colapso Industrial
+</footer>
+
+<script>
+  const canvas = document.getElementById('mapaNotas');
+  const ctx = canvas.getContext('2d');
+
+  const notas = [
+    'E0','F0','F#0','G0','G#0','A0','A#0','B0',
+    'C1','C#1','D1','D#1','E1','F1','F#1','G1','G#1','A1','A#1','B1',
+    'C2','C#2','D2','D#2','E2','F2','F#2','G2','G#2','A2','A#2','B2',
+    'C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3',
+    'C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4',
+    'C5','C#5','D5','D#5','E5','F5','F#5','G5'
+  ];
+
+  const rangos = [
+    { nombre: 'Guitarra Estándar (EADGBE)', min: 'E2', max: 'E5', color: '#7aa0ff' },
+    { nombre: 'Guitarra Drop D', min: 'D2', max: 'E5', color: '#5fb7ff' },
+    { nombre: 'Guitarra 7 cuerdas (B estándar)', min: 'B1', max: 'E5', color: '#ff6f6f' },
+    { nombre: 'Guitarra 8 cuerdas (F# estándar)', min: 'F#1', max: 'E5', color: '#ff924f' },
+    { nombre: 'Meshuggah (F drop/Eb drop)', min: 'F1', max: 'D#5', color: '#ff3c00' },
+    { nombre: 'Animals as Leaders (7 y 8 cuerdas)', min: 'F#1', max: 'E5', color: '#00c896' },
+    { nombre: 'Bajo 4 cuerdas (E estándar)', min: 'E1', max: 'G3', color: '#c3ff5f' },
+    { nombre: 'Bajo 5 cuerdas (B estándar)', min: 'B0', max: 'G3', color: '#9aff3c' }
+  ];
+
+  function dibujar() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const margen = 50;
+    const espacio = (w - margen * 2) / (notas.length - 1);
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.font = '12px Segoe UI';
+    ctx.fillStyle = '#ccc';
+
+    notas.forEach((nota, i) => {
+      const x = margen + i * espacio;
+      ctx.fillText(nota, x - 10, h - 10);
     });
 
-    // Crear filas por instrumento
-    instruments.forEach(inst => {
-      const instName = document.createElement("div");
-      instName.className = "instrument-name";
-      instName.textContent = inst.name;
-      chart.appendChild(instName);
+    rangos.forEach(r => {
+      const x1 = margen + notas.indexOf(r.min) * espacio;
+      const x2 = margen + notas.indexOf(r.max) * espacio;
 
-      notes.forEach(n => {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        const start = notes.indexOf(inst.range[0]);
-        const end = notes.indexOf(inst.range[1]);
-        const idx = notes.indexOf(n);
+      ctx.fillStyle = r.color;
+      ctx.globalAlpha = 0.4;
+      ctx.fillRect(x1, 60, x2 - x1, 40);
+      ctx.globalAlpha = 1;
 
-        if (idx >= start && idx <= end) {
-          cell.classList.add(inst.ref ? "reference" : "active");
-        }
-        chart.appendChild(cell);
-      });
+      ctx.fillStyle = '#fff';
+      ctx.fillText(r.nombre, x1, 55);
     });
-  </script>
+  }
+
+  dibujar();
+</script>
+
 </body>
 </html>
